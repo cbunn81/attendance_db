@@ -15,12 +15,12 @@ function create_class_instance($class_id, $date) {
 
   // The class instance exists, return its ID
   if ($result = $stmt->fetch()) {
-    echo "<p>class instance exists</p>";
+    // echo "<p>class instance exists</p>";
     return $result['cinstance_id'];
   }
   // The class instance does not exist, insert it as a row and return the ID
   else {
-    echo "<p>class instance being created</p>";
+    // echo "<p>class instance being created</p>";
     $ins_stmt = $pdo->prepare("INSERT INTO class_instances (class_id, cinstance_date)
       VALUES (:class_id, :date)
       RETURNING cinstance_id");
@@ -47,12 +47,12 @@ function is_graded_class($class_id) {
   while ($result = $stmt->fetch()) {
     // The class type is either Child Group or Child Private
     if (stripos($result['ctype_name'], "child") !== FALSE) {
-      echo "<p>It is a Child class.</p>";
+      // echo "<p>It is a Child class.</p>";
       return TRUE;
     }
     // The class instance does not exist, insert it as a row and return the ID
     else {
-      echo "<p>It is NOT a Child class.</p>";
+      // echo "<p>It is NOT a Child class.</p>";
       return FALSE;
     }
   }

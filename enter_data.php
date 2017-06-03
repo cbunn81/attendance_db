@@ -19,9 +19,11 @@ require_once('../../config/db.inc.php');
 </head>
 <body>
 <?php
+/* Debugging information
 echo "<p>Teacher ID: $teacher_id</p>";
 echo "<p>Date: $date</p>";
 echo "<p>Day of the week: $dow</p>";
+*/
 ?>
 
 <h1>Enter data:</h1>

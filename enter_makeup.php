@@ -23,6 +23,7 @@ require_once('includes/common.inc.php');
 </head>
 <body>
 <?php
+/* Debugging information
 echo "<p>Student ID: $student_id</p>";
 echo "<p>Teacher ID: $teacher_id</p>";
 echo "<p>Original Date: $original_date</p>";
@@ -30,6 +31,7 @@ echo "<p>New Date: $makeup_date</p>";
 //echo "<p>Day of the week: $dow</p>";
 echo "<p>Original Class ID: $original_class_id</p>";
 echo "<p>Makeup Class ID: $makeup_class_id</p>";
+*/
 
 
 // Not yet confirmed
@@ -44,7 +46,7 @@ if(empty($_SESSION["confirm"])) {
   $stmt->execute(['student_id' => $student_id, 'class_id' => $original_class_id]);
   if ($result = $stmt->fetch()) {
     $_SESSION["confirm"] = TRUE;
-    print_r($result);
+    // print_r($result);
     echo "<p>You want to enter a makeup lesson for " . htmlspecialchars($result['student_name'], ENT_QUOTES, 'UTF-8') .
     " (" . htmlspecialchars($result['level_name'], ENT_QUOTES, 'UTF-8') . ") with an original date of " .
     htmlspecialchars($original_date, ENT_QUOTES, 'UTF-8') . "(Class ID " . htmlspecialchars($original_class_id, ENT_QUOTES, 'UTF-8') .
@@ -59,9 +61,9 @@ else {
   // Enter data into Database
   // get class instance IDs from the create_class_instance function, sending class_id and date for each cinstance
   $original_cinstance_id = create_class_instance($original_class_id, $original_date);
-  echo "<p>Original Class Instance ID:" . htmlspecialchars($original_cinstance_id, ENT_QUOTES, 'UTF-8') . "</p>";
+  //echo "<p>Original Class Instance ID:" . htmlspecialchars($original_cinstance_id, ENT_QUOTES, 'UTF-8') . "</p>";
   $makeup_cinstance_id = create_class_instance($makeup_class_id, $makeup_date);
-  echo "<p>Makeup Class Instance ID:" . htmlspecialchars($makeup_cinstance_id, ENT_QUOTES, 'UTF-8') . "</p>";
+  //echo "<p>Makeup Class Instance ID:" . htmlspecialchars($makeup_cinstance_id, ENT_QUOTES, 'UTF-8') . "</p>";
 
   // insert student_id, original_cinstance_id, makeup_cinstance_id and notes
   $ins_stmt = $pdo->prepare("INSERT INTO makeup (student_id, original_cinstance_id, makeup_cinstance_id)

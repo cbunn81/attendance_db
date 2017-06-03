@@ -17,11 +17,13 @@ require_once('../../config/db.inc.php');
 </head>
 <body>
   <?php
+	/* Debugging information
   echo (empty($_SESSION["is_makeup"]) ? "<p>Not makeup</p>" : "<p>Makeup</p>");
   echo (empty($teacher_id) ? "<p>No teacher set</p>" : "<p>Teacher set</p>");
   echo "<p>Teacher ID: $teacher_id</p>";
   echo "<p>Original Date: " . $_SESSION["original_date"] . "</p>";
   echo "<p>Original Class ID: $original_class_id</p>";
+	*/
   ?>
 <h1>Choose a student:</h1>
 <ul>

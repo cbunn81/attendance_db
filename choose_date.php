@@ -17,8 +17,9 @@ $_SESSION["student_id"] = $_GET["sid"] ?? $_SESSION["student_id"] ?? NULL;
 </head>
 <body>
 	<?php
-	echo (empty($_SESSION["is_makeup"]) ? "<p>Not makeup</p>" : "<p>Makeup</p>");
-	echo (empty($_SESSION["teacher_id"]) ? "<p>No teacher set</p>" : "<p>Teacher set</p>");
+	// Debugging information
+	//echo (empty($_SESSION["is_makeup"]) ? "<p>Not makeup</p>" : "<p>Makeup</p>");
+	//echo (empty($_SESSION["teacher_id"]) ? "<p>No teacher set</p>" : "<p>Teacher set</p>");
 	?>
 <h1>Choose a date:</h1>
 <ul>

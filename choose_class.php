@@ -19,11 +19,13 @@ require_once('../../config/db.inc.php');
 </head>
 <body>
 <?php
+/* Debugging information
 echo (empty($is_makeup) ? "<p>Not makeup</p>" : "<p>Makeup</p>");
 echo (empty($teacher_id) ? "<p>No teacher set</p>" : "<p>Teacher set</p>");
 echo "<p>Teacher ID: $teacher_id</p>";
 echo "<p>Date: $date</p>";
 echo "<p>Day of the week: $dow</p>";
+*/
 ?>
 
 <h1>Choose a class:</h1>
