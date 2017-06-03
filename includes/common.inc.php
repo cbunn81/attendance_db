@@ -7,7 +7,7 @@
 // Arguments: class_id, date
 // Returns the id the class_instance
 function create_class_instance($class_id, $date) {
-  require_once('../../../config/db.inc.php');
+  require(dirname(__FILE__).'/../../../config/db.inc.php');
   $stmt = $pdo->prepare("SELECT ci.cinstance_id
   	FROM class_instances ci
   	WHERE ci.class_id = :class_id AND ci.cinstance_date = :date");
@@ -36,7 +36,7 @@ function create_class_instance($class_id, $date) {
 // Arguments: class_id
 // Returns boolean (true if it is an All Stars class, else false)
 function is_graded_class($class_id) {
-  require_once('../../../config/db.inc.php');
+  require(dirname(__FILE__).'/../../../config/db.inc.php');
   $stmt = $pdo->prepare("SELECT ct.ctype_name
   	FROM class_types ct
     INNER JOIN classes c
@@ -63,7 +63,7 @@ function is_graded_class($class_id) {
 // Arguments: none
 // Returns array of strings
 function get_grade_types() {
-  require_once('../../../config/db.inc.php');
+  require(dirname(__FILE__).'/../../../config/db.inc.php');
   // initiate array for grade types
   $grade_types = array();
   $stmt = $pdo->prepare("SELECT gtype_name FROM grade_types");
