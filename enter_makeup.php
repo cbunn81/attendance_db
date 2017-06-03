@@ -74,7 +74,8 @@ else {
   // Display confirmation of success or failure
   if ($result = $ins_stmt->fetch()) {
     // Insert successful, return makeup_id
-    echo "Success! The ID of the makeup information entered is " . htmlspecialchars($result['makeup_id'], ENT_QUOTES, 'UTF-8') . ".";
+    echo "<p>Success! The ID of the makeup information entered is " . htmlspecialchars($result['makeup_id'], ENT_QUOTES, 'UTF-8') . ".</p>";
+		echo "<p>Go back to <a href=\"/\">the start</a>.</p>";
   }
   else {
     // Insert failure, return error
