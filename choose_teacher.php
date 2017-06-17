@@ -8,7 +8,7 @@ require_once('../../config/db.inc.php');
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Attendance System</title>
+	<title>Choose a Teacher</title>
 </head>
 <body>
 <h1>Choose a teacher:</h1>
