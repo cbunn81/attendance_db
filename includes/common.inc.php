@@ -66,11 +66,11 @@ function get_grade_types() {
   require(dirname(__FILE__).'/../../../config/db.inc.php');
   // initiate array for grade types
   $grade_types = array();
-  $stmt = $pdo->prepare("SELECT gtype_name FROM grade_types");
+  $stmt = $pdo->prepare("SELECT gtype_id, gtype_name FROM grade_types ORDER BY gtype_id");
   $stmt->execute();
 
   while($row = $stmt->fetch()) {
-    $grade_types[] = $row['gtype_name'];
+    $grade_types[$row['gtype_id']] = $row['gtype_name'];
   }
   return $grade_types;
 }
