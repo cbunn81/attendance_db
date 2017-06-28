@@ -58,6 +58,26 @@ function is_graded_class($class_id) {
   }
 }
 
+// Check if an attendance is a makeup lesson
+// Arguments: cinstance_id
+// Returns boolean (true if it is a makeup lesson, else false)
+function is_makeup_lesson($cinstance_id) {
+  require(dirname(__FILE__).'/../../../config/db.inc.php');
+  $stmt = $pdo->prepare("SELECT m.makeup_cinstance_id
+  	FROM makeup m
+  	WHERE m.makeup_cinstance_id = :cinstance_id");
+  $stmt->execute(['cinstance_id' => $cinstance_id]);
+
+  if($stmt->fetch())  {
+      // row found
+      return TRUE;
+  }
+  else {
+      // row not found
+      return FALSE;
+  }
+}
+
 
 // Get an array containing the names of all the grade types.
 // Arguments: none

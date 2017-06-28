@@ -57,11 +57,12 @@ foreach($grade_types as $grade_type)
 <?php
 	// Initialize counters and totals
 	$absence_count = 0;
+	$makeup_count = 0;
 	$grades_total = array_fill(1,5,0);
 	$grades_count = array_fill(1,5,0);
 
 	// Create query to get all attendance ids for the student
-	$attendance_stmt = $pdo->prepare("SELECT a.attendance_id, ci.cinstance_date, a.present, a.notes
+	$attendance_stmt = $pdo->prepare("SELECT a.attendance_id, ci.cinstance_id, ci.cinstance_date, a.present, a.notes
 	  FROM attendance a
 	  INNER JOIN class_instances ci ON a.cinstance_id = ci.cinstance_id
 	  WHERE a.student_id = :student_id");
@@ -71,13 +72,21 @@ foreach($grade_types as $grade_type)
 	foreach ($attendance_stmt as $attendance_row)
 	{
 		$attendance_id = $attendance_row['attendance_id'];
+		$cinstance_id = $attendance_row['cinstance_id'];
 		$cinstance_date = $attendance_row['cinstance_date'];
 		$present = $attendance_row['present'] ? "Present" : "Absent";
 		$notes = $attendance_row['notes'];
 
 		echo "<tr>";
 		echo "<td>" .$attendance_row['cinstance_date'] . "</td>";
-		echo "<td>" . $present . "</td>";
+		if (is_makeup_lesson($attendance_row['cinstance_id'])) {
+			$makeup_count++;
+			echo "<td>" . $present . " (Makeup)</td>";
+		}
+		else {
+			echo "<td>" . $present . "</td>";
+		}
+
 
 		// Only query for grades if the student is present
 		if($attendance_row['present']) {
@@ -96,7 +105,7 @@ foreach($grade_types as $grade_type)
 		}
 		// Otherwise, output 5 filler table cells and increment the Absence Counter
 		else {
-			echo "<td></td><td></td><td></td><td></td><td></td>";
+			echo "<td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>";
 			$absence_count++;
 		}
 		echo "<td>" .$attendance_row['notes'] . "</td>";
@@ -117,6 +126,7 @@ foreach($grade_types as $grade_type)
 
 <?php
 	echo "<p>Absences: $absence_count</p>";
+	echo "<p>Makeups: $makeup_count</p>";
 ?>
 
 </body>
