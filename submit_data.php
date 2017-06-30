@@ -33,18 +33,22 @@ $_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
 // Loop through the POST array and create variables
 foreach($_POST['adata'] as $student_id => $student_data) {
-  echo "<h2>Student $student_id</h2>";
+  /* Debugging information
+	echo "<h2>Student $student_id</h2>";
   echo "<pre>";
   print_r($student_data);
   echo "</pre>";
+	*/
   $present = $student_data['present'] ?? FALSE;
-  //settype($present, "boolean");
-  echo "<p>Present: " . var_dump($present) . "</p>";
+
   $notes = $student_data['notes'] ?? NULL;
-  echo "<p>Notes: $notes</p>";
+	/* Debugging information
+	echo "<p>Present: " . var_dump($present) . "</p>";
+	echo "<p>Notes: $notes</p>";
 
   echo "Grade types: ";
   print_r(get_grade_types());
+	*/
 
   // Enter data into Database
   // First, get class instance IDs from the create_class_instance function, sending class_id and date for each cinstance
@@ -99,10 +103,14 @@ foreach($_POST['adata'] as $student_id => $student_data) {
     }
   }
   else {
-    echo "<p>It is not a graded class or the student was absent, don't enter grade information.</p>";
+    echo "<p>It is not a graded class or the student was absent, skipping grade information.</p>";
   }
 
 }
+
+// Links back to enter more classes or go to the beginning
+echo "<p><a href=\"choose_class.php?date=$date\">Enter data for another class on the same day ($date).</a></p>";
+echo "<p><a href=\"index.php\">Go back to the beginning of the system.</a></p>";
 ?>
 
 </body>
