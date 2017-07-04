@@ -29,6 +29,7 @@ else {
 <head>
 	<title>Attendance and Grades for <?php echo $student_name; ?></title>
 	<link rel="stylesheet" type="text/css" media="screen" href="css/main.css">
+	<link rel="stylesheet" type="text/css" media="print" href="css/print.css">
 </head>
 <body>
 <?php
@@ -49,7 +50,6 @@ foreach($grade_types as $grade_type)
 	echo "<td>$grade_type</td>";
 }
 ?>
-			<td>Notes</td>
 		</tr>
 	</thead>
 	<tbody>
@@ -108,7 +108,6 @@ foreach($grade_types as $grade_type)
 			echo "<td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>";
 			$absence_count++;
 		}
-		echo "<td>" .$attendance_row['notes'] . "</td>";
 		echo "</tr>";
 	}
 
@@ -117,17 +116,74 @@ foreach($grade_types as $grade_type)
 	foreach($grade_types as $grade_key => $grade_type) {
 		echo "<td>" . number_format((float)($grades_total[$grade_key] / $grades_count[$grade_key]), 2, '.','')  . "</td>";
 	}
-	echo "<td></td></tr>";
-
+	echo "</tr>";
+	echo "<tr><td colspan=\"2\">Total Absences</td><td colspan=\"5\">$absence_count</td></tr>";
+	echo "<tr><td colspan=\"2\">Total Makeups</td><td colspan=\"5\">$makeup_count</td></tr>";
 ?>
 
 	</tbody>
 </table>
 
-<?php
-	echo "<p>Absences: $absence_count</p>";
-	echo "<p>Makeups: $makeup_count</p>";
-?>
+	<h2>Test #1 Results</h2>
 
+	<table>
+		<thead>
+			<tr>
+				<td>Category</td>
+				<td>Maximum Score</td>
+				<td>Student's score</td>
+				<td>Average Score</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>Listening</td>
+				<td>5</td>
+				<td></td><td></td>
+			</tr>
+			<tr>
+				<td>Reading/Writing</td>
+				<td>5</td>
+				<td></td><td></td>
+			</tr>
+			<tr>
+				<td>Handwriting</td>
+				<td>5</td>
+				<td></td><td></td>
+			</tr>
+			<tr>
+				<td>Speaking - Intonation</td>
+				<td>2</td>
+				<td></td><td></td>
+			</tr>
+			<tr>
+				<td>Speaking - Pronunciation</td>
+				<td>2</td>
+				<td></td><td></td>
+			</tr>
+			<tr>
+				<td>Speaking - Speed</td>
+				<td>2</td>
+				<td></td><td></td>
+			</tr>
+			<tr>
+				<td>Speaking - Accuracy</td>
+				<td>2</td>
+				<td></td><td></td>
+			</tr>
+			<tr>
+				<td>Speaking - Confidence</td>
+				<td>2</td>
+				<td></td><td></td>
+			</tr>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td>Total</td>
+				<td>25</td>
+				<td></td><td></td>
+			</tr>
+		</tfoot>
+	</table>
 </body>
 </html>
