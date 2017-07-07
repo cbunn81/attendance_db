@@ -1,21 +1,16 @@
-@media print {
-	body { -webkit-print-color-adjust: exact; }
-
-	html {
-		font-family: Helvetica, Arial, sans-serif;
-		font-size: 12pt;
-	}
-
-}
-
 html {
 	font-family: Helvetica, Arial, sans-serif;
 }
+
+h1,h2,h3 {
+	text-align: center;
+}
+
 table {
+	margin: auto;
     border-collapse: collapse;
     border-radius: 10px;
 }
-
 table, th, td {
     border: 1px solid black;
     padding: 10px;
