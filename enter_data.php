@@ -48,6 +48,7 @@ echo "<p>Day of the week: $dow</p>";
 $stmt = $pdo->prepare("SELECT p.person_id AS student_id, concat_ws(' ',p.given_name_r, p.family_name_r) AS student_name
 	FROM people p
 	INNER JOIN roster r ON r.person_id = p.person_id AND r.class_id = :class_id AND p.person_id != :teacher_id
+	WHERE :date BETWEEN r.start_date AND r.end_date
 	UNION
 	SELECT p.person_id AS student_id, concat_ws(' ',p.given_name_r, p.family_name_r) AS student_name
 	FROM people p
