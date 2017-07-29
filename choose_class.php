@@ -38,7 +38,7 @@ if(empty($is_makeup)) {
     $stmt = $pdo->prepare("SELECT c.class_id, p.person_id, d.dow_name, left(c.class_time::text, 5) as time, l.level_name, concat_ws(' ',p.given_name_r, p.family_name_r) as name
       	FROM classes c
       	INNER JOIN days_of_week d ON c.dow_id = d.dow_id
-      	INNER JOIN roster r ON c.class_id = r.class_id AND r.person_id = :teacher_id AND d.dow_name = :dow
+      	INNER JOIN roster r ON c.class_id = r.class_id AND r.person_id = :teacher_id AND (d.dow_name = :dow OR d.dow_name = 'Flex')
       	INNER JOIN levels l ON c.level_id = l.level_id
       	INNER JOIN people p ON r.person_id = p.person_id");
     $stmt->execute(['teacher_id' => $teacher_id, 'dow' => $dow]);
