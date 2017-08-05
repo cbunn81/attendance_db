@@ -29,7 +29,9 @@ function get_class_instance($class_id, $date, $create) {
     $result = $ins_stmt->fetch();
     return $result['cinstance_id'];
   }
-  return $cinstance_id;
+  else {
+    return;
+  }
 }
 
 
