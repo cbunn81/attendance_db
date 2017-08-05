@@ -3,10 +3,11 @@
 
 
 
-// Create a row in class_instances table if one doesn't exist with the given class_id and date
-// Arguments: class_id, date
-// Returns the id the class_instance
-function create_class_instance($class_id, $date) {
+// Find the class instance id for a given class_id and Date
+// Optionally, if create is set to TRUE, create a row in class_instances table if one doesn't exist with the given class_id and date
+// Arguments: class_id, date, create (boolean)
+// Returns the id of the class_instance
+function get_class_instance($class_id, $date, $create) {
   require(dirname(__FILE__).'/../../../config/db.inc.php');
   $stmt = $pdo->prepare("SELECT ci.cinstance_id
   	FROM class_instances ci
@@ -19,7 +20,7 @@ function create_class_instance($class_id, $date) {
     return $result['cinstance_id'];
   }
   // The class instance does not exist, insert it as a row and return the ID
-  else {
+  elseif ($create) {
     // echo "<p>class instance being created</p>";
     $ins_stmt = $pdo->prepare("INSERT INTO class_instances (class_id, cinstance_date)
       VALUES (:class_id, :date)
