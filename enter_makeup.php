@@ -59,10 +59,10 @@ if(empty($_SESSION["confirm"])) {
 // confirmed
 else {
   // Enter data into Database
-  // get class instance IDs from the create_class_instance function, sending class_id and date for each cinstance
-  $original_cinstance_id = create_class_instance($original_class_id, $original_date);
+  // get class instance IDs from the get_class_instance function, sending class_id and date for each cinstance
+  $original_cinstance_id = get_class_instance($original_class_id, $original_date, 1);
   //echo "<p>Original Class Instance ID:" . htmlspecialchars($original_cinstance_id, ENT_QUOTES, 'UTF-8') . "</p>";
-  $makeup_cinstance_id = create_class_instance($makeup_class_id, $makeup_date);
+  $makeup_cinstance_id = get_class_instance($makeup_class_id, $makeup_date, 1);
   //echo "<p>Makeup Class Instance ID:" . htmlspecialchars($makeup_cinstance_id, ENT_QUOTES, 'UTF-8') . "</p>";
 
   // insert student_id, original_cinstance_id, makeup_cinstance_id and notes
