@@ -4,6 +4,7 @@ session_start();
 
 // Get session variables
 $is_makeup = $_SESSION["is_makeup"] = $_GET["is_makeup"] ?? $_SESSION["is_makeup"] ?? FALSE;
+$location_id = $_SESSION["location_id"] = $_GET["lid"] ?? $_SESSION["location_id"] ?? NULL;
 $original_date = $_SESSION["original_date"] = $_SESSION["original_date"] ?? NULL;
 $teacher_id = $_SESSION["teacher_id"] = $_GET["tid"] ?? $_SESSION["teacher_id"] ?? NULL;
 $date = $_GET["date"];
@@ -87,13 +88,13 @@ elseif (empty($original_date)) {
 else {
   $stmt = $pdo->prepare("SELECT c.class_id, p.person_id, d.dow_name, left(c.class_time::text, 5) as time, l.level_name, concat_ws(' ',p.given_name_r, p.family_name_r) as name
       FROM classes c
-      INNER JOIN days_of_week d ON c.dow_id = d.dow_id
-      INNER JOIN roster r ON c.class_id = r.class_id AND d.dow_name = :dow
+      INNER JOIN days_of_week d ON c.dow_id = d.dow_id AND d.dow_name = :dow
+      INNER JOIN roster r ON c.class_id = r.class_id AND c.location_id = :location_id
       INNER JOIN levels l ON c.level_id = l.level_id
       INNER JOIN people p ON r.person_id = p.person_id
       INNER JOIN person_types pt ON pt.ptype_name = 'Staff'
       INNER JOIN people2person_types p2pt ON p2pt.ptype_id = pt.ptype_id AND p2pt.person_id = p.person_id");
-  $stmt->execute(['dow' => $dow]);
+  $stmt->execute(['dow' => $dow, 'location_id' => $location_id]);
   if ($stmt->rowCount()) {
     while ($row = $stmt->fetch())
     {
