@@ -22,7 +22,8 @@ require_once('../../config/db.inc.php');
 <ul>
 
 <?php
-  $stmt = $pdo->prepare("SELECT p.person_id, p.given_name_r, p.family_name_r, p.family_name_k, p.given_name_k
+
+  $stmt = $pdo->prepare("SELECT DISTINCT p.person_id, p.given_name_r, p.family_name_r, p.family_name_k, p.given_name_k
   FROM people2person_types p2pt
   INNER JOIN person_types pt ON p2pt.ptype_id = pt.ptype_id AND pt.ptype_name = 'Student'
   INNER JOIN people p ON p2pt.person_id = p.person_id
