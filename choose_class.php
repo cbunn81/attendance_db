@@ -6,7 +6,9 @@ session_start();
 $is_makeup = $_SESSION["is_makeup"] = $_GET["is_makeup"] ?? $_SESSION["is_makeup"] ?? FALSE;
 $location_id = $_SESSION["location_id"] = $_GET["lid"] ?? $_SESSION["location_id"] ?? NULL;
 $original_date = $_SESSION["original_date"] = $_SESSION["original_date"] ?? NULL;
+$original_class_id = $_SESSION["original_class_id"] = $_SESSION["original_class_id"] ?? NULL;
 $teacher_id = $_SESSION["teacher_id"] = $_GET["tid"] ?? $_SESSION["teacher_id"] ?? NULL;
+$student_id = $_SESSION["student_id"] = $_GET["sid"] ?? $_SESSION["student_id"] ?? NULL;
 $date = $_GET["date"];
 $dow = date("l", strtotime($date));
 
@@ -59,6 +61,7 @@ if(empty($is_makeup)) {
     }
 }
 // Start makeup information
+/*
 elseif (empty($original_date)) {
   $stmt = $pdo->prepare("SELECT c.class_id, p.person_id, d.dow_name, left(c.class_time::text, 5) as time, l.level_name, concat_ws(' ',p.given_name_r, p.family_name_r) as name
       FROM classes c
@@ -83,6 +86,31 @@ elseif (empty($original_date)) {
   else {
     echo "<p>No classes found.</p>";
   }
+}
+*/
+// Get the class id for a future absence date
+elseif (empty($original_class_id)) {
+	$stmt = $pdo->prepare("SELECT c.class_id, p.person_id, d.dow_name, left(c.class_time::text, 5) as time, l.level_name, concat_ws(' ',p.given_name_r, p.family_name_r) as name
+			FROM classes c
+			INNER JOIN days_of_week d ON c.dow_id = d.dow_id AND d.dow_name = :dow
+			INNER JOIN roster r ON c.class_id = r.class_id AND r.person_id = :student_id
+			INNER JOIN levels l ON c.level_id = l.level_id
+			INNER JOIN people p ON r.person_id = p.person_id");
+	$stmt->execute(['student_id' => $student_id, 'dow' => $dow]);
+	if ($stmt->rowCount()) {
+		while ($row = $stmt->fetch())
+		{
+				//var_dump($row);
+				echo "<li><a href=\"choose_date.php?is_makeup=true&sid=" . htmlspecialchars($row['person_id'], ENT_QUOTES, 'UTF-8') .
+	      "&ocid=" . htmlspecialchars($row['class_id'], ENT_QUOTES, 'UTF-8') . "&date=" . htmlspecialchars($date, ENT_QUOTES, 'UTF-8') . "\">" .
+	      htmlspecialchars($date, ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($row['class_id'], ENT_QUOTES, 'UTF-8') . " - " .
+	      htmlspecialchars($row['dow_name'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($row['time'], ENT_QUOTES, 'UTF-8') . " - " .
+	      htmlspecialchars($row['level_name'], ENT_QUOTES, 'UTF-8') . "</a></li>\r\n";
+		}
+	}
+	else {
+		echo "<p>No classes found.</p>";
+	}
 }
 // Continue makeup information
 else {

@@ -13,6 +13,7 @@ require_once('../../config/db.inc.php');
 </head>
 <body>
 <h1>Choose an absence:</h1>
+<h3>Here are the absences not already linked to a makeup lesson:</h3>
 <ul>
 
 <?php
@@ -30,7 +31,6 @@ $absence_stmt->execute(['student_id' => $student_id]);
 // **** Make sure to exclude any absences that are already linked to makeups! -DONE
   // makeup.original_cinstance_id != attendance.cinstance_id
 if($absence_count = $absence_stmt->rowCount()) {
-  echo "<h3>Here are the absences available:</h3>";
   foreach ($absence_stmt as $row)
   {
       echo "<li><a href=\"choose_date.php?is_makeup=true&sid=" . htmlspecialchars($row['student_id'], ENT_QUOTES, 'UTF-8') .
@@ -42,16 +42,30 @@ if($absence_count = $absence_stmt->rowCount()) {
 }
 // no absences
 else {
-  echo "<h3>No previous absences, please choose one of the future dates below.</h3>";
+  echo "<p>No previous absences, please choose a future date below.</p>";
 }
 
 // show a few future classes - difficult because no class instances exist yet, so each would need to be created
 // Maybe, instead, just allow the entry of the specific date of the future absence, then confirm it falls on the correct day of the week.
 // Use HTML5 date input
-$future_stmt = $pdo->prepare(" ");
+
 
 ?>
 
 </ul>
+
+<h3>Or you can choose a date in the future:</h3>
+<form action="choose_class.php" method="get">
+  <div>
+    <label for="future_absence">Date of future absence:</label>
+    <input type="date" id="future_absence" name="date">
+<?php
+    echo "<input type=\"hidden\" name=\"is_makeup\" value=\"true\"";
+    echo "<input type=\"hidden\" name=\"sid\" value=\"$student_id\"";
+?>
+  </div>
+  <input type="submit" />
+</form>
+
 </body>
 </html>
