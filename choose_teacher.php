@@ -18,7 +18,8 @@ require_once('../../config/db.inc.php');
 $stmt = $pdo->prepare("SELECT p2pt.person_id, p.given_name_r, p.family_name_r, p2pt.ptype_id, pt.ptype_name
   FROM people2person_types p2pt
   INNER JOIN person_types pt ON p2pt.ptype_id = pt.ptype_id AND pt.ptype_name = 'Staff'
-  INNER JOIN people p ON p2pt.person_id = p.person_id");
+  INNER JOIN people p ON p2pt.person_id = p.person_id
+	ORDER BY p.given_name_r");
 	$stmt->execute();
 foreach ($stmt as $row)
 {
