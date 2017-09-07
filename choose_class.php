@@ -96,7 +96,8 @@ elseif (empty($original_class_id)) {
 			INNER JOIN days_of_week d ON c.dow_id = d.dow_id AND d.dow_name = :dow
 			INNER JOIN roster r ON c.class_id = r.class_id AND r.person_id = :student_id
 			INNER JOIN levels l ON c.level_id = l.level_id
-			INNER JOIN people p ON r.person_id = p.person_id");
+			INNER JOIN people p ON r.person_id = p.person_id
+			ORDER BY c.class_time");
 	$stmt->execute(['student_id' => $student_id, 'dow' => $dow]);
 	if ($stmt->rowCount()) {
 		while ($row = $stmt->fetch())
@@ -122,7 +123,8 @@ else {
       INNER JOIN levels l ON c.level_id = l.level_id
       INNER JOIN people p ON r.person_id = p.person_id
       INNER JOIN person_types pt ON pt.ptype_name = 'Staff'
-      INNER JOIN people2person_types p2pt ON p2pt.ptype_id = pt.ptype_id AND p2pt.person_id = p.person_id");
+      INNER JOIN people2person_types p2pt ON p2pt.ptype_id = pt.ptype_id AND p2pt.person_id = p.person_id
+			ORDER BY c.class_time");
   $stmt->execute(['dow' => $dow, 'location_id' => $location_id]);
   if ($stmt->rowCount()) {
     while ($row = $stmt->fetch())
