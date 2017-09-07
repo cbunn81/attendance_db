@@ -3,6 +3,7 @@
 session_start();
 
 // Session variables
+$location_id = $_SESSION["location_id"] = $_GET["lid"] ?? $_SESSION["location_id"] ?? NULL;
 $teacher_id = $_SESSION["teacher_id"] = $_GET["tid"] ?? $_SESSION["teacher_id"] ?? NULL;
 $original_class_id = $_SESSION["original_class_id"] = $_GET["ocid"] ?? $_SESSION["original_class_id"] ?? NULL;
 $original_date = $_SESSION["original_date"] = $_GET["date"] ?? $_SESSION["original_date"] ?? NULL;
@@ -13,33 +14,30 @@ require_once('../../config/db.inc.php');
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Attendance System</title>
+	<title>Choose a Student</title>
 </head>
 <body>
-  <?php
-	/* Debugging information
-  echo (empty($_SESSION["is_makeup"]) ? "<p>Not makeup</p>" : "<p>Makeup</p>");
-  echo (empty($teacher_id) ? "<p>No teacher set</p>" : "<p>Teacher set</p>");
-  echo "<p>Teacher ID: $teacher_id</p>";
-  echo "<p>Original Date: " . $_SESSION["original_date"] . "</p>";
-  echo "<p>Original Class ID: $original_class_id</p>";
-	*/
-  ?>
+
 <h1>Choose a student:</h1>
 <ul>
 
 <?php
-  $stmt = $pdo->prepare("SELECT p.person_id AS student_id, concat_ws(' ',p.given_name_r, p.family_name_r) AS student_name
-  	FROM people p
-  	INNER JOIN roster r ON r.person_id = p.person_id AND r.class_id = :class_id AND p.person_id != :teacher_id");
-  $stmt->execute(['class_id' => $original_class_id, 'teacher_id' => $teacher_id]);
+
+  $stmt = $pdo->prepare("SELECT DISTINCT p.person_id, p.given_name_r, p.family_name_r, p.family_name_k, p.given_name_k
+  FROM people2person_types p2pt
+  INNER JOIN person_types pt ON p2pt.ptype_id = pt.ptype_id AND pt.ptype_name = 'Student'
+  INNER JOIN people p ON p2pt.person_id = p.person_id
+	INNER JOIN roster r ON p.person_id = r.person_id
+	INNER JOIN classes c ON r.class_id = c.class_id and c.location_id = :location_id
+	ORDER BY p.family_name_r");
+  $stmt->execute(['location_id' => $location_id]);
   if ($stmt->rowCount()) {
   	while ($row = $stmt->fetch())
   	{
 
-      echo "<li><a href=\"choose_date.php?is_makeup=true&tid=" . htmlspecialchars($teacher_id, ENT_QUOTES, 'UTF-8') .
-      "&sid=" . htmlspecialchars($row['student_id'], ENT_QUOTES, 'UTF-8') . "\">" .
-      htmlspecialchars($row['student_id'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($row['student_name'], ENT_QUOTES, 'UTF-8') . "</a></li>";
+      echo "<li><a href=\"choose_absence.php?sid=" . htmlspecialchars($row['person_id'], ENT_QUOTES, 'UTF-8') . "\">" .
+			htmlspecialchars($row['family_name_r'], ENT_QUOTES, 'UTF-8') . ", " . htmlspecialchars($row['given_name_r'], ENT_QUOTES, 'UTF-8') . " (" .
+			htmlspecialchars($row['family_name_k'], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($row['given_name_k'], ENT_QUOTES, 'UTF-8') . ")</a></li>";
 
 
   	}
