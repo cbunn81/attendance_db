@@ -43,7 +43,8 @@ if(empty($is_makeup)) {
       	INNER JOIN days_of_week d ON c.dow_id = d.dow_id
       	INNER JOIN roster r ON c.class_id = r.class_id AND r.person_id = :teacher_id AND (d.dow_name = :dow OR d.dow_name = 'Flex')
       	INNER JOIN levels l ON c.level_id = l.level_id
-      	INNER JOIN people p ON r.person_id = p.person_id");
+      	INNER JOIN people p ON r.person_id = p.person_id
+				ORDER BY c.class_time");
     $stmt->execute(['teacher_id' => $teacher_id, 'dow' => $dow]);
     if ($stmt->rowCount()) {
     	while ($row = $stmt->fetch())
