@@ -24,7 +24,7 @@ $absence_stmt = $pdo->prepare("SELECT a.student_id, concat_ws(' ',p.given_name_r
                                   INNER JOIN classes c ON ci.class_id = c.class_id
                                   INNER JOIN levels l ON c.level_id = l.level_id
                                   INNER JOIN days_of_week dow ON c.dow_id = dow.dow_id
-                                  WHERE a.present = false AND a.cinstance_id NOT IN (SELECT original_cinstance_id FROM makeup)
+                                  WHERE a.present = false AND a.cinstance_id NOT IN (SELECT original_cinstance_id FROM makeup WHERE student_id = :student_id)
                                   ORDER BY ci.cinstance_date, c.class_time");
 $absence_stmt->execute(['student_id' => $student_id]);
 // show previous absences
