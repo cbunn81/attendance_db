@@ -58,7 +58,8 @@ $stmt = $pdo->prepare("SELECT p.person_id AS student_id, concat_ws(' ',p.given_n
 	SELECT p.person_id AS student_id, concat_ws(' ',p.given_name_r, p.family_name_r) AS student_name
 	FROM people p
 	INNER JOIN makeup m ON p.person_id = m.student_id
-	INNER JOIN class_instances ci ON ci.cinstance_id = m.makeup_cinstance_id AND ci.class_id = :class_id AND ci.cinstance_date = :date");
+	INNER JOIN class_instances ci ON ci.cinstance_id = m.makeup_cinstance_id AND ci.class_id = :class_id AND ci.cinstance_date = :date
+	ORDER BY student_name");
 $stmt->execute(['class_id' => $class_id, 'teacher_id' => $teacher_id, 'date' => $date]);
 if ($stmt->rowCount()) {
 	while ($row = $stmt->fetch())

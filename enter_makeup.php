@@ -54,6 +54,9 @@ if(empty($_SESSION["confirm"])) {
     echo "<p><a href=\"" . htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8') . "?mcid=" . htmlspecialchars($makeup_class_id, ENT_QUOTES, 'UTF-8') .
     "&date=" . htmlspecialchars($makeup_date, ENT_QUOTES, 'UTF-8') . "\">Confirm</a></p>";
   }
+	else {
+		echo "SQL error.";
+	}
 }
 
 // confirmed
