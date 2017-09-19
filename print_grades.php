@@ -65,7 +65,8 @@ foreach($grade_types as $grade_type)
 	$attendance_stmt = $pdo->prepare("SELECT a.attendance_id, ci.cinstance_id, ci.cinstance_date, a.present, a.notes
 	  FROM attendance a
 	  INNER JOIN class_instances ci ON a.cinstance_id = ci.cinstance_id
-	  WHERE a.student_id = :student_id");
+	  WHERE a.student_id = :student_id
+		ORDER BY ci.cinstance_date");
 	$attendance_stmt->execute(['student_id' => $student_id]);
 
 	// Loop through getting grade information for each attendance_id and printing them out
@@ -79,7 +80,7 @@ foreach($grade_types as $grade_type)
 
 		echo "<tr>";
 		echo "<td>" .$attendance_row['cinstance_date'] . "</td>";
-		if (is_makeup_lesson($attendance_row['cinstance_id'])) {
+		if (is_makeup_lesson($student_id, $attendance_row['cinstance_id'])) {
 			$makeup_count++;
 			echo "<td>" . $present . " (Makeup)</td>";
 		}
