@@ -79,7 +79,7 @@ foreach($grade_types as $grade_type)
 
 		echo "<tr>";
 		echo "<td>" .$attendance_row['cinstance_date'] . "</td>";
-		if (is_makeup_lesson($attendance_row['cinstance_id'])) {
+		if (is_makeup_lesson($student_id, $attendance_row['cinstance_id'])) {
 			$makeup_count++;
 			echo "<td>" . $present . " (Makeup)</td>";
 		}
