@@ -45,9 +45,11 @@ $grade_types = get_grade_types();
 			<td>Date</td>
 			<td>Present</td>
 <?php
-foreach($grade_types as $grade_type)
-{
-	echo "<td>$grade_type</td>";
+if(is_graded_class($class_id)) {
+	foreach($grade_types as $grade_type)
+	{
+		echo "<td>$grade_type</td>";
+	}
 }
 ?>
 		</tr>
@@ -91,33 +93,39 @@ foreach($grade_types as $grade_type)
 
 		// Only query for grades if the student is present
 		if($attendance_row['present']) {
-			$grades_stmt = $pdo->prepare("SELECT gi.grade, gi.gtype_id
-			  FROM grade_instances gi
-				WHERE gi.attendance_id = :attendance_id
-				ORDER BY gi.gtype_id");
-			$grades_stmt->execute(['attendance_id' => $attendance_id]);
+			if(is_graded_class($class_id)) {
+				$grades_stmt = $pdo->prepare("SELECT gi.grade, gi.gtype_id
+				  FROM grade_instances gi
+					WHERE gi.attendance_id = :attendance_id
+					ORDER BY gi.gtype_id");
+				$grades_stmt->execute(['attendance_id' => $attendance_id]);
 
-			foreach ($grades_stmt as $grades_row) {
-				// Add the current grade the the total for this grade type
-				$grades_total[$grades_row['gtype_id']] += $grades_row['grade'];
-				$grades_count[$grades_row['gtype_id']]++;
-				echo "<td>" . $grades_row['grade'] . "</td>";
+				foreach ($grades_stmt as $grades_row) {
+					// Add the current grade the the total for this grade type
+					$grades_total[$grades_row['gtype_id']] += $grades_row['grade'];
+					$grades_count[$grades_row['gtype_id']]++;
+					echo "<td>" . $grades_row['grade'] . "</td>";
+				}
 			}
 		}
 		// Otherwise, output 5 filler table cells and increment the Absence Counter
 		else {
-			echo "<td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>";
+			if(is_graded_class($class_id)) {
+				echo "<td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>";
+			}
 			$absence_count++;
+		}
+
+		echo "</tr>";
+	}
+	if(is_graded_class($class_id)) {
+		// Output the averages for all grade types
+		echo "<tr><td></td><td>Average</td>";
+		foreach($grade_types as $grade_key => $grade_type) {
+			echo "<td>" . number_format((float)($grades_total[$grade_key] / $grades_count[$grade_key]), 2, '.','')  . "</td>";
 		}
 		echo "</tr>";
 	}
-
-	// Output the averages for all grade types
-	echo "<tr><td></td><td>Average</td>";
-	foreach($grade_types as $grade_key => $grade_type) {
-		echo "<td>" . number_format((float)($grades_total[$grade_key] / $grades_count[$grade_key]), 2, '.','')  . "</td>";
-	}
-	echo "</tr>";
 	echo "<tr><td colspan=\"2\">Total Absences</td><td colspan=\"5\">$absence_count</td></tr>";
 	echo "<tr><td colspan=\"2\">Total Makeups</td><td colspan=\"5\">$makeup_count</td></tr>";
 ?>
@@ -125,6 +133,11 @@ foreach($grade_types as $grade_type)
 	</tbody>
 </table>
 
+
+<?php
+
+if(is_graded_class($class_id)) {
+?>
 	<h2>Test #1 Results</h2>
 
 	<table>
@@ -186,5 +199,8 @@ foreach($grade_types as $grade_type)
 			</tr>
 		</tfoot>
 	</table>
+<?php
+}
+?>
 </body>
 </html>
