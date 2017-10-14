@@ -38,7 +38,8 @@ echo "<p>Makeup Class ID: $makeup_class_id</p>";
 if(empty($_SESSION["confirm"])) {
   echo "<h1>Confirm Makeup Information:</h1>";
   // get the student's ID, student's name, class's ID, level name
-  $stmt = $pdo->prepare("SELECT p.person_id AS student_id, concat_ws(' ',p.given_name_r, p.family_name_r) AS student_name, c.class_id, l.level_name
+	$link = open_database_connection();
+  $stmt = $link->prepare("SELECT p.person_id AS student_id, concat_ws(' ',p.given_name_r, p.family_name_r) AS student_name, c.class_id, l.level_name
   	FROM people p
   	INNER JOIN roster r ON r.person_id = p.person_id AND p.person_id = :student_id AND r.class_id = :class_id
     INNER JOIN classes c ON c.class_id = r.class_id
@@ -57,6 +58,7 @@ if(empty($_SESSION["confirm"])) {
 	else {
 		echo "SQL error.";
 	}
+	close_database_connection($link);
 }
 
 // confirmed
@@ -69,7 +71,8 @@ else {
   //echo "<p>Makeup Class Instance ID:" . htmlspecialchars($makeup_cinstance_id, ENT_QUOTES, 'UTF-8') . "</p>";
 
   // insert student_id, original_cinstance_id, makeup_cinstance_id and notes
-  $ins_stmt = $pdo->prepare("INSERT INTO makeup (student_id, original_cinstance_id, makeup_cinstance_id)
+	$link = open_database_connection();
+  $ins_stmt = $link->prepare("INSERT INTO makeup (student_id, original_cinstance_id, makeup_cinstance_id)
     VALUES (:student_id, :original_cinstance_id, :makeup_cinstance_id)
     RETURNING makeup_id");
   $ins_stmt->execute(['student_id' => $student_id, 'original_cinstance_id' => $original_cinstance_id, 'makeup_cinstance_id' => $makeup_cinstance_id]);
@@ -85,7 +88,7 @@ else {
     echo "Sorry, that didn't work. Error message: ";
     echo implode(":", $ins_stmt->errorInfo());
   }
-
+  close_database_connection($link);
 
 }
 ?>

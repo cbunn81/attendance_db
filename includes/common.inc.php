@@ -8,8 +8,9 @@
 // Arguments: class_id, date, create (boolean)
 // Returns the id of the class_instance
 function get_class_instance($class_id, $date, $create) {
-  require(dirname(__FILE__).'/../../../config/db.inc.php');
-  $stmt = $pdo->prepare("SELECT ci.cinstance_id
+  require_once(dirname(__FILE__).'/../../../config/db.inc.php');
+  $link = open_database_connection();
+  $stmt = $link->prepare("SELECT ci.cinstance_id
   	FROM class_instances ci
   	WHERE ci.class_id = :class_id AND ci.cinstance_date = :date");
   $stmt->execute(['class_id' => $class_id, 'date' => $date]);
@@ -22,7 +23,7 @@ function get_class_instance($class_id, $date, $create) {
   // The class instance does not exist, insert it as a row and return the ID
   elseif ($create) {
     // echo "<p>class instance being created</p>";
-    $ins_stmt = $pdo->prepare("INSERT INTO class_instances (class_id, cinstance_date)
+    $ins_stmt = $link->prepare("INSERT INTO class_instances (class_id, cinstance_date)
       VALUES (:class_id, :date)
       RETURNING cinstance_id");
     $ins_stmt->execute(['class_id' => $class_id, 'date' => $date]);
@@ -32,6 +33,7 @@ function get_class_instance($class_id, $date, $create) {
   else {
     return;
   }
+  close_database_connection($link);
 }
 
 

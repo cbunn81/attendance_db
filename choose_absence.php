@@ -17,7 +17,8 @@ require_once('../../config/db.inc.php');
 <ul>
 
 <?php
-$absence_stmt = $pdo->prepare("SELECT a.student_id, concat_ws(' ',p.given_name_r, p.family_name_r) as name, a.attendance_id, c.class_id, ci.cinstance_id, ci.cinstance_date, dow.dow_name, left(c.class_time::text, 5) as time, l.level_name, a.present
+$link = open_database_connection();
+$absence_stmt = $link->prepare("SELECT a.student_id, concat_ws(' ',p.given_name_r, p.family_name_r) as name, a.attendance_id, c.class_id, ci.cinstance_id, ci.cinstance_date, dow.dow_name, left(c.class_time::text, 5) as time, l.level_name, a.present
                                   FROM attendance a
                                   INNER JOIN people p ON a.student_id = p.person_id AND p.person_id = :student_id
                                   INNER JOIN class_instances ci ON a.cinstance_id = ci.cinstance_id
@@ -44,7 +45,7 @@ if($absence_count = $absence_stmt->rowCount()) {
 else {
   echo "<p>No previous absences, please choose a future date below.</p>";
 }
-
+close_database_connection($link);
 // show a few future classes - difficult because no class instances exist yet, so each would need to be created
 // Maybe, instead, just allow the entry of the specific date of the future absence, then confirm it falls on the correct day of the week.
 // Use HTML5 date input

@@ -16,13 +16,15 @@ require_once('../../config/db.inc.php');
 <ul>
 
 <?php
-$stmt = $pdo->prepare("SELECT location_id, location_name FROM locations ORDER BY location_id");
+$link = open_database_connection();
+$stmt = $link->prepare("SELECT location_id, location_name FROM locations ORDER BY location_id");
 $stmt->execute();
 foreach ($stmt as $row)
 {
     echo "<li><a href=\"choose_student.php?lid=" . htmlspecialchars($row['location_id'], ENT_QUOTES, 'UTF-8') . "\">" .
     htmlspecialchars($row['location_name'], ENT_QUOTES, 'UTF-8') . "</a></li>\r\n";
 }
+close_database_connection($link);
 ?>
 
 </ul>
