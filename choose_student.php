@@ -8,7 +8,7 @@ $teacher_id = $_SESSION["teacher_id"] = $_GET["tid"] ?? $_SESSION["teacher_id"] 
 $original_class_id = $_SESSION["original_class_id"] = $_GET["ocid"] ?? $_SESSION["original_class_id"] ?? NULL;
 $original_date = $_SESSION["original_date"] = $_GET["date"] ?? $_SESSION["original_date"] ?? NULL;
 
-require_once('../../config/db.inc.php');
+require_once('includes/model.php');
 ?>
 
 <!DOCTYPE html>

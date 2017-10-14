@@ -145,4 +145,42 @@ function get_students_for_location($location_id)
     close_database_connection($link);
   	return $students;
 }
+
+function get_student_absences($student_id)
+{
+  $link = open_database_connection();
+  $stmt = $link->prepare("SELECT a.student_id,
+                                        concat_ws(' ',p.given_name_r, p.family_name_r) as name,
+                                        a.attendance_id,
+                                        c.class_id,
+                                        ci.cinstance_id,
+                                        ci.cinstance_date,
+                                        dow.dow_name,
+                                        left(c.class_time::text, 5) as time,
+                                        l.level_name,
+                                        a.present
+                                    FROM attendance a
+                                    INNER JOIN people p ON a.student_id = p.person_id AND p.person_id = :student_id
+                                    INNER JOIN class_instances ci ON a.cinstance_id = ci.cinstance_id
+                                    INNER JOIN classes c ON ci.class_id = c.class_id
+                                    INNER JOIN levels l ON c.level_id = l.level_id
+                                    INNER JOIN days_of_week dow ON c.dow_id = dow.dow_id
+                                    WHERE a.present = false AND a.cinstance_id NOT IN (SELECT original_cinstance_id FROM makeup WHERE student_id = :student_id)
+                                    ORDER BY ci.cinstance_date, c.class_time");
+  $stmt->execute(['student_id' => $student_id]);
+
+  if ($stmt->rowCount()) {
+    $absences = array();
+    foreach ($stmt as $row)
+    {
+      $absences[] = $row;
+    }
+  }
+  else {
+    $absences = FALSE;
+  }
+  close_database_connection($link);
+  return $absences;
+}
+
 ?>

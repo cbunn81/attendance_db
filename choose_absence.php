@@ -3,7 +3,7 @@
 session_start();
 $student_id = $_SESSION["student_id"] = $_GET["sid"] ?? $_SESSION["student_id"] ?? NULL;
 
-require_once('../../config/db.inc.php');
+require_once('includes/model.php');
 ?>
 
 <!DOCTYPE html>
@@ -17,35 +17,23 @@ require_once('../../config/db.inc.php');
 <ul>
 
 <?php
-$link = open_database_connection();
-$absence_stmt = $link->prepare("SELECT a.student_id, concat_ws(' ',p.given_name_r, p.family_name_r) as name, a.attendance_id, c.class_id, ci.cinstance_id, ci.cinstance_date, dow.dow_name, left(c.class_time::text, 5) as time, l.level_name, a.present
-                                  FROM attendance a
-                                  INNER JOIN people p ON a.student_id = p.person_id AND p.person_id = :student_id
-                                  INNER JOIN class_instances ci ON a.cinstance_id = ci.cinstance_id
-                                  INNER JOIN classes c ON ci.class_id = c.class_id
-                                  INNER JOIN levels l ON c.level_id = l.level_id
-                                  INNER JOIN days_of_week dow ON c.dow_id = dow.dow_id
-                                  WHERE a.present = false AND a.cinstance_id NOT IN (SELECT original_cinstance_id FROM makeup WHERE student_id = :student_id)
-                                  ORDER BY ci.cinstance_date, c.class_time");
-$absence_stmt->execute(['student_id' => $student_id]);
 // show previous absences
 // **** Make sure to exclude any absences that are already linked to makeups! -DONE
   // makeup.original_cinstance_id != attendance.cinstance_id
-if($absence_count = $absence_stmt->rowCount()) {
-  foreach ($absence_stmt as $row)
+if ($absences = get_student_absences($student_id)) {
+	foreach ($absences as $absence)
   {
-      echo "<li><a href=\"choose_date.php?is_makeup=true&sid=" . htmlspecialchars($row['student_id'], ENT_QUOTES, 'UTF-8') .
-      "&ocid=" . htmlspecialchars($row['class_id'], ENT_QUOTES, 'UTF-8') . "&date=" . htmlspecialchars($row['cinstance_date'], ENT_QUOTES, 'UTF-8') . "\">" .
-      htmlspecialchars($row['cinstance_date'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($row['class_id'], ENT_QUOTES, 'UTF-8') . " - " .
-      htmlspecialchars($row['dow_name'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($row['time'], ENT_QUOTES, 'UTF-8') . " - " .
-      htmlspecialchars($row['level_name'], ENT_QUOTES, 'UTF-8') . "</a></li>\r\n";
+      echo "<li><a href=\"choose_date.php?is_makeup=true&sid=" . htmlspecialchars($absence['student_id'], ENT_QUOTES, 'UTF-8') .
+      "&ocid=" . htmlspecialchars($absence['class_id'], ENT_QUOTES, 'UTF-8') . "&date=" . htmlspecialchars($absence['cinstance_date'], ENT_QUOTES, 'UTF-8') . "\">" .
+      htmlspecialchars($absence['cinstance_date'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($absence['class_id'], ENT_QUOTES, 'UTF-8') . " - " .
+      htmlspecialchars($absence['dow_name'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($absence['time'], ENT_QUOTES, 'UTF-8') . " - " .
+      htmlspecialchars($absence['level_name'], ENT_QUOTES, 'UTF-8') . "</a></li>\r\n";
   }
 }
 // no absences
 else {
   echo "<p>No previous absences, please choose a future date below.</p>";
 }
-close_database_connection($link);
 // show a few future classes - difficult because no class instances exist yet, so each would need to be created
 // Maybe, instead, just allow the entry of the specific date of the future absence, then confirm it falls on the correct day of the week.
 // Use HTML5 date input
