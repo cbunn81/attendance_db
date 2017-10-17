@@ -1,6 +1,28 @@
 <?php
+// model.php - database interactions
 
-require_once('../../config/db.inc.php');
+function open_database_connection()
+{
+	// Get database credentials
+	require_once('../../config/db.inc.php');
+  // Set driver
+  $dsn = "pgsql:host=$host;dbname=$db";
+  $opt = [
+      PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+      PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+      PDO::ATTR_EMULATE_PREPARES   => false,
+  ];
+
+  // Instantiate the class
+  $link = new PDO($dsn, $user, $pass, $opt);
+
+  return $link;
+}
+
+function close_database_connection(&$link)
+{
+  $link = null;
+}
 
 function get_all_teachers()
 {
