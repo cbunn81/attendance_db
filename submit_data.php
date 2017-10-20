@@ -8,8 +8,7 @@ $date = $_SESSION["date"] = $_GET["date"] ?? $_SESSION["date"] ?? NULL;
 $dow = date("l", strtotime($date));
 $class_id = $_SESSION["class_id"] = $_GET["cid"] ?? $_SESSION["class_id"] ?? NULL;
 
-require_once('../../config/db.inc.php');
-require_once('includes/common.inc.php');
+require_once('includes/model.php');
 ?>
 
 <!DOCTYPE html>

@@ -4,8 +4,7 @@ session_start();
 
 $student_id = $_SESSION["student_id"] = $_GET["sid"] ?? $_SESSION["student_id"] ?? NULL;
 
-require_once('../../config/db.inc.php');
-require_once('includes/common.inc.php');
+require_once('includes/model.php');
 
 // get the student's ID, student's name, class's ID, level name
 $stmt = $pdo->prepare("SELECT p.person_id AS student_id, concat_ws(' ',p.given_name_r, p.family_name_r) AS student_name, c.class_id, l.level_name, l.level_short_code

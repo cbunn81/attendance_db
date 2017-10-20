@@ -1,5 +1,5 @@
 <?php
-require_once('../../config/db.inc.php');
+require_once('includes/model.php');
 ?>
 
 <!DOCTYPE html>
