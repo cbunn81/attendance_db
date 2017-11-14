@@ -65,7 +65,6 @@ if ($students = get_students_for_class($class_id, $teacher_id, $date)) {
 			$notes = $attendance['notes'];
 			if(is_graded_class($attendance['attendance_id'])) {
 				$grades = get_grades();
-				}
 			}
 				// create HTML form with default values from db query
 					// if it's a graded class
