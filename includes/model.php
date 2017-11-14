@@ -351,4 +351,72 @@ function get_grade_types() {
   return $grade_types;
 }
 
+// Select all the students in a class, including makeups. Exclude the teacher explicitly. It would be possible
+//  to exclude based on person_type, but it's also possible that some staff members could be students
+function get_students_for_class($class_id, $teacher_id, $date) {
+	$link = open_database_connection();
+
+	$stmt = $link->prepare("SELECT p.person_id AS student_id,
+																concat_ws(' ',p.given_name_r, p.family_name_r) AS student_name
+													FROM people p
+													INNER JOIN roster r
+														ON r.person_id = p.person_id
+														AND r.class_id = :class_id
+														AND p.person_id != :teacher_id
+													UNION
+													SELECT p.person_id AS student_id,
+																concat_ws(' ',p.given_name_r, p.family_name_r) AS student_name
+													FROM people p
+													INNER JOIN makeup m
+														ON p.person_id = m.student_id
+													INNER JOIN class_instances ci
+														ON ci.cinstance_id = m.makeup_cinstance_id
+														AND ci.class_id = :class_id
+														AND ci.cinstance_date = :date
+													ORDER BY student_name");
+	$stmt->execute(['class_id' => $class_id, 'teacher_id' => $teacher_id, 'date' => $date]);
+
+	if ($stmt->rowCount()) {
+    $students = array();
+    foreach ($stmt as $row)
+    {
+      $students[] = $row;
+    }
+  }
+  else {
+    $students = FALSE;
+  }
+  close_database_connection($link);
+  return $students;
+}
+
+
+// to get attendance, we need the student ID and the class instance ID
+function get_attendance($cinstance_id, $student_id) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT attendance_id, present, notes
+													FROM attendance
+													WHERE cinstance_id = :cinstance_id AND student_id = :student_id");
+	$stmt->execute(['cinstance_id' => $cinstance_id, 'student_id' => $student['student_id']]);
+	$attendance = $stmt->fetch();
+	close_database_connection($link);
+  return $attendance;
+}
+
+// to get the grades, we need the attendance ID
+function get_grades($attendance_id) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT gi.grade, gi.gtype_id, gt.gtype_name
+		FROM grade_instances gi
+		INNER JOIN grade_types gt ON gi.gtype_id = gt.gtype_id
+		WHERE gi.attendance_id = :attendance_id
+		ORDER BY gi.gtype_id");
+	$stmt->execute(['attendance_id' => $attendance_id]);
+	while ($row = $stmt->fetch()) {
+		$grades[strtolower($row['gtype_name'])] = $row['grade'];
+	}
+	close_database_connection($link);
+  return $grades;
+}
+
 ?>
