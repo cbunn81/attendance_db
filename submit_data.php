@@ -32,7 +32,7 @@ $_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
 // Loop through the POST array and create variables
 foreach($_POST['adata'] as $student_id => $student_data) {
-  /* Debugging information
+  /*Debugging information
 	echo "<h2>Student $student_id</h2>";
   echo "<pre>";
   print_r($student_data);
@@ -57,29 +57,23 @@ foreach($_POST['adata'] as $student_id => $student_data) {
   // Second,  set "present" and "notes" in attendance table, along with cinstance_id, teacher_id, student_id
 	// if the data has already been submitted, update the existing record
 	if($student_data['update']) {
-		$attend_stmt = $pdo->prepare("UPDATE attendance SET (teacher_id, present, notes)
-	    = (:teacher_id, :present, :notes)
-			WHERE cinstance_id = :cinstance_id AND student_id = :student_id
-	    RETURNING attendance_id");
+		$attendance_id = update_attendance($cinstance_id, $teacher_id, $student_id, $present, $notes);
 	}
 	// otherwise, insert a new record
 	else {
-	  $attend_stmt = $pdo->prepare("INSERT INTO attendance (cinstance_id, teacher_id, student_id, present, notes)
-	    VALUES (:cinstance_id, :teacher_id, :student_id, :present, :notes)
-	    RETURNING attendance_id");
+	  $attendance_id = add_attendance($cinstance_id, $teacher_id, $student_id, $present, $notes);
 	}
-  $attend_stmt->execute(['cinstance_id' => $cinstance_id, 'teacher_id' => $teacher_id, 'student_id' => $student_id, 'present' => $present, 'notes' => $notes]);
 
   // Display confirmation of success or failure
-  if ($attend_result = $attend_stmt->fetch()) {
+	// XXXX For some reason the attendance ID isn't coming through as an INT. Maybe the database sends it as a string?
+  if (is_int($attendance_id)) {
     // Insert successful, return attendance_id
-    $attendance_id = $attend_result['attendance_id'];
     echo "<p>Success! The ID of the attendance information entered is " . htmlspecialchars($attendance_id, ENT_QUOTES, 'UTF-8') . ".</p>";
   }
   else {
     // Insert failure, return error
     echo "<p>Sorry, that didn't work. Error message: ";
-    echo implode(":", $attend_stmt->errorInfo());
+    echo implode(":", $attendance_id);
     echo "</p>";
   }
 

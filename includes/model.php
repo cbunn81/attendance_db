@@ -397,7 +397,7 @@ function get_attendance($cinstance_id, $student_id) {
 	$stmt = $link->prepare("SELECT attendance_id, present, notes
 													FROM attendance
 													WHERE cinstance_id = :cinstance_id AND student_id = :student_id");
-	$stmt->execute(['cinstance_id' => $cinstance_id, 'student_id' => $student['student_id']]);
+	$stmt->execute(['cinstance_id' => $cinstance_id, 'student_id' => $student_id]);
 	$attendance = $stmt->fetch();
 	close_database_connection($link);
   return $attendance;
@@ -417,6 +417,47 @@ function get_grades($attendance_id) {
 	}
 	close_database_connection($link);
   return $grades;
+}
+
+// Insert a new attendance record, returning its attendance ID
+function add_attendance($cinstance_id, $teacher_id, $student_id, $present, $notes) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("INSERT INTO attendance
+																	(cinstance_id, teacher_id, student_id, present, notes)
+																	VALUES (:cinstance_id, :teacher_id, :student_id, :present, :notes)
+																	RETURNING attendance_id");
+	$stmt->execute(['cinstance_id' => $cinstance_id,
+													'teacher_id' => $teacher_id,
+													'student_id' => $student_id,
+													'present' => $present,
+													'notes' => $notes]);
+	$attendance_id = $stmt->fetchColumn();
+	close_database_connection($link);
+	return $attendance_id;
+}
+
+// Update an existing attendance record, returning its attendance ID
+function update_attendance($cinstance_id, $teacher_id, $student_id, $present, $notes) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("UPDATE attendance
+																	SET (teacher_id, present, notes) = (:teacher_id, :present, :notes)
+																	WHERE cinstance_id = :cinstance_id AND student_id = :student_id
+																	RETURNING attendance_id");
+	$stmt->execute(['cinstance_id' => $cinstance_id,
+													'teacher_id' => $teacher_id,
+													'student_id' => $student_id,
+													'present' => $present,
+													'notes' => $notes]);
+	if ($stmt->rowCount()) {
+		$attendance_id = $stmt->fetchColumn();
+	}
+	else {
+		$attendance_id = $stmt->errorInfo();
+		// Can't seem to be able to check for an error code vs. real data because even the attendance_id comes back as an array
+		//$attendance_id = FALSE;
+	}
+	close_database_connection($link);
+	return $attendance_id;
 }
 
 ?>

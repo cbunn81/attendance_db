@@ -60,7 +60,7 @@ if ($students = get_students_for_class($class_id, $teacher_id, $date)) {
 		// if a class instance exists, then there must have been some attendance data entered
 		if($cinstance_id) {
 			// select the attendance data (present and notes) using cinstance_id and student_id
-			$attendance = get_attendance($cinstance_id, $student_id);
+			$attendance = get_attendance($cinstance_id, $student['student_id']);
 			$present = $attendance['present'];
 			$notes = $attendance['notes'];
 			if(is_graded_class($attendance['attendance_id'])) {
