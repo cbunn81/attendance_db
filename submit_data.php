@@ -65,7 +65,6 @@ foreach($_POST['adata'] as $student_id => $student_data) {
 	}
 
   // Display confirmation of success or failure
-	// XXXX For some reason the attendance ID isn't coming through as an INT. Maybe the database sends it as a string?
   if (is_int($attendance_id)) {
     // Insert successful, return attendance_id
     echo "<p>Success! The ID of the attendance information entered is " . htmlspecialchars($attendance_id, ENT_QUOTES, 'UTF-8') . ".</p>";
@@ -79,45 +78,18 @@ foreach($_POST['adata'] as $student_id => $student_data) {
 
   // Third, set a grade instance for each of the grades (speaking, listening, reading, writing, behavior)
   // ** This is only for students in the All Stars classes, aka with a class type of "Child Group" or "Child Private"
-  if(is_graded_class($class_id) and ($present == TRUE)) {
+  if (is_graded_class($class_id) and ($present == TRUE)) {
     // echo "<p>It is a graded class and student was present. Begin entering grade information.</p>";
-
-		// get all grade instances for the attendance ID returned above, if any exist
-		$grade_check_stmt = $pdo->prepare("SELECT ginstance_id FROM grade_instances WHERE attendance_id = :attendance_id");
-		$grade_check_stmt->execute(['attendance_id' => $attendance_id]);
-
-    $grade_types = get_grade_types();
-    foreach ($grade_types as $grade_type) {
-      // insert into grade_instances where (select gtype_id from grade_types where gtype_name = $grade_type)
-			// if the data has already been submitted, update the existing record
-			if ($grade_check_stmt->rowCount()) {
-				$grade_stmt = $pdo->prepare("UPDATE grade_instances SET grade = :grade
-	        WHERE attendance_id = :attendance_id AND gtype_id = (SELECT gtype_id FROM grade_types WHERE LOWER(gtype_name) = LOWER(:grade_type))
-	        RETURNING ginstance_id");
-			}
-			// otherwise, insert a new record
-			else {
-				$grade_stmt = $pdo->prepare("INSERT INTO grade_instances (gtype_id, attendance_id, grade)
-	        VALUES ((SELECT gtype_id FROM grade_types WHERE LOWER(gtype_name) = LOWER(:grade_type)),
-	                :attendance_id,
-	                :grade)
-	        RETURNING ginstance_id");
-			}
-      $grade_stmt->execute(['grade_type' => $grade_type,'attendance_id' => $attendance_id,'grade' => $student_data[strtolower($grade_type)]]);
-
-      // Display confirmation of success or failure
-      if ($grade_result = $grade_stmt->fetch()) {
-        // Insert successful, return attendance_id
-        $ginstance_id = $grade_result['ginstance_id'];
-        echo "<p>Success! The ID of the grade instance information entered is " . htmlspecialchars($ginstance_id, ENT_QUOTES, 'UTF-8') . ".</p>";
-      }
-      else {
-        // Insert failure, return error
-        echo "<p>Sorry, that didn't work. Error message: ";
-        echo implode(":", $grade_stmt->errorInfo());
-        echo "</p>";
-      }
-    }
+// XXXX getting an error
+		echo $attendance_id;
+		print_r ($student_data);
+		if ($ginstance_id = upsert_grades($attendance_id, $student_data)) {
+			echo "Success. Grades inserted.";
+			echo $ginstance_id;
+		}
+		else {
+			echo "Sorry, the grades were not entered.";
+		}
   }
   else {
     echo "<p>It is not a graded class or the student was absent, skipping grade information.</p>";
