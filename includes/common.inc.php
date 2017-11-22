@@ -40,16 +40,16 @@ function get_class_instance($class_id, $date, $create) {
 // Returns boolean (true if it is an All Stars class, else false)
 function is_graded_class($class_id) {
   require(dirname(__FILE__).'/../../../config/db.inc.php');
-  $stmt = $pdo->prepare("SELECT ct.ctype_name
-  	FROM class_types ct
+  $stmt = $pdo->prepare("SELECT l.level_name
+  	FROM levels l
     INNER JOIN classes c
-    ON ct.ctype_id = c.ctype_id
+    ON l.level_id = c.level_id
   	WHERE c.class_id = :class_id");
   $stmt->execute(['class_id' => $class_id]);
 
   while ($result = $stmt->fetch()) {
     // The class type is either Child Group or Child Private
-    if (stripos($result['ctype_name'], "child") !== FALSE) {
+    if (stripos($result['level_name'], "stars") !== FALSE) {
       // echo "<p>It is a Child class.</p>";
       return TRUE;
     }
