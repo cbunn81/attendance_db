@@ -461,42 +461,29 @@ function update_attendance($cinstance_id, $teacher_id, $student_id, $present, $n
 	return $attendance_id;
 }
 
-// Check if grades for an attendance ID exist
-function grades_exist($attendance_id) {
+// Check if grade for an attendance ID and grade type exist
+function grade_exists($attendance_id, $grade_type) {
 	$link = open_database_connection();
-	$stmt = $link->prepare("SELECT ginstance_id FROM grade_instances WHERE attendance_id = :attendance_id");
-	$stmt->execute(['attendance_id' => $attendance_id]);
+	$stmt = $link->prepare("SELECT ginstance_id
+														FROM grade_instances
+														WHERE attendance_id = :attendance_id
+															AND gtype_id = (SELECT gtype_id
+																								FROM grade_types
+																								WHERE LOWER(gtype_name) = LOWER(:grade_type))");
+	$stmt->execute(['attendance_id' => $attendance_id,'grade_type' => $grade_type]);
 	if ($stmt->rowCount()) {
-		$grades_exist = TRUE;
+		$grade_exists = TRUE;
 	}
 	else {
-		$grades_exist = FALSE;
+		$grade_exists = FALSE;
 	}
 	close_database_connection($link);
-	return $grades_exist;
+	return $grade_exists;
 }
 
 
 // Add a grade
 function add_grade($attendance_id, $grade_type, $grade) {
-	$link = open_database_connection();
-
-	$stmt = $link->prepare("UPDATE grade_instances
-														SET grade = :grade
-														WHERE attendance_id = :attendance_id
-														AND gtype_id =
-															(SELECT gtype_id
-																FROM grade_types
-																WHERE LOWER(gtype_name) = LOWER(:grade_type))
-														RETURNING ginstance_id");
-	$stmt->execute(['grade_type' => $grade_type,'attendance_id' => $attendance_id,'grade' => $grade]);
-
-	close_database_connection($link);
-	return $ginstance_id;
-}
-
-// UPDATE a grade
-function update_grade($attendance_id, $grade_type, $grade) {
 	$link = open_database_connection();
 	$stmt = $link->prepare("INSERT INTO grade_instances (gtype_id,
 																												attendance_id,
@@ -507,6 +494,31 @@ function update_grade($attendance_id, $grade_type, $grade) {
 																				:attendance_id,
 																				:grade)
 																RETURNING ginstance_id");
+
+	$stmt->execute(['grade_type' => $grade_type,'attendance_id' => $attendance_id,'grade' => $grade]);
+	if ($stmt->rowCount()) {
+		$result = $stmt->fetch();
+		// Insert successful, return attendance_id
+		$ginstance_id = $result['ginstance_id'];
+	}
+	else {
+		$ginstance_id = FALSE;
+	}
+	close_database_connection($link);
+	return $ginstance_id;
+}
+
+// UPDATE a grade
+function update_grade($attendance_id, $grade_type, $grade) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("UPDATE grade_instances
+														SET grade = :grade
+														WHERE attendance_id = :attendance_id
+														AND gtype_id =
+															(SELECT gtype_id
+																FROM grade_types
+																WHERE LOWER(gtype_name) = LOWER(:grade_type))
+														RETURNING ginstance_id");
 	$stmt->execute(['grade_type' => $grade_type,'attendance_id' => $attendance_id,'grade' => $grade]);
 
 	if ($stmt->rowCount()) {
@@ -521,17 +533,15 @@ function update_grade($attendance_id, $grade_type, $grade) {
 	return $ginstance_id;
 }
 
-// Get grades for a specific attendance ID
+// Insert or update grades
 function upsert_grades($attendance_id, $student_data) {
 	$link = open_database_connection();
 
 	$grade_types = get_grade_types();
-	print_r ($grade_types);
-	print_r ($student_data);
 	foreach ($grade_types as $grade_type) {
 		// insert into grade_instances where (select gtype_id from grade_types where gtype_name = $grade_type)
 		// if the data has already been submitted, update the existing record
-		if (grades_exist($attendance_id)) {
+		if (grade_exists($attendance_id, $grade_type)) {
 			$grade_result = update_grade($attendance_id, $grade_type, $student_data[strtolower($grade_type)]);
 		}
 		// otherwise, insert a new record
@@ -541,13 +551,13 @@ function upsert_grades($attendance_id, $student_data) {
 
 		// Display confirmation of success or failure
 		if ($grade_result) {
-			echo "<p>Success! The ID of the grade instance information entered is " . htmlspecialchars($grade_result, ENT_QUOTES, 'UTF-8') . ".</p>";
+			//echo "<p>Success! The ID of the grade instance information entered is " . htmlspecialchars($grade_result, ENT_QUOTES, 'UTF-8') . ".</p>";
 		}
 		else {
 			// Insert failure, return error
-			echo "<p>Sorry, that didn't work. Error message: ";
+			//echo "<p>Sorry, that didn't work. Error message: ";
 			// echo implode(":", $stmt->errorInfo());
-			echo "</p>";
+			//echo "</p>";
 		}
 	}
 	close_database_connection($link);

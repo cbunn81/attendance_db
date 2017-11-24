@@ -80,12 +80,10 @@ foreach($_POST['adata'] as $student_id => $student_data) {
   // ** This is only for students in the All Stars classes, aka with a class type of "Child Group" or "Child Private"
   if (is_graded_class($class_id) and ($present == TRUE)) {
     // echo "<p>It is a graded class and student was present. Begin entering grade information.</p>";
-// XXXX getting an error
-		echo $attendance_id;
-		print_r ($student_data);
+
 		if ($ginstance_id = upsert_grades($attendance_id, $student_data)) {
 			echo "Success. Grades inserted.";
-			echo $ginstance_id;
+			//echo $ginstance_id;
 		}
 		else {
 			echo "Sorry, the grades were not entered.";
