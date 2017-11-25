@@ -55,8 +55,8 @@ if ($students = get_students_for_class($class_id, $teacher_id, $date)) {
 	{
 		// unset grades array so that previous grade data doesn't get displayed for absent students
 		$grades = [];
-		// get class instance for the class id and date (without creating)
-		$cinstance_id = get_class_instance($class_id, $date, 0);
+		// get class instance for the class id and date
+		$cinstance_id = get_class_instance($class_id, $date);
 		// if a class instance exists, then there must have been some attendance data entered
 		if($cinstance_id) {
 			// select the attendance data (present and notes) using cinstance_id and student_id

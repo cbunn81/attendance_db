@@ -51,7 +51,7 @@ foreach($_POST['adata'] as $student_id => $student_data) {
 
   // Enter data into Database
   // First, get class instance IDs from the get_class_instance function, sending class_id and date for each cinstance
-  $cinstance_id = get_class_instance($class_id, $date, 1);
+  $cinstance_id = get_class_instance($class_id, $date) ?: create_class_instance($class_id, $date);
   // echo "<p>Class Instance ID:" . htmlspecialchars($cinstance_id, ENT_QUOTES, 'UTF-8') . "</p>";
 
   // Second,  set "present" and "notes" in attendance table, along with cinstance_id, teacher_id, student_id

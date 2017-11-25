@@ -195,7 +195,7 @@ function get_all_students()
 	  										INNER JOIN person_types pt ON p2pt.ptype_id = pt.ptype_id
 	  										WHERE pt.ptype_name = 'Student'
 	  										ORDER BY p.family_name_r");
-	
+
 	if ($stmt->rowCount()) {
 		$students = array();
 		foreach ($stmt as $row)
@@ -276,11 +276,10 @@ function add_makeup_lesson($student_id,$original_cinstance_id,$makeup_cinstance_
   return $result;
 }
 
-// Find the class instance id for a given class_id and Date
-// Optionally, if create is set to TRUE, create a row in class_instances table if one doesn't exist with the given class_id and date
-// Arguments: class_id, date, create (boolean)
+// Find the class instance id for a given class_id and Date, if one exists
+// Arguments: class_id, date
 // Returns the id of the class_instance
-function get_class_instance($class_id, $date, $create) {
+function get_class_instance($class_id, $date) {
   $link = open_database_connection();
   $stmt = $link->prepare("SELECT ci.cinstance_id
   	FROM class_instances ci
@@ -290,24 +289,35 @@ function get_class_instance($class_id, $date, $create) {
   // The class instance exists, return its ID
   if ($result = $stmt->fetch()) {
     // echo "<p>class instance exists</p>";
-	  close_database_connection($link);
-    return $result['cinstance_id'];
+    $cinstance_id = $result['cinstance_id'];
   }
-  // The class instance does not exist, insert it as a row and return the ID
-  elseif ($create) {
-    // echo "<p>class instance being created</p>";
-    $ins_stmt = $link->prepare("INSERT INTO class_instances (class_id, cinstance_date)
-      VALUES (:class_id, :date)
-      RETURNING cinstance_id");
-    $ins_stmt->execute(['class_id' => $class_id, 'date' => $date]);
-    $result = $ins_stmt->fetch();
-	  close_database_connection($link);
-    return $result['cinstance_id'];
-  }
-  else {
-    close_database_connection($link);
-    return;
-  }
+	else {
+		$cinstance_id = FALSE;
+	}
+	close_database_connection($link);
+	return $cinstance_id;
+}
+
+// Create a class instance with the given class_id and date
+// Arguments: class_id, date
+// Returns the id of the class_instance or false if there was an error
+function create_class_instance($class_id, $date) {
+  $link = open_database_connection();
+  // echo "<p>class instance being created</p>";
+  $stmt = $link->prepare("INSERT INTO class_instances (class_id, cinstance_date)
+    VALUES (:class_id, :date)
+    RETURNING cinstance_id");
+  $stmt->execute(['class_id' => $class_id, 'date' => $date]);
+	if ($result = $stmt->fetch()) {
+		// echo "<p>class instance exists</p>";
+		$cinstance_id = $result['cinstance_id'];
+	}
+	else {
+		$cinstance_id = FALSE;
+	}
+	close_database_connection($link);
+	return $cinstance_id;
+
 }
 
 
