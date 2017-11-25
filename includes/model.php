@@ -182,6 +182,34 @@ function get_students_for_location($location_id)
   	return $students;
 }
 
+function get_all_students()
+{
+	$link = open_database_connection();
+	$stmt = $link->query("SELECT p.person_id,
+															 p.given_name_r,
+															 p.family_name_r,
+															 p.family_name_k,
+															 p.given_name_k
+	  										FROM people p
+	  										INNER JOIN people2person_types p2pt ON p.person_id = p2pt.person_id
+	  										INNER JOIN person_types pt ON p2pt.ptype_id = pt.ptype_id
+	  										WHERE pt.ptype_name = 'Student'
+	  										ORDER BY p.family_name_r");
+	
+	if ($stmt->rowCount()) {
+		$students = array();
+		foreach ($stmt as $row)
+		{
+			$students[] = $row;
+		}
+	}
+	else {
+		$students = FALSE;
+	}
+	close_database_connection($link);
+	return $students;
+}
+
 function get_student_absences($student_id)
 {
   $link = open_database_connection();
