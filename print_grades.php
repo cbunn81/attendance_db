@@ -5,22 +5,25 @@ session_start();
 $student_id = $_SESSION["student_id"] = $_GET["sid"] ?? $_SESSION["student_id"] ?? NULL;
 
 require_once('includes/model.php');
+$link = open_database_connection();
 
 // get the student's ID, student's name, class's ID, level name
-$stmt = $pdo->prepare("SELECT p.person_id AS student_id, concat_ws(' ',p.given_name_r, p.family_name_r) AS student_name, c.class_id, l.level_name, l.level_short_code
-	FROM people p
-	INNER JOIN roster r ON r.person_id = p.person_id AND p.person_id = :student_id
-	INNER JOIN classes c ON c.class_id = r.class_id
-	INNER JOIN levels l ON c.level_id = l.level_id");
-$stmt->execute(['student_id' => $student_id]);
-if ($result = $stmt->fetch()) {
-	$student_name = $result['student_name'];
-	$class_id = $result['class_id'];
-	$level_name = $result['level_name'];
-	$level_short_code = $result['level_short_code'];
+/* NOTE - This selects the first class ID, but a few students are enrolled in more than one class
+ 					or have a class in the rosters table that they moved from or quit. The real issue is when
+					there's are multiple classes of different levels. So, either we need separate HTML tables
+					for each enrolled class or some way to keep things straight in the same table. */
+if ($student_info = get_student_info($student_id)) {
+	$student_name = $student_info['student_name'];
 }
 else {
-	echo "Query failed.";
+	echo "Student doesn't exist.";
+}
+if ($class_info = get_current_classes_for_student($student_id)) {
+	$class_id = $class_info['class_id'];
+	$level_name = $class_info['level_name'];
+	$level_short_code = $class_info['level_short_code'];
+}else {
+	echo "Student has no classes.";
 }
 ?>
 
@@ -39,6 +42,7 @@ $grade_types = get_grade_types();
 
 <h1>Attendance and Grades for <?php echo $student_name; ?></h1>
 
+<h2>Level: <?php echo $level_name; ?></h2>
 <table>
 	<thead>
 		<tr>
@@ -65,7 +69,7 @@ if(is_graded_class($class_id)) {
 
 	// Create query to get all attendance ids for the student
 // XXXX - ONLY FOR TEST 2 PERIOD!! - XXXX
-	$attendance_stmt = $pdo->prepare("SELECT a.attendance_id, ci.cinstance_id, ci.cinstance_date, a.present, a.notes
+	$attendance_stmt = $link->prepare("SELECT a.attendance_id, ci.cinstance_id, ci.cinstance_date, a.present, a.notes
 	  FROM attendance a
 	  INNER JOIN class_instances ci ON a.cinstance_id = ci.cinstance_id
 	  WHERE a.student_id = :student_id AND ci.cinstance_date BETWEEN '2017-06-26' AND '2017-09-16'
@@ -95,7 +99,7 @@ if(is_graded_class($class_id)) {
 		// Only query for grades if the student is present
 		if($attendance_row['present']) {
 			if(is_graded_class($class_id)) {
-				$grades_stmt = $pdo->prepare("SELECT gi.grade, gi.gtype_id
+				$grades_stmt = $link->prepare("SELECT gi.grade, gi.gtype_id
 				  FROM grade_instances gi
 					WHERE gi.attendance_id = :attendance_id
 					ORDER BY gi.gtype_id");
@@ -129,6 +133,8 @@ if(is_graded_class($class_id)) {
 	}
 	echo "<tr><td colspan=\"2\">Total Absences</td><td colspan=\"5\">$absence_count</td></tr>";
 	echo "<tr><td colspan=\"2\">Total Makeups</td><td colspan=\"5\">$makeup_count</td></tr>";
+
+	close_database_connection($link);
 ?>
 
 	</tbody>

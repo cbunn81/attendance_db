@@ -74,6 +74,7 @@ function get_classes_for_teacher($teacher_id,$dow,$date)
 	return $classes;
 }
 
+// *** NOTE: should probably refactor using other functions ***
 function get_classes_for_student($student_id,$dow)
 {
   $link = open_database_connection();
@@ -247,6 +248,7 @@ function get_student_absences($student_id)
   return $absences;
 }
 
+// *** NOTE: Should probably refactor this into separate functions ***
 function get_student_and_class_info($student_id,$class_id)
 {
 	$link = open_database_connection();
@@ -600,6 +602,71 @@ function upsert_grades($attendance_id, $student_data) {
 	}
 	close_database_connection($link);
 	return $grade_result;
+}
+
+// Get all the fields for a students
+function get_student_info($student_id) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT p.person_id as student_id,
+															   p.family_name_r,
+															   p.given_name_r,
+															   p.family_name_k,
+															   p.given_name_k,
+															   concat_ws(' ',p.given_name_r, p.family_name_r) AS student_name,
+															   p.dob,
+															   p.start_date,
+															   p.end_date,
+															   g.gender_name,
+															   ARRAY(SELECT ROW(pn.phone_number, pt.ptype_name)
+															   			FROM phone_numbers pn
+															   			INNER JOIN people2phone_numbers p2pn ON pn.phone_id = p2pn.phone_id
+															   			INNER JOIN phone_types pt ON pt.ptype_id = p2pn.ptype_id
+															   			WHERE p2pn.person_id = p.person_id) AS phone_numbers,
+															   ARRAY(SELECT ROW(a.address, at.atype_name)
+															   			FROM addresses a
+															   			INNER JOIN people2addresses p2a ON a.address_id = p2a.address_id
+															   			INNER JOIN address_types at ON at.atype_id = p2a.atype_id
+															   			WHERE p2a.person_id = p.person_id) AS addresses,
+															   ARRAY(SELECT e.email_address
+															   			FROM email_addresses e
+															   			INNER JOIN people2email_addresses p2e ON e.email_address_id = p2e.email_address_id
+															   			WHERE p2e.person_id = p.person_id) AS email_addresses
+															FROM people p
+															INNER JOIN genders g ON p.gender_id = g.gender_id
+															WHERE p.person_id = :student_id;");
+	$stmt->execute(['student_id' => $student_id]);
+	$student_info = $stmt->fetch();
+	close_database_connection($link);
+	return $student_info;
+}
+
+// Get a list of class IDs that the student is currently enrolled in
+function get_current_classes_for_student($student_id) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT c.class_id,
+															   l.level_name,
+																 l.level_short_code,
+																 ct.ctype_name
+														FROM classes c
+														INNER JOIN levels l ON l.level_id = c.level_id
+														INNER JOIN class_types ct ON ct.ctype_id = c.ctype_id
+														INNER JOIN roster r ON r.class_id = c.class_id
+															AND current_date BETWEEN r.start_date AND r.end_date
+														WHERE r.person_id = :student_id;");
+	$stmt->execute(['student_id' => $student_id]);
+	$current_classes = $stmt->fetch();
+	close_database_connection($link);
+	return $current_classes;
+}
+
+// Get all the fields for a class
+function get_class_info($class_id) {
+	$link = open_database_connection();
+	//$stmt = $link->prepare("");
+	//$stmt->execute(['' => $]);
+
+	close_database_connection($link);
+	return $class_info;
 }
 
 ?>
