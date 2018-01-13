@@ -654,7 +654,7 @@ function get_current_classes_for_student($student_id) {
 															AND current_date BETWEEN r.start_date AND r.end_date
 														WHERE r.person_id = :student_id;");
 	$stmt->execute(['student_id' => $student_id]);
-	$current_classes = $stmt->fetch();
+	$current_classes = $stmt->fetchall();
 	close_database_connection($link);
 	return $current_classes;
 }

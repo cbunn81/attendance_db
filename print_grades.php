@@ -5,7 +5,7 @@ session_start();
 $student_id = $_SESSION["student_id"] = $_GET["sid"] ?? $_SESSION["student_id"] ?? NULL;
 
 require_once('includes/model.php');
-$link = open_database_connection();
+
 
 // get the student's ID, student's name, class's ID, level name
 /* NOTE - This selects the first class ID, but a few students are enrolled in more than one class
@@ -18,11 +18,10 @@ if ($student_info = get_student_info($student_id)) {
 else {
 	echo "Student doesn't exist.";
 }
-if ($class_info = get_current_classes_for_student($student_id)) {
-	$class_id = $class_info['class_id'];
-	$level_name = $class_info['level_name'];
-	$level_short_code = $class_info['level_short_code'];
-}else {
+if ($current_classes = get_current_classes_for_student($student_id)) {
+	print_r($current_classes);
+}
+else {
 	echo "Student has no classes.";
 }
 ?>
@@ -41,15 +40,15 @@ $grade_types = get_grade_types();
 ?>
 
 <h1>Attendance and Grades for <?php echo $student_name; ?></h1>
-
-<h2>Level: <?php echo $level_name; ?></h2>
+<?php foreach($current_classes as $class_info): ?>
+<h2>Level: <?php echo $class_info['level_name']; ?></h2>
 <table>
 	<thead>
 		<tr>
 			<td>Date</td>
 			<td>Present</td>
 <?php
-if(is_graded_class($class_id)) {
+if(is_graded_class($class_info['class_id'])) {
 	foreach($grade_types as $grade_type)
 	{
 		echo "<td>$grade_type</td>";
@@ -69,12 +68,14 @@ if(is_graded_class($class_id)) {
 
 	// Create query to get all attendance ids for the student
 // XXXX - ONLY FOR TEST 2 PERIOD!! - XXXX
+	$link = open_database_connection();
 	$attendance_stmt = $link->prepare("SELECT a.attendance_id, ci.cinstance_id, ci.cinstance_date, a.present, a.notes
 	  FROM attendance a
 	  INNER JOIN class_instances ci ON a.cinstance_id = ci.cinstance_id
-	  WHERE a.student_id = :student_id AND ci.cinstance_date BETWEEN '2017-06-26' AND '2017-09-16'
+		INNER JOIN classes c ON c.class_id = ci.class_id
+	  WHERE a.student_id = :student_id AND c.class_id = :class_id AND ci.cinstance_date BETWEEN '2017-06-26' AND '2017-09-16'
 		ORDER BY ci.cinstance_date");
-	$attendance_stmt->execute(['student_id' => $student_id]);
+	$attendance_stmt->execute(['student_id' => $student_id, 'class_id' => $class_info['class_id']]);
 
 	// Loop through getting grade information for each attendance_id and printing them out
 	foreach ($attendance_stmt as $attendance_row)
@@ -98,7 +99,7 @@ if(is_graded_class($class_id)) {
 
 		// Only query for grades if the student is present
 		if($attendance_row['present']) {
-			if(is_graded_class($class_id)) {
+			if(is_graded_class($class_info['class_id'])) {
 				$grades_stmt = $link->prepare("SELECT gi.grade, gi.gtype_id
 				  FROM grade_instances gi
 					WHERE gi.attendance_id = :attendance_id
@@ -115,7 +116,7 @@ if(is_graded_class($class_id)) {
 		}
 		// Otherwise, output 5 filler table cells and increment the Absence Counter
 		else {
-			if(is_graded_class($class_id)) {
+			if(is_graded_class($class_info['class_id'])) {
 				echo "<td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>";
 			}
 			$absence_count++;
@@ -123,7 +124,7 @@ if(is_graded_class($class_id)) {
 
 		echo "</tr>";
 	}
-	if(is_graded_class($class_id)) {
+	if(is_graded_class($class_info['class_id'])) {
 		// Output the averages for all grade types
 		echo "<tr><td></td><td>Average</td>";
 		foreach($grade_types as $grade_key => $grade_type) {
@@ -143,7 +144,7 @@ if(is_graded_class($class_id)) {
 
 <?php
 
-if(is_graded_class($class_id)) {
+if(is_graded_class($class_info['class_id'])) {
 	// Set the average scores for each level - each level has an associative array of scores
 	$averages["AS1"] = array(
 		"listening" => 4.1,
@@ -201,7 +202,7 @@ if(is_graded_class($class_id)) {
 		"total" => 19.0,
 	);
 ?>
-	<h2>Test #2 Results (<?php echo $level_name; ?>)</h2>
+	<h2>Test #2 Results (<?php echo $class_info['level_name']; ?>)</h2>
 
 	<table>
 		<thead>
@@ -217,49 +218,49 @@ if(is_graded_class($class_id)) {
 				<td>Listening</td>
 				<td>5</td>
 				<td></td>
-				<td><?php echo $averages[$level_short_code]["listening"]; ?></td>
+				<td><?php echo $averages[$class_info['level_short_code']]["listening"]; ?></td>
 			</tr>
 			<tr>
 				<td>Reading/Writing</td>
 				<td>5</td>
 				<td></td>
-				<td><?php echo $averages[$level_short_code]["reading"]; ?></td>
+				<td><?php echo $averages[$class_info['level_short_code']]["reading"]; ?></td>
 			</tr>
 			<tr>
 				<td>Handwriting</td>
 				<td>5</td>
 				<td></td>
-				<td><?php echo $averages[$level_short_code]["handwriting"]; ?></td>
+				<td><?php echo $averages[$class_info['level_short_code']]["handwriting"]; ?></td>
 			</tr>
 			<tr>
 				<td>Speaking - Intonation</td>
 				<td>2</td>
 				<td></td>
-				<td><?php echo $averages[$level_short_code]["intonation"]; ?></td>
+				<td><?php echo $averages[$class_info['level_short_code']]["intonation"]; ?></td>
 			</tr>
 			<tr>
 				<td>Speaking - Pronunciation</td>
 				<td>2</td>
 				<td></td>
-				<td><?php echo $averages[$level_short_code]["pronunciation"]; ?></td>
+				<td><?php echo $averages[$class_info['level_short_code']]["pronunciation"]; ?></td>
 			</tr>
 			<tr>
 				<td>Speaking - Speed</td>
 				<td>2</td>
 				<td></td>
-				<td><?php echo $averages[$level_short_code]["speed"]; ?></td>
+				<td><?php echo $averages[$class_info['level_short_code']]["speed"]; ?></td>
 			</tr>
 			<tr>
 				<td>Speaking - Accuracy</td>
 				<td>2</td>
 				<td></td>
-				<td><?php echo $averages[$level_short_code]["accuracy"]; ?></td>
+				<td><?php echo $averages[$class_info['level_short_code']]["accuracy"]; ?></td>
 			</tr>
 			<tr>
 				<td>Speaking - Confidence</td>
 				<td>2</td>
 				<td></td>
-				<td><?php echo $averages[$level_short_code]["confidence"]; ?></td>
+				<td><?php echo $averages[$class_info['level_short_code']]["confidence"]; ?></td>
 			</tr>
 		</tbody>
 		<tfoot>
@@ -267,12 +268,13 @@ if(is_graded_class($class_id)) {
 				<td>Total</td>
 				<td>25</td>
 				<td></td>
-				<td><?php echo $averages[$level_short_code]["total"]; ?></td>
+				<td><?php echo $averages[$class_info['level_short_code']]["total"]; ?></td>
 			</tr>
 		</tfoot>
 	</table>
 <?php
 }
+endforeach;
 ?>
 </body>
 </html>
