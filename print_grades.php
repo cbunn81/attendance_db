@@ -67,13 +67,13 @@ if(is_graded_class($class_info['class_id'])) {
 	$grades_count = array_fill(1,5,0);
 
 	// Create query to get all attendance ids for the student
-// XXXX - ONLY FOR TEST 2 PERIOD!! - XXXX
+// XXXX - ONLY FOR TEST 3 PERIOD!! - XXXX
 	$link = open_database_connection();
 	$attendance_stmt = $link->prepare("SELECT a.attendance_id, ci.cinstance_id, ci.cinstance_date, a.present, a.notes
 	  FROM attendance a
 	  INNER JOIN class_instances ci ON a.cinstance_id = ci.cinstance_id
 		INNER JOIN classes c ON c.class_id = ci.class_id
-	  WHERE a.student_id = :student_id AND c.class_id = :class_id AND ci.cinstance_date BETWEEN '2017-06-26' AND '2017-09-16'
+	  WHERE a.student_id = :student_id AND c.class_id = :class_id AND ci.cinstance_date BETWEEN '2017-09-17' AND '2017-12-16'
 		ORDER BY ci.cinstance_date");
 	$attendance_stmt->execute(['student_id' => $student_id, 'class_id' => $class_info['class_id']]);
 
@@ -202,7 +202,7 @@ if(is_graded_class($class_info['class_id'])) {
 		"total" => 19.0,
 	);
 ?>
-	<h2>Test #2 Results (<?php echo $class_info['level_name']; ?>)</h2>
+	<h2>Test #3 Results (<?php echo $class_info['level_name']; ?>)</h2>
 
 	<table>
 		<thead>
