@@ -63,8 +63,8 @@ if(is_graded_class($class_info['class_id'])) {
 	// Initialize counters and totals
 	$absence_count = 0;
 	$makeup_count = 0;
-	$grades_total = array_fill(1,5,0);
-	$grades_count = array_fill(1,5,0);
+	$grades_total = array_change_key_case(array_fill_keys($grade_types,0), CASE_LOWER);
+	$grades_count = array_change_key_case(array_fill_keys($grade_types,0), CASE_LOWER);
 
 	// Create query to get all attendance ids for the student
 // XXXX - ONLY FOR TEST 3 PERIOD!! - XXXX
@@ -100,17 +100,12 @@ if(is_graded_class($class_info['class_id'])) {
 		// Only query for grades if the student is present
 		if($attendance_row['present']) {
 			if(is_graded_class($class_info['class_id'])) {
-				$grades_stmt = $link->prepare("SELECT gi.grade, gi.gtype_id
-				  FROM grade_instances gi
-					WHERE gi.attendance_id = :attendance_id
-					ORDER BY gi.gtype_id");
-				$grades_stmt->execute(['attendance_id' => $attendance_id]);
-
-				foreach ($grades_stmt as $grades_row) {
+				$grades = get_grades($attendance_id);
+				foreach ($grades as $grade_type => $grade) {
 					// Add the current grade the the total for this grade type
-					$grades_total[$grades_row['gtype_id']] += $grades_row['grade'];
-					$grades_count[$grades_row['gtype_id']]++;
-					echo "<td>" . $grades_row['grade'] . "</td>";
+					$grades_total[$grade_type] += $grade;
+					$grades_count[$grade_type]++;
+					echo "<td>" . $grade . "</td>";
 				}
 			}
 		}
@@ -127,8 +122,9 @@ if(is_graded_class($class_info['class_id'])) {
 	if(is_graded_class($class_info['class_id'])) {
 		// Output the averages for all grade types
 		echo "<tr><td></td><td>Average</td>";
-		foreach($grade_types as $grade_key => $grade_type) {
-			echo "<td>" . number_format((float)($grades_total[$grade_key] / $grades_count[$grade_key]), 2, '.','')  . "</td>";
+		//reset($grade_types);
+		foreach($grade_types as $grade_type) {
+			echo "<td>" . number_format((float)($grades_total[strtolower($grade_type)] / $grades_count[strtolower($grade_type)]), 2, '.','')  . "</td>";
 		}
 		echo "</tr>";
 	}
