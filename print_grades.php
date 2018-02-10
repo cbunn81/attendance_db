@@ -40,13 +40,19 @@ $grade_types = get_grade_types();
 ?>
 
 <h1>Attendance and Grades for <?php echo $student_name; ?></h1>
-<?php foreach($current_classes as $class_info): ?>
+
+<?php
+//Loop through a student's current classes, if there are more than one
+foreach($current_classes as $class_info):
+	?>
+
 <h2>Level: <?php echo $class_info['level_name']; ?></h2>
 <table>
 	<thead>
 		<tr>
 			<td>Date</td>
 			<td>Present</td>
+
 <?php
 if(is_graded_class($class_info['class_id'])) {
 	foreach($grade_types as $grade_type)
@@ -55,6 +61,7 @@ if(is_graded_class($class_info['class_id'])) {
 	}
 }
 ?>
+
 		</tr>
 	</thead>
 	<tbody>
@@ -268,9 +275,11 @@ if(is_graded_class($class_info['class_id'])) {
 			</tr>
 		</tfoot>
 	</table>
+
 <?php
 }
-endforeach;
+endforeach;  // End of loop for current classes
 ?>
+
 </body>
 </html>
