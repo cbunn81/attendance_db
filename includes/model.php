@@ -670,4 +670,28 @@ function get_class_info($class_id) {
 	return $class_info;
 }
 
+// Get the attendance information for a student based on start and end dates
+function get_attendance_from_date_range($student_id, $class_id, $start_date, $end_date) {
+	$link = open_database_connection();
+	//$stmt = $link->prepare("");
+	//$stmt->execute(['' => $]);
+	$stmt = $link->prepare("SELECT a.attendance_id,
+																						ci.cinstance_id,
+																						ci.cinstance_date,
+																						a.present,
+																						a.notes
+	  																			FROM attendance a
+	  																			INNER JOIN class_instances ci ON a.cinstance_id = ci.cinstance_id
+																					INNER JOIN classes c ON c.class_id = ci.class_id
+	  																			WHERE a.student_id = :student_id
+																						AND c.class_id = :class_id
+																						AND ci.cinstance_date BETWEEN :start_date AND :end_date
+																					ORDER BY ci.cinstance_date");
+	$stmt->execute(['student_id' => $student_id, 'class_id' => $class_id, 'start_date' => $start_date, 'end_date' => $end_date]);
+	$attendance = $stmt->fetchall();
+
+	close_database_connection($link);
+	return $attendance;
+}
+
 ?>

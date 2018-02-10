@@ -76,26 +76,22 @@ if(is_graded_class($class_info['class_id'])) {
 	// Create query to get all attendance ids for the student
 // XXXX - ONLY FOR TEST 3 PERIOD!! - XXXX
 	$link = open_database_connection();
-	$attendance_stmt = $link->prepare("SELECT a.attendance_id, ci.cinstance_id, ci.cinstance_date, a.present, a.notes
-	  FROM attendance a
-	  INNER JOIN class_instances ci ON a.cinstance_id = ci.cinstance_id
-		INNER JOIN classes c ON c.class_id = ci.class_id
-	  WHERE a.student_id = :student_id AND c.class_id = :class_id AND ci.cinstance_date BETWEEN '2017-09-17' AND '2017-12-16'
-		ORDER BY ci.cinstance_date");
-	$attendance_stmt->execute(['student_id' => $student_id, 'class_id' => $class_info['class_id']]);
+	$start_date = "2017-09-17";
+	$end_date = "2017-12-16";
+	$attendance = get_attendance_from_date_range($student_id, $class_info['class_id'], $start_date, $end_date);
 
 	// Loop through getting grade information for each attendance_id and printing them out
-	foreach ($attendance_stmt as $attendance_row)
+	foreach ($attendance as $attendance_instance)
 	{
-		$attendance_id = $attendance_row['attendance_id'];
-		$cinstance_id = $attendance_row['cinstance_id'];
-		$cinstance_date = $attendance_row['cinstance_date'];
-		$present = $attendance_row['present'] ? "Present" : "Absent";
-		$notes = $attendance_row['notes'];
+		$attendance_id = $attendance_instance['attendance_id'];
+		$cinstance_id = $attendance_instance['cinstance_id'];
+		$cinstance_date = $attendance_instance['cinstance_date'];
+		$present = $attendance_instance['present'] ? "Present" : "Absent";
+		$notes = $attendance_instance['notes'];
 
 		echo "<tr>";
-		echo "<td>" .$attendance_row['cinstance_date'] . "</td>";
-		if (is_makeup_lesson($student_id, $attendance_row['cinstance_id'])) {
+		echo "<td>" .$attendance_instance['cinstance_date'] . "</td>";
+		if (is_makeup_lesson($student_id, $attendance_instance['cinstance_id'])) {
 			$makeup_count++;
 			echo "<td>" . $present . " (Makeup)</td>";
 		}
@@ -105,7 +101,7 @@ if(is_graded_class($class_info['class_id'])) {
 
 
 		// Only query for grades if the student is present
-		if($attendance_row['present']) {
+		if($attendance_instance['present']) {
 			if(is_graded_class($class_info['class_id'])) {
 				$grades = get_grades($attendance_id);
 				foreach ($grades as $grade_type => $grade) {
