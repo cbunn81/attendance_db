@@ -143,60 +143,60 @@ if(is_graded_class($class_info['class_id'])) {
 if(is_graded_class($class_info['class_id'])) {
 	// Set the average scores for each level - each level has an associative array of scores
 	$averages["AS1"] = array(
-		"listening" => 4.1,
-		"reading" => 1.5,
-		"handwriting" => 3.0,
-		"intonation" => 1.4,
-		"pronunciation" => 1.3,
-		"speed" => 1.5,
-		"accuracy" => 1.2,
-		"confidence" => 1.5,
-		"total" => 15.7,
-	);
-	$averages["AS2"] = array(
-		"listening" => 4.5,
-		"reading" => 2.6,
-		"handwriting" => 3.8,
-		"intonation" => 1.4,
-		"pronunciation" => 1.5,
-		"speed" => 1.2,
-		"accuracy" => 1.3,
-		"confidence" => 1.3,
-		"total" => 17.6,
-	);
-	$averages["AS3"] = array(
-		"listening" => 4.6,
-		"reading" => 3.0,
-		"handwriting" => 4.0,
-		"intonation" => 1.6,
-		"pronunciation" => 1.5,
-		"speed" => 1.4,
-		"accuracy" => 1.4,
-		"confidence" => 1.5,
-		"total" => 19.2,
-	);
-	$averages["AS4"] = array(
-		"listening" => 5.0,
-		"reading" => 5.0,
-		"handwriting" => 5.0,
-		"intonation" => 1.8,
-		"pronunciation" => 1.2,
-		"speed" => 2.0,
-		"accuracy" => 2.0,
-		"confidence" => 2.0,
-		"total" => 24.3,
-	);
-	$averages["AS5"] = array(
-		"listening" => 5.0,
-		"reading" => 3.0,
-		"handwriting" => 4.5,
-		"intonation" => 1.5,
-		"pronunciation" => 1.0,
-		"speed" => 1.5,
-		"accuracy" => 1.0,
-		"confidence" => 1.5,
-		"total" => 19.0,
-	);
+	"listening" => 4.6,
+	"reading" => 2.2,
+	"handwriting" => 4.0,
+	"intonation" => 1.7,
+	"pronunciation" => 1.7,
+	"speed" => 1.7,
+	"accuracy" => 1.5,
+	"confidence" => 1.7,
+	"total" => 19.0,
+);
+$averages["AS2"] = array(
+	"listening" => 4.4,
+	"reading" => 2.0,
+	"handwriting" => 4.3,
+	"intonation" => 1.8,
+	"pronunciation" => 1.7,
+	"speed" => 1.8,
+	"accuracy" => 1.6,
+	"confidence" => 1.7,
+	"total" => 19.2,
+);
+$averages["AS3"] = array(
+	"listening" => 4.8,
+	"reading" => 3.4,
+	"handwriting" => 4.6,
+	"intonation" => 1.7,
+	"pronunciation" => 1.7,
+	"speed" => 1.8,
+	"accuracy" => 1.9,
+	"confidence" => 1.8,
+	"total" => 20.1,
+);
+$averages["AS4"] = array(
+	"listening" => 5.0,
+	"reading" => 4.0,
+	"handwriting" => 5.0,
+	"intonation" => 1.0,
+	"pronunciation" => 2.0,
+	"speed" => 2.0,
+	"accuracy" => 2.0,
+	"confidence" => 2.0,
+	"total" => 23.0,
+);
+$averages["AS5"] = array(
+	"listening" => 5.0,
+	"reading" => 3.0,
+	"handwriting" => 4.5,
+	"intonation" => 1.5,
+	"pronunciation" => 1.0,
+	"speed" => 1.5,
+	"accuracy" => 1.0,
+	"confidence" => 1.5,
+	"total" => 19.0,
+);
 ?>
 	<h2>Test #3 Results (<?php echo $class_info['level_name']; ?>)</h2>
 
