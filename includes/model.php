@@ -636,7 +636,13 @@ function get_student_info($student_id) {
 															INNER JOIN genders g ON p.gender_id = g.gender_id
 															WHERE p.person_id = :student_id;");
 	$stmt->execute(['student_id' => $student_id]);
-	$student_info = $stmt->fetch();
+
+	if ($stmt->rowCount()) {
+		$student_info = $stmt->fetch();
+	}
+	else {
+		$student_info = FALSE;
+	}
 	close_database_connection($link);
 	return $student_info;
 }
@@ -655,7 +661,12 @@ function get_current_classes_for_student($student_id) {
 															AND current_date BETWEEN r.start_date AND r.end_date
 														WHERE r.person_id = :student_id;");
 	$stmt->execute(['student_id' => $student_id]);
-	$current_classes = $stmt->fetchall();
+	if ($stmt->rowCount()) {
+		$current_classes = $stmt->fetchall();
+	}
+	else {
+		$current_classes = FALSE;
+	}
 	close_database_connection($link);
 	return $current_classes;
 }

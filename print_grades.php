@@ -12,24 +12,24 @@ require_once('includes/model.php');
  					or have a class in the rosters table that they moved from or quit. The real issue is when
 					there's are multiple classes of different levels. So, either we need separate HTML tables
 					for each enrolled class or some way to keep things straight in the same table. */
-if ($student_info = get_student_info($student_id)) {
-	$student_name = $student_info['student_name'];
-}
-else {
+if (!(get_student_info($student_id))) {
 	echo "Student doesn't exist.";
 }
-if ($current_classes = get_current_classes_for_student($student_id)) {
-	print_r($current_classes);
+else {
+	$student_info = get_student_info($student_id);
+}
+if(!(get_current_classes_for_student($student_id))) {
+	echo "Student has no classes.";
 }
 else {
-	echo "Student has no classes.";
+	$current_classes = get_current_classes_for_student($student_id);
 }
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Attendance and Grades for <?php echo $student_name; ?></title>
+	<title>Attendance and Grades for <?php echo $student_info['student_name']; ?></title>
 	<link rel="stylesheet" type="text/css" media="screen" href="css/main.css">
 	<link rel="stylesheet" type="text/css" media="print" href="css/print.css">
 </head>
@@ -39,7 +39,7 @@ else {
 $grade_types = get_grade_types();
 ?>
 
-<h1>Attendance and Grades for <?php echo $student_name; ?></h1>
+<h1>Attendance and Grades for <?php echo $student_info['student_name']; ?></h1>
 
 <?php
 //Loop through a student's current classes, if there are more than one
@@ -75,7 +75,6 @@ if(is_graded_class($class_info['class_id'])) {
 
 	// Create query to get all attendance ids for the student
 // XXXX - ONLY FOR TEST 3 PERIOD!! - XXXX
-	$link = open_database_connection();
 	$start_date = "2017-09-17";
 	$end_date = "2017-12-16";
 	$attendance = get_attendance_from_date_range($student_id, $class_info['class_id'], $start_date, $end_date);
@@ -133,8 +132,6 @@ if(is_graded_class($class_info['class_id'])) {
 	}
 	echo "<tr><td colspan=\"2\">Total Absences</td><td colspan=\"5\">$absence_count</td></tr>";
 	echo "<tr><td colspan=\"2\">Total Makeups</td><td colspan=\"5\">$makeup_count</td></tr>";
-
-	close_database_connection($link);
 ?>
 
 	</tbody>
