@@ -2,7 +2,7 @@
 // Continue the session
 session_start();
 
-require_once('../../config/db.inc.php');
+require_once('includes/model.php');
 ?>
 
 <!DOCTYPE html>
@@ -15,16 +15,12 @@ require_once('../../config/db.inc.php');
 <ul>
 
 <?php
-$stmt = $pdo->prepare("SELECT p2pt.person_id, p.given_name_r, p.family_name_r, p2pt.ptype_id, pt.ptype_name
-  FROM people2person_types p2pt
-  INNER JOIN person_types pt ON p2pt.ptype_id = pt.ptype_id AND pt.ptype_name = 'Staff'
-  INNER JOIN people p ON p2pt.person_id = p.person_id
-	ORDER BY p.given_name_r");
-	$stmt->execute();
-foreach ($stmt as $row)
+
+$teachers = get_all_teachers();
+foreach ($teachers as $teacher)
 {
-    echo "<li><a href=\"choose_date.php?tid=" . htmlspecialchars($row['person_id'], ENT_QUOTES, 'UTF-8') . "\">" .
-    htmlspecialchars($row['given_name_r'], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($row['family_name_r'], ENT_QUOTES, 'UTF-8') . "</a></li>\r\n";
+    echo "<li><a href=\"choose_date.php?tid=" . htmlspecialchars($teacher['person_id'], ENT_QUOTES, 'UTF-8') . "\">" .
+    htmlspecialchars($teacher['given_name_r'], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($teacher['family_name_r'], ENT_QUOTES, 'UTF-8') . "</a></li>\r\n";
 }
 ?>
 

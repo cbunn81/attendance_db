@@ -12,7 +12,7 @@ $student_id = $_SESSION["student_id"] = $_GET["sid"] ?? $_SESSION["student_id"] 
 $date = $_GET["date"];
 $dow = date("l", strtotime($date));
 
-require_once('../../config/db.inc.php');
+require_once('includes/model.php');
 ?>
 
 <!DOCTYPE html>
@@ -38,77 +38,35 @@ echo "<p>Day of the week: $dow</p>";
 
 // Entering regular attendance information
 if(empty($is_makeup)) {
-    $stmt = $pdo->prepare("SELECT c.class_id, p.person_id, d.dow_name, left(c.class_time::text, 5) as time, l.level_name, concat_ws(' ',p.given_name_r, p.family_name_r) as name
-      	FROM classes c
-      	INNER JOIN days_of_week d ON c.dow_id = d.dow_id
-      	INNER JOIN roster r ON c.class_id = r.class_id AND r.person_id = :teacher_id AND (d.dow_name = :dow OR d.dow_name = 'Flex')
-      	INNER JOIN levels l ON c.level_id = l.level_id
-      	INNER JOIN people p ON r.person_id = p.person_id
-				WHERE :date BETWEEN c.start_date AND c.end_date
-				ORDER BY d.dow_id, c.class_time");
-    $stmt->execute(['teacher_id' => $teacher_id, 'dow' => $dow, 'date' => $date]);
-    if ($stmt->rowCount()) {
-    	while ($row = $stmt->fetch())
+    if ($classes = get_classes_for_teacher($teacher_id,$dow,$date)) {
+    	foreach($classes as $class)
     	{
-          //var_dump($row);
-        	echo "<li><a href=\"enter_data.php?tid=" . htmlspecialchars($row['person_id'], ENT_QUOTES, 'UTF-8') . "&cid=" .
-          htmlspecialchars($row['class_id'], ENT_QUOTES, 'UTF-8') . "&date=" . htmlspecialchars($date, ENT_QUOTES, 'UTF-8') . "\">" .
-          htmlspecialchars($row['class_id'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($row['dow_name'], ENT_QUOTES, 'UTF-8') . " - " .
-          htmlspecialchars($row['time'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') . " - " .
-          htmlspecialchars($row['level_name'], ENT_QUOTES, 'UTF-8') . "</a></li>\r\n";
+          //var_dump($class);
+        	echo "<li><a href=\"enter_data.php?tid=" . htmlspecialchars($class['teacher_id'], ENT_QUOTES, 'UTF-8') . "&cid=" .
+          htmlspecialchars($class['class_id'], ENT_QUOTES, 'UTF-8') . "&date=" . htmlspecialchars($date, ENT_QUOTES, 'UTF-8') . "\">" .
+          htmlspecialchars($class['class_id'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($class['dow_name'], ENT_QUOTES, 'UTF-8') . " - " .
+          htmlspecialchars($class['class_time'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($class['teacher_name'], ENT_QUOTES, 'UTF-8') . " - " .
+          htmlspecialchars($class['level_name'], ENT_QUOTES, 'UTF-8') . "</a></li>\r\n";
     	}
     }
     else {
     	echo "<p>No classes found.</p>";
     }
 }
-// Start makeup information
-/*
-elseif (empty($original_date)) {
-  $stmt = $pdo->prepare("SELECT c.class_id, p.person_id, d.dow_name, left(c.class_time::text, 5) as time, l.level_name, concat_ws(' ',p.given_name_r, p.family_name_r) as name
-      FROM classes c
-      INNER JOIN days_of_week d ON c.dow_id = d.dow_id
-      INNER JOIN roster r ON c.class_id = r.class_id AND d.dow_name = :dow
-      INNER JOIN levels l ON c.level_id = l.level_id
-      INNER JOIN people p ON r.person_id = p.person_id
-      INNER JOIN person_types pt ON pt.ptype_name = 'Staff'
-      INNER JOIN people2person_types p2pt ON p2pt.ptype_id = pt.ptype_id AND p2pt.person_id = p.person_id");
-  $stmt->execute(['dow' => $dow]);
-  if ($stmt->rowCount()) {
-    while ($row = $stmt->fetch())
-    {
-        //var_dump($row);
-        echo "<li><a href=\"choose_student.php?tid=" . htmlspecialchars($row['person_id'], ENT_QUOTES, 'UTF-8') . "&ocid=" .
-        htmlspecialchars($row['class_id'], ENT_QUOTES, 'UTF-8') . "&date=" . htmlspecialchars($date, ENT_QUOTES, 'UTF-8') . "\">" .
-        htmlspecialchars($row['class_id'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($row['dow_name'], ENT_QUOTES, 'UTF-8') . " - " .
-        htmlspecialchars($row['time'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') . " - " .
-        htmlspecialchars($row['level_name'], ENT_QUOTES, 'UTF-8') . "</a></li>\r\n";
-    }
-  }
-  else {
-    echo "<p>No classes found.</p>";
-  }
-}
-*/
+
+// *** NEXT ***
+
 // Get the class id for a future absence date
 elseif (empty($original_class_id)) {
-	$stmt = $pdo->prepare("SELECT c.class_id, p.person_id, d.dow_name, left(c.class_time::text, 5) as time, l.level_name, concat_ws(' ',p.given_name_r, p.family_name_r) as name
-			FROM classes c
-			INNER JOIN days_of_week d ON c.dow_id = d.dow_id AND d.dow_name = :dow
-			INNER JOIN roster r ON c.class_id = r.class_id AND r.person_id = :student_id
-			INNER JOIN levels l ON c.level_id = l.level_id
-			INNER JOIN people p ON r.person_id = p.person_id
-			ORDER BY c.class_time");
-	$stmt->execute(['student_id' => $student_id, 'dow' => $dow]);
-	if ($stmt->rowCount()) {
-		while ($row = $stmt->fetch())
+	if ($classes = get_classes_for_student($student_id,$dow)) {
+		foreach ($classes as $class)
 		{
 				//var_dump($row);
-				echo "<li><a href=\"choose_date.php?is_makeup=true&sid=" . htmlspecialchars($row['person_id'], ENT_QUOTES, 'UTF-8') .
-	      "&ocid=" . htmlspecialchars($row['class_id'], ENT_QUOTES, 'UTF-8') . "&date=" . htmlspecialchars($date, ENT_QUOTES, 'UTF-8') . "\">" .
-	      htmlspecialchars($date, ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($row['class_id'], ENT_QUOTES, 'UTF-8') . " - " .
-	      htmlspecialchars($row['dow_name'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($row['time'], ENT_QUOTES, 'UTF-8') . " - " .
-	      htmlspecialchars($row['level_name'], ENT_QUOTES, 'UTF-8') . "</a></li>\r\n";
+				echo "<li><a href=\"choose_date.php?is_makeup=true&sid=" . htmlspecialchars($class['person_id'], ENT_QUOTES, 'UTF-8') .
+	      "&ocid=" . htmlspecialchars($class['class_id'], ENT_QUOTES, 'UTF-8') . "&date=" . htmlspecialchars($date, ENT_QUOTES, 'UTF-8') . "\">" .
+	      htmlspecialchars($date, ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($class['class_id'], ENT_QUOTES, 'UTF-8') . " - " .
+	      htmlspecialchars($class['dow_name'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($class['time'], ENT_QUOTES, 'UTF-8') . " - " .
+	      htmlspecialchars($class['level_name'], ENT_QUOTES, 'UTF-8') . "</a></li>\r\n";
 		}
 	}
 	else {
@@ -117,25 +75,15 @@ elseif (empty($original_class_id)) {
 }
 // Continue makeup information
 else {
-  $stmt = $pdo->prepare("SELECT c.class_id, p.person_id, d.dow_name, left(c.class_time::text, 5) as time, l.level_name, concat_ws(' ',p.given_name_r, p.family_name_r) as name
-      FROM classes c
-      INNER JOIN days_of_week d ON c.dow_id = d.dow_id AND d.dow_name = :dow
-      INNER JOIN roster r ON c.class_id = r.class_id AND c.location_id = :location_id
-      INNER JOIN levels l ON c.level_id = l.level_id
-      INNER JOIN people p ON r.person_id = p.person_id
-      INNER JOIN person_types pt ON pt.ptype_name = 'Staff'
-      INNER JOIN people2person_types p2pt ON p2pt.ptype_id = pt.ptype_id AND p2pt.person_id = p.person_id
-			ORDER BY c.class_time");
-  $stmt->execute(['dow' => $dow, 'location_id' => $location_id]);
-  if ($stmt->rowCount()) {
-    while ($row = $stmt->fetch())
+	if ($classes = get_classes_for_location($location_id,$dow)) {
+		foreach ($classes as $class)
     {
-        //var_dump($row);
-        echo "<li><a href=\"enter_makeup.php?mcid=" .
-        htmlspecialchars($row['class_id'], ENT_QUOTES, 'UTF-8') . "&date=" . htmlspecialchars($date, ENT_QUOTES, 'UTF-8') . "\">" .
-        htmlspecialchars($row['class_id'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($row['dow_name'], ENT_QUOTES, 'UTF-8') . " - " .
-        htmlspecialchars($row['time'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') . " - " .
-        htmlspecialchars($row['level_name'], ENT_QUOTES, 'UTF-8') . "</a></li>\r\n";
+      //var_dump($row);
+      echo "<li><a href=\"enter_makeup.php?mcid=" .
+      htmlspecialchars($class['class_id'], ENT_QUOTES, 'UTF-8') . "&date=" . htmlspecialchars($date, ENT_QUOTES, 'UTF-8') . "\">" .
+      htmlspecialchars($class['class_id'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($class['dow_name'], ENT_QUOTES, 'UTF-8') . " - " .
+      htmlspecialchars($class['time'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($class['name'], ENT_QUOTES, 'UTF-8') . " - " .
+      htmlspecialchars($class['level_name'], ENT_QUOTES, 'UTF-8') . "</a></li>\r\n";
     }
   }
   else {
