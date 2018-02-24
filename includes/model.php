@@ -56,7 +56,7 @@ function get_classes_for_teacher($teacher_id,$dow,$date)
       INNER JOIN roster r ON c.class_id = r.class_id AND r.person_id = :teacher_id AND (d.dow_name = :dow OR d.dow_name = 'Flex')
       INNER JOIN levels l ON c.level_id = l.level_id
       INNER JOIN people p ON r.person_id = p.person_id
-      WHERE :date BETWEEN c.start_date AND c.end_date
+      WHERE :date BETWEEN r.start_date AND r.end_date
       ORDER BY d.dow_id, c.class_time");
   $stmt->execute(['teacher_id' => $teacher_id, 'dow' => $dow, 'date' => $date]);
 
