@@ -671,6 +671,30 @@ function get_current_classes_for_student($student_id) {
 	return $current_classes;
 }
 
+// Get a list of class IDs that the student is currently enrolled in
+function get_classes_for_student_by_date_range($student_id, $start_date, $end_date) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT c.class_id,
+															   l.level_name,
+																 l.level_short_code,
+																 ct.ctype_name
+														FROM classes c
+														INNER JOIN levels l ON l.level_id = c.level_id
+														INNER JOIN class_types ct ON ct.ctype_id = c.ctype_id
+														INNER JOIN roster r ON r.class_id = c.class_id
+															AND (:start_date, :end_date) OVERLAPS (r.start_date, r.end_date)
+														WHERE r.person_id = :student_id;");
+	$stmt->execute(['student_id' => $student_id, 'start_date'=> $start_date, 'end_date' => $end_date]);
+	if ($stmt->rowCount()) {
+		$current_classes = $stmt->fetchall();
+	}
+	else {
+		$current_classes = FALSE;
+	}
+	close_database_connection($link);
+	return $current_classes;
+}
+
 // Get all the fields for a class
 function get_class_info($class_id) {
 	$link = open_database_connection();
