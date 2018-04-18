@@ -4,6 +4,10 @@ session_start();
 
 $student_id = $_SESSION["student_id"] = $_GET["sid"] ?? $_SESSION["student_id"] ?? NULL;
 
+// XXXX - ONLY FOR TEST 3 PERIOD!! - XXXX
+$start_date = "2017-12-17";
+$end_date = "2018-03-31";
+
 require_once('includes/model.php');
 
 
@@ -18,11 +22,11 @@ if (!(get_student_info($student_id))) {
 else {
 	$student_info = get_student_info($student_id);
 }
-if(!(get_current_classes_for_student($student_id))) {
+if(!(get_classes_for_student_by_date_range($student_id, $start_date, $end_date))) {
 	echo "Student has no classes.";
 }
 else {
-	$current_classes = get_current_classes_for_student($student_id);
+	$current_classes = get_classes_for_student_by_date_range($student_id, $start_date, $end_date);
 }
 ?>
 
@@ -74,9 +78,6 @@ if(is_graded_class($class_info['class_id'])) {
 	$grades_count = array_change_key_case(array_fill_keys($grade_types,0), CASE_LOWER);
 
 	// Create query to get all attendance ids for the student
-// XXXX - ONLY FOR TEST 3 PERIOD!! - XXXX
-	$start_date = "2017-12-17";
-	$end_date = "2018-03-31";
 	$attendance = get_attendance_from_date_range($student_id, $class_info['class_id'], $start_date, $end_date);
 
 	// Loop through getting grade information for each attendance_id and printing them out
