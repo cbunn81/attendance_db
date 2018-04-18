@@ -75,8 +75,8 @@ if(is_graded_class($class_info['class_id'])) {
 
 	// Create query to get all attendance ids for the student
 // XXXX - ONLY FOR TEST 3 PERIOD!! - XXXX
-	$start_date = "2017-09-17";
-	$end_date = "2017-12-16";
+	$start_date = "2017-12-17";
+	$end_date = "2017-03-31";
 	$attendance = get_attendance_from_date_range($student_id, $class_info['class_id'], $start_date, $end_date);
 
 	// Loop through getting grade information for each attendance_id and printing them out
@@ -143,48 +143,48 @@ if(is_graded_class($class_info['class_id'])) {
 if(is_graded_class($class_info['class_id'])) {
 	// Set the average scores for each level - each level has an associative array of scores
 	$averages["AS1"] = array(
-	"listening" => 4.6,
-	"reading" => 2.2,
-	"handwriting" => 4.0,
-	"intonation" => 1.7,
+	"listening" => 4.5,
+	"reading" => 3.3,
+	"handwriting" => 4.1,
+	"intonation" => 1.9,
 	"pronunciation" => 1.7,
 	"speed" => 1.7,
-	"accuracy" => 1.5,
+	"accuracy" => 1.6,
 	"confidence" => 1.7,
-	"total" => 19.0,
+	"total" => 20.5,
 );
 $averages["AS2"] = array(
-	"listening" => 4.4,
-	"reading" => 2.0,
-	"handwriting" => 4.3,
+	"listening" => 4.5,
+	"reading" => 2.8,
+	"handwriting" => 4.4,
 	"intonation" => 1.8,
-	"pronunciation" => 1.7,
+	"pronunciation" => 1.9,
 	"speed" => 1.8,
 	"accuracy" => 1.6,
 	"confidence" => 1.7,
-	"total" => 19.2,
+	"total" => 20.4,
 );
 $averages["AS3"] = array(
-	"listening" => 4.8,
-	"reading" => 3.4,
-	"handwriting" => 4.6,
-	"intonation" => 1.7,
-	"pronunciation" => 1.7,
-	"speed" => 1.8,
+	"listening" => 4.5,
+	"reading" => 3.8,
+	"handwriting" => 4.9,
+	"intonation" => 2.0,
+	"pronunciation" => 2.0,
+	"speed" => 2.0,
 	"accuracy" => 1.9,
 	"confidence" => 1.8,
-	"total" => 20.1,
+	"total" => 22.7,
 );
 $averages["AS4"] = array(
 	"listening" => 5.0,
-	"reading" => 4.0,
+	"reading" => 5.0,
 	"handwriting" => 5.0,
-	"intonation" => 1.0,
+	"intonation" => 2.0,
 	"pronunciation" => 2.0,
 	"speed" => 2.0,
 	"accuracy" => 2.0,
 	"confidence" => 2.0,
-	"total" => 23.0,
+	"total" => 25.0,
 );
 $averages["AS5"] = array(
 	"listening" => 5.0,
