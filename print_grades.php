@@ -76,7 +76,7 @@ if(is_graded_class($class_info['class_id'])) {
 	// Create query to get all attendance ids for the student
 // XXXX - ONLY FOR TEST 3 PERIOD!! - XXXX
 	$start_date = "2017-12-17";
-	$end_date = "2017-03-31";
+	$end_date = "2018-03-31";
 	$attendance = get_attendance_from_date_range($student_id, $class_info['class_id'], $start_date, $end_date);
 
 	// Loop through getting grade information for each attendance_id and printing them out
@@ -198,7 +198,7 @@ $averages["AS5"] = array(
 	"total" => 19.0,
 );
 ?>
-	<h2>Test #3 Results (<?php echo $class_info['level_name']; ?>)</h2>
+	<h2>Test #4 Results (<?php echo $class_info['level_name']; ?>)</h2>
 
 	<table>
 		<thead>
