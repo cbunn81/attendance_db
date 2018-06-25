@@ -10,13 +10,13 @@ $class_id = $_SESSION["class_id"] = $_GET["cid"] ?? $_SESSION["class_id"] ?? NUL
 
 require_once('includes/model.php');
 
-$test_name = get_test_name();
+$test_name = get_test_name($date);
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Enter Test Results</title>
+	<title>Enter Test Results for <?= $test_name ?></title>
 	<link rel="stylesheet" type="text/css" media="screen" href="css/main.css">
 </head>
 <body>
@@ -28,7 +28,10 @@ echo "<p>Day of the week: $dow</p>";
 */
 ?>
 
-<h1>Enter data:</h1>
+<h1>Enter test results:</h1>
+
+<?php if(is_graded_class($class_id) : ?>
+
 <form action="submit_test_results.php" method="post">
 <table>
 	<thead>
@@ -37,11 +40,10 @@ echo "<p>Day of the week: $dow</p>";
 			<td>Student Name</td>
 			<td>Present?</td>
 <?php
-	if(is_graded_class($class_id)) {
     $test_grade_types = get_test_grade_types();
 		foreach ($test_grade_types as $test_grade_type) {
       echo "<td>$test_grade_type</td>";
-	}
+	  }
 ?>
 		</tr>
 	</thead>
@@ -53,7 +55,7 @@ if ($students = get_students_for_class($class_id, $teacher_id, $date)) {
 	foreach ($students as $student)
 	{
 		// unset grades array so that previous grade data doesn't get displayed for absent students
-		$grades = [];
+		$test_grades = [];
 		// get class instance for the class id and date
 		$cinstance_id = get_class_instance($class_id, $date);
 		// if a class instance exists, then there must have been some attendance data entered
@@ -62,12 +64,12 @@ if ($students = get_students_for_class($class_id, $teacher_id, $date)) {
 			$attendance = get_attendance($cinstance_id, $student['student_id']);
 			$present = $attendance['present'];
 			if(is_graded_class($class_id)) {
-				$grades = get_grades($attendance['attendance_id']);
+				$test_grades = get_grades($attendance['attendance_id']);
 			}
 				// create HTML form with default values from db query
 					// if it's a graded class
-						// select grades
-							// add form fields for grades with default values from db query
+						// select test_grades
+							// add form fields for test_grades with default values from db query
 		}
 		// display form, using existing values if they are set from above
 		echo "<tr><td>" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "</td>
@@ -77,50 +79,55 @@ if ($students = get_students_for_class($class_id, $teacher_id, $date)) {
 						<input type=\"hidden\" name=\"adata[" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "][present]\" value=\"0\" />
 				    <input type=\"checkbox\" id=\"present\" name=\"adata[" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "][present]\" value=\"1\" " .
 						((!empty($present)) ? "checked" : "") . "/></td>";
-		if(is_graded_class($class_id)) {
-			echo "<td><select id=\"speaking\" name=\"adata[" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "][speaking]\">
-						<option value=\"0\"" . ((!isset($grades['speaking'])) ? "selected" : "") . ">0</option>
-						<option value=\"1\"" . (isset($grades['speaking']) && ($grades['speaking'] == '1') ? "selected" : "") . ">1</option>
-						<option value=\"2\"" . (isset($grades['speaking']) && ($grades['speaking'] == '2') ? "selected" : "") . ">2</option>
-						<option value=\"3\"" . (isset($grades['speaking']) && ($grades['speaking'] == '3') ? "selected" : "") . ">3</option>
-						<option value=\"4\"" . (isset($grades['speaking']) && ($grades['speaking'] == '4') ? "selected" : "") . ">4</option>
-						<option value=\"5\"" . (isset($grades['speaking']) && ($grades['speaking'] == '5') ? "selected" : "") . ">5</option>
-					</select></td>
-				<td><select id=\"listening\" name=\"adata[" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "][listening]\">
-						<option value=\"0\"" . ((!isset($grades['listening'])) ? "selected" : "") . ">0</option>
-						<option value=\"1\"" . (isset($grades['listening']) && ($grades['listening'] == '1') ? "selected" : "") . ">1</option>
-						<option value=\"2\"" . (isset($grades['listening']) && ($grades['listening'] == '2') ? "selected" : "") . ">2</option>
-						<option value=\"3\"" . (isset($grades['listening']) && ($grades['listening'] == '3') ? "selected" : "") . ">3</option>
-						<option value=\"4\"" . (isset($grades['listening']) && ($grades['listening'] == '4') ? "selected" : "") . ">4</option>
-						<option value=\"5\"" . (isset($grades['listening']) && ($grades['listening'] == '5') ? "selected" : "") . ">5</option>
-					</select></td>
-				<td><select id=\"reading\" name=\"adata[" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "][reading]\">
-						<option value=\"0\"" . ((!isset($grades['reading'])) ? "selected" : "") . ">0</option>
-						<option value=\"1\"" . (isset($grades['reading']) && ($grades['reading'] == '1') ? "selected" : "") . ">1</option>
-						<option value=\"2\"" . (isset($grades['reading']) && ($grades['reading'] == '2') ? "selected" : "") . ">2</option>
-						<option value=\"3\"" . (isset($grades['reading']) && ($grades['reading'] == '3') ? "selected" : "") . ">3</option>
-						<option value=\"4\"" . (isset($grades['reading']) && ($grades['reading'] == '4') ? "selected" : "") . ">4</option>
-						<option value=\"5\"" . (isset($grades['reading']) && ($grades['reading'] == '5') ? "selected" : "") . ">5</option>
-					</select></td>
-				<td><select id=\"writing\" name=\"adata[" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "][writing]\">
-						<option value=\"0\"" . ((!isset($grades['writing'])) ? "selected" : "") . ">0</option>
-						<option value=\"1\"" . (isset($grades['writing']) && ($grades['writing'] == '1') ? "selected" : "") . ">1</option>
-						<option value=\"2\"" . (isset($grades['writing']) && ($grades['writing'] == '2') ? "selected" : "") . ">2</option>
-						<option value=\"3\"" . (isset($grades['writing']) && ($grades['writing'] == '3') ? "selected" : "") . ">3</option>
-						<option value=\"4\"" . (isset($grades['writing']) && ($grades['writing'] == '4') ? "selected" : "") . ">4</option>
-						<option value=\"5\"" . (isset($grades['writing']) && ($grades['writing'] == '5') ? "selected" : "") . ">5</option>
-					</select></td>
-				<td><select id=\"behavior\" name=\"adata[" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "][behavior]\">
-						<option value=\"0\"" . ((!isset($grades['behavior'])) ? "selected" : "") . ">0</option>
-						<option value=\"1\"" . (isset($grades['behavior']) && ($grades['behavior'] == '1') ? "selected" : "") . ">1</option>
-						<option value=\"2\"" . (isset($grades['behavior']) && ($grades['behavior'] == '2') ? "selected" : "") . ">2</option>
-						<option value=\"3\"" . (isset($grades['behavior']) && ($grades['behavior'] == '3') ? "selected" : "") . ">3</option>
-						<option value=\"4\"" . (isset($grades['behavior']) && ($grades['behavior'] == '4') ? "selected" : "") . ">4</option>
-						<option value=\"5\"" . (isset($grades['behavior']) && ($grades['behavior'] == '5') ? "selected" : "") . ">5</option>
-					</select></td>";
-		}
-				echo "<td><textarea name=\"adata[" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "][notes]\" cols=\"30\" rows=\"2\">" .
-					((isset($notes)) ? $notes : "") . "</textarea></td>";
+		echo "<td><select id=\"listening\" name=\"adata[" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "][listening]\">
+					<option value=\"0\"" . ((!isset($test_grades['listening'])) ? "selected" : "") . ">0</option>
+					<option value=\"1\"" . (isset($test_grades['listening']) && ($test_grades['listening'] == '1') ? "selected" : "") . ">1</option>
+					<option value=\"2\"" . (isset($test_grades['listening']) && ($test_grades['listening'] == '2') ? "selected" : "") . ">2</option>
+					<option value=\"3\"" . (isset($test_grades['listening']) && ($test_grades['listening'] == '3') ? "selected" : "") . ">3</option>
+					<option value=\"4\"" . (isset($test_grades['listening']) && ($test_grades['listening'] == '4') ? "selected" : "") . ">4</option>
+					<option value=\"5\"" . (isset($test_grades['listening']) && ($test_grades['listening'] == '5') ? "selected" : "") . ">5</option>
+				</select></td>
+			<td><select id=\"reading/writing\" name=\"adata[" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "][reading/writing]\">
+					<option value=\"0\"" . ((!isset($test_grades['reading/writing'])) ? "selected" : "") . ">0</option>
+					<option value=\"1\"" . (isset($test_grades['reading/writing']) && ($test_grades['reading/writing'] == '1') ? "selected" : "") . ">1</option>
+					<option value=\"2\"" . (isset($test_grades['reading/writing']) && ($test_grades['reading/writing'] == '2') ? "selected" : "") . ">2</option>
+					<option value=\"3\"" . (isset($test_grades['reading/writing']) && ($test_grades['reading/writing'] == '3') ? "selected" : "") . ">3</option>
+					<option value=\"4\"" . (isset($test_grades['reading/writing']) && ($test_grades['reading/writing'] == '4') ? "selected" : "") . ">4</option>
+					<option value=\"5\"" . (isset($test_grades['reading/writing']) && ($test_grades['reading/writing'] == '5') ? "selected" : "") . ">5</option>
+				</select></td>
+			<td><select id=\"handwriting\" name=\"adata[" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "][handwriting]\">
+					<option value=\"0\"" . ((!isset($test_grades['handwriting'])) ? "selected" : "") . ">0</option>
+					<option value=\"1\"" . (isset($test_grades['handwriting']) && ($test_grades['handwriting'] == '1') ? "selected" : "") . ">1</option>
+					<option value=\"2\"" . (isset($test_grades['handwriting']) && ($test_grades['handwriting'] == '2') ? "selected" : "") . ">2</option>
+					<option value=\"3\"" . (isset($test_grades['handwriting']) && ($test_grades['handwriting'] == '3') ? "selected" : "") . ">3</option>
+					<option value=\"4\"" . (isset($test_grades['handwriting']) && ($test_grades['handwriting'] == '4') ? "selected" : "") . ">4</option>
+					<option value=\"5\"" . (isset($test_grades['handwriting']) && ($test_grades['handwriting'] == '5') ? "selected" : "") . ">5</option>
+				</select></td>
+			<td><select id=\"intonation\" name=\"adata[" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "][intonation]\">
+					<option value=\"0\"" . ((!isset($test_grades['intonation'])) ? "selected" : "") . ">0</option>
+					<option value=\"1\"" . (isset($test_grades['intonation']) && ($test_grades['intonation'] == '1') ? "selected" : "") . ">1</option>
+					<option value=\"2\"" . (isset($test_grades['intonation']) && ($test_grades['intonation'] == '2') ? "selected" : "") . ">2</option>
+				</select></td>
+      <td><select id=\"pronunciation\" name=\"adata[" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "][pronunciation]\">
+					<option value=\"0\"" . ((!isset($test_grades['pronunciation'])) ? "selected" : "") . ">0</option>
+					<option value=\"1\"" . (isset($test_grades['pronunciation']) && ($test_grades['pronunciation'] == '1') ? "selected" : "") . ">1</option>
+					<option value=\"2\"" . (isset($test_grades['pronunciation']) && ($test_grades['pronunciation'] == '2') ? "selected" : "") . ">2</option>
+			 </select></td>
+      <td><select id=\"speed\" name=\"adata[" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "][speed]\">
+  				<option value=\"0\"" . ((!isset($test_grades['speed'])) ? "selected" : "") . ">0</option>
+  				<option value=\"1\"" . (isset($test_grades['speed']) && ($test_grades['speed'] == '1') ? "selected" : "") . ">1</option>
+  				<option value=\"2\"" . (isset($test_grades['speed']) && ($test_grades['speed'] == '2') ? "selected" : "") . ">2</option>
+  		 </select></td>
+      <td><select id=\"accuracy\" name=\"adata[" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "][accuracy]\">
+    			<option value=\"0\"" . ((!isset($test_grades['accuracy'])) ? "selected" : "") . ">0</option>
+    			<option value=\"1\"" . (isset($test_grades['accuracy']) && ($test_grades['accuracy'] == '1') ? "selected" : "") . ">1</option>
+    			<option value=\"2\"" . (isset($test_grades['accuracy']) && ($test_grades['accuracy'] == '2') ? "selected" : "") . ">2</option>
+    	 </select></td>
+      <td><select id=\"confidence\" name=\"adata[" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "][confidence]\">
+      		<option value=\"0\"" . ((!isset($test_grades['confidence'])) ? "selected" : "") . ">0</option>
+      		<option value=\"1\"" . (isset($test_grades['confidence']) && ($test_grades['confidence'] == '1') ? "selected" : "") . ">1</option>
+      		<option value=\"2\"" . (isset($test_grades['confidence']) && ($test_grades['confidence'] == '2') ? "selected" : "") . ">2</option>
+       </select></td>";
 	}
 }
 else {
@@ -132,5 +139,9 @@ else {
 </table>
 <input type="submit" />
 </form>
+
+<?php else : ?>
+  <p>This is not a graded class.</p>
+<?php endif; ?>
 </body>
 </html>
