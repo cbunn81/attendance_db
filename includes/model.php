@@ -729,4 +729,20 @@ function get_attendance_from_date_range($student_id, $class_id, $start_date, $en
 	return $attendance;
 }
 
+// Get an array containing the names of all the test grade types.
+// Arguments: none
+// Returns array of strings
+function get_test_grade_types() {
+  $link = open_database_connection();
+  // initiate array for grade types
+  $test_grade_types = array();
+  $stmt = $link->prepare("SELECT tgtype_id, tgtype_name FROM test_grade_types ORDER BY tgtype_id");
+  $stmt->execute();
+
+  while($row = $stmt->fetch()) {
+    $grade_types[$row['tgtype_id']] = $row['tgtype_name'];
+  }
+  close_database_connection($link);
+  return $test_grade_types;
+}
 ?>
