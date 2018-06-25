@@ -740,7 +740,7 @@ function get_test_grade_types() {
   $stmt->execute();
 
   while($row = $stmt->fetch()) {
-    $grade_types[$row['tgtype_id']] = $row['tgtype_name'];
+    $test_grade_types[$row['tgtype_id']] = $row['tgtype_name'];
   }
   close_database_connection($link);
   return $test_grade_types;
