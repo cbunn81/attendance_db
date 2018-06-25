@@ -4,6 +4,7 @@ session_start();
 
 // Get session variables
 $is_makeup = $_SESSION["is_makeup"] = $_GET["is_makeup"] ?? $_SESSION["is_makeup"] ?? FALSE;
+$is_test = $_SESSION["is_test"] = $_GET["is_test"] ?? $_SESSION["is_test"] ?? FALSE;
 $location_id = $_SESSION["location_id"] = $_GET["lid"] ?? $_SESSION["location_id"] ?? NULL;
 $original_date = $_SESSION["original_date"] = $_SESSION["original_date"] ?? NULL;
 $original_class_id = $_SESSION["original_class_id"] = $_SESSION["original_class_id"] ?? NULL;
@@ -37,7 +38,7 @@ echo "<p>Day of the week: $dow</p>";
 <?php
 
 // Entering regular attendance information
-if(empty($is_makeup)) {
+if(empty($is_makeup) && empty($is_test)) {
     if ($classes = get_classes_for_teacher($teacher_id,$dow,$date)) {
     	foreach($classes as $class)
     	{
@@ -57,7 +58,7 @@ if(empty($is_makeup)) {
 // *** NEXT ***
 
 // Get the class id for a future absence date
-elseif (empty($original_class_id)) {
+elseif (empty($original_class_id) && empty($is_test)) {
 	if ($classes = get_classes_for_student($student_id,$dow)) {
 		foreach ($classes as $class)
 		{
@@ -74,7 +75,7 @@ elseif (empty($original_class_id)) {
 	}
 }
 // Continue makeup information
-else {
+elseif(empty($is_test)) {
 	if ($classes = get_classes_for_location($location_id,$dow)) {
 		foreach ($classes as $class)
     {
@@ -89,6 +90,24 @@ else {
   else {
     echo "<p>No classes found.</p>";
   }
+}
+
+// enter test results
+else {
+	if ($classes = get_classes_for_teacher($teacher_id,$dow,$date)) {
+		foreach($classes as $class)
+		{
+				//var_dump($class);
+				echo "<li><a href=\"enter_test_results.php?tid=" . htmlspecialchars($class['teacher_id'], ENT_QUOTES, 'UTF-8') . "&cid=" .
+				htmlspecialchars($class['class_id'], ENT_QUOTES, 'UTF-8') . "&date=" . htmlspecialchars($date, ENT_QUOTES, 'UTF-8') . "\">" .
+				htmlspecialchars($class['class_id'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($class['dow_name'], ENT_QUOTES, 'UTF-8') . " - " .
+				htmlspecialchars($class['class_time'], ENT_QUOTES, 'UTF-8') . " - " . htmlspecialchars($class['teacher_name'], ENT_QUOTES, 'UTF-8') . " - " .
+				htmlspecialchars($class['level_name'], ENT_QUOTES, 'UTF-8') . "</a></li>\r\n";
+		}
+	}
+	else {
+		echo "<p>No classes found.</p>";
+	}
 }
 ?>
 
