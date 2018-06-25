@@ -751,15 +751,19 @@ function get_test_grade_types() {
 // Returns array of strings
 function get_test_name($test_date) {
   $link = open_database_connection();
-  // initiate array for grade types
-  $test_grade_types = array();
+
   $stmt = $link->prepare("SELECT test_name FROM tests WHERE :test_date BETWEEN start_date AND end_date");
   $stmt->execute(['test_date' => $test_date]);
 
-  while($row = $stmt->fetch()) {
-    $grade_types[$row['tgtype_id']] = $row['tgtype_name'];
+	// The test name exists, return it
+  if ($result = $stmt->fetch()) {
+    // echo "<p>class instance exists</p>";
+    $test_name = $result['test_name'];
   }
+	else {
+		$test_name = FALSE;
+	}
   close_database_connection($link);
-  return $test_grade_types;
+  return $test_name;
 }
 ?>
