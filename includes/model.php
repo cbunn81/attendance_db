@@ -745,4 +745,21 @@ function get_test_grade_types() {
   close_database_connection($link);
   return $test_grade_types;
 }
+
+// Get an array containing the names of all the test grade types.
+// Arguments: none
+// Returns array of strings
+function get_test_name($test_date) {
+  $link = open_database_connection();
+  // initiate array for grade types
+  $test_grade_types = array();
+  $stmt = $link->prepare("SELECT test_name FROM tests WHERE :test_date BETWEEN start_date AND end_date");
+  $stmt->execute(['test_date' => $test_date]);
+
+  while($row = $stmt->fetch()) {
+    $grade_types[$row['tgtype_id']] = $row['tgtype_name'];
+  }
+  close_database_connection($link);
+  return $test_grade_types;
+}
 ?>
