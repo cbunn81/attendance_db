@@ -33,17 +33,23 @@ $_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 // Loop through the POST array and create variables
 foreach($_POST['test_results'] as $student_id => $student_data) {
 
+  echo "<h2>Student $student_id</h2>";
+  echo "<pre>";
+  print_r($student_data);
+  echo "</pre>";
+
   // The only reason for a present variable is to know whether to enter test results
   // The regular attendance entry will handle attendance, even for test days
   if ($student_data['present']) {
     // Enter data into Database
     // First, get class instance IDs from the get_class_instance function, sending class_id and date for each cinstance
     $cinstance_id = get_class_instance($class_id, $date) ?: create_class_instance($class_id, $date);
-    // echo "<p>Class Instance ID:" . htmlspecialchars($cinstance_id, ENT_QUOTES, 'UTF-8') . "</p>";
+    echo "<p>Class Instance ID:" . htmlspecialchars($cinstance_id, ENT_QUOTES, 'UTF-8') . "</p>";
 
     // Second, get the attendance ID for the class instance and the student ID
     // This means that attendance must be entered first
     $attendance_id = get_attendance_id($cinstance_id, $student_id);
+    echo "<p>Attendance ID:" . htmlspecialchars($attendance_id, ENT_QUOTES, 'UTF-8') . "</p>";
 
     // Third, enter test results
     // ** This is only for students in the All Stars classes, aka with a class type of "Child Group" or "Child Private"

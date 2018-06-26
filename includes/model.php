@@ -651,11 +651,20 @@ function test_grade_exists($attendance_id, $test_grade_type) {
 function add_test_grade($attendance_id, $test_grade_type, $tgrade) {
 	$link = open_database_connection();
 	$stmt = $link->prepare("INSERT INTO test_grade_instances (tgtype_id,
+																												test_id,
 																												attendance_id,
 																												tgrade)
 																VALUES ((SELECT tgtype_id
 																					FROM test_grade_types
 																					WHERE LOWER(tgtype_name) = LOWER(:test_grade_type)),
+																				(SELECT t.test_id
+																					FROM tests t
+																					WHERE (SELECT ci.cinstance_date
+																									FROM class_instances ci
+																									INNER JOIN attendance a
+																									ON ci.cinstance_id = a.cinstance_id
+																									AND a.attendance_id = :attendance_id)
+																									BETWEEN t.start_date AND t.end_date),
 																				:attendance_id,
 																				:tgrade)
 																RETURNING tginstance_id");
@@ -673,7 +682,7 @@ function add_test_grade($attendance_id, $test_grade_type, $tgrade) {
 	return $tginstance_id;
 }
 
-// UPDATE a grade
+// UPDATE a test grade
 function update_test_grade($attendance_id, $test_grade_type, $tgrade) {
 	$link = open_database_connection();
 	$stmt = $link->prepare("UPDATE test_grade_instances
@@ -698,7 +707,7 @@ function update_test_grade($attendance_id, $test_grade_type, $tgrade) {
 	return $tginstance_id;
 }
 
-// Insert or update grades
+// Insert or update test grades
 function upsert_test_grades($attendance_id, $student_data) {
 	$link = open_database_connection();
 
@@ -707,11 +716,11 @@ function upsert_test_grades($attendance_id, $student_data) {
 		// insert into grade_instances where (select gtype_id from grade_types where gtype_name = $grade_type)
 		// if the data has already been submitted, update the existing record
 		if (test_grade_exists($attendance_id, $test_grade_type)) {
-			$test_grade_result = update_grade($attendance_id, $test_grade_type, $student_data[strtolower($test_grade_type)]);
+			$test_grade_result = update_test_grade($attendance_id, $test_grade_type, $student_data[strtolower($test_grade_type)]);
 		}
 		// otherwise, insert a new record
 		else {
-			$test_grade_result = add_grade($attendance_id, $test_grade_type, $student_data[strtolower($test_grade_type)]);
+			$test_grade_result = add_test_grade($attendance_id, $test_grade_type, $student_data[strtolower($test_grade_type)]);
 		}
 
 		// Display confirmation of success or failure
@@ -870,9 +879,9 @@ function get_test_grade_types() {
   return $test_grade_types;
 }
 
-// Get an array containing the names of all the test grade types.
-// Arguments: none
-// Returns array of strings
+// Get the name of a test based on the test date.
+// Arguments: test_date
+// Returns string with name of the test
 function get_test_name($test_date) {
   $link = open_database_connection();
 
