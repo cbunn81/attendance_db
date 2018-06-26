@@ -626,6 +626,109 @@ function upsert_grades($attendance_id, $student_data) {
 	return $grade_result;
 }
 
+// Check if test grade for an attendance ID and grade type exist
+function test_grade_exists($attendance_id, $test_grade_type) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT tginstance_id
+														FROM test_grade_instances
+														WHERE attendance_id = :attendance_id
+															AND tgtype_id = (SELECT tgtype_id
+																								FROM test_grade_types
+																								WHERE LOWER(tgtype_name) = LOWER(:test_grade_type))");
+	$stmt->execute(['attendance_id' => $attendance_id,'test_grade_type' => $test_grade_type]);
+	if ($stmt->rowCount()) {
+		$test_grade_exists = TRUE;
+	}
+	else {
+		$test_grade_exists = FALSE;
+	}
+	close_database_connection($link);
+	return $test_grade_exists;
+}
+
+
+// Add a grade
+function add_test_grade($attendance_id, $test_grade_type, $tgrade) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("INSERT INTO test_grade_instances (tgtype_id,
+																												attendance_id,
+																												tgrade)
+																VALUES ((SELECT tgtype_id
+																					FROM test_grade_types
+																					WHERE LOWER(tgtype_name) = LOWER(:test_grade_type)),
+																				:attendance_id,
+																				:tgrade)
+																RETURNING tginstance_id");
+
+	$stmt->execute(['test_grade_type' => $test_grade_type,'attendance_id' => $attendance_id,'tgrade' => $tgrade]);
+	if ($stmt->rowCount()) {
+		$result = $stmt->fetch();
+		// Insert successful, return attendance_id
+		$tginstance_id = $result['tginstance_id'];
+	}
+	else {
+		$tginstance_id = FALSE;
+	}
+	close_database_connection($link);
+	return $tginstance_id;
+}
+
+// UPDATE a grade
+function update_test_grade($attendance_id, $test_grade_type, $tgrade) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("UPDATE test_grade_instances
+														SET tgrade = :tgrade
+														WHERE attendance_id = :attendance_id
+														AND tgtype_id =
+															(SELECT tgtype_id
+																FROM test_grade_types
+																WHERE LOWER(tgtype_name) = LOWER(:test_grade_type))
+														RETURNING tginstance_id");
+	$stmt->execute(['test_grade_type' => $test_grade_type,'attendance_id' => $attendance_id,'tgrade' => $tgrade]);
+
+	if ($stmt->rowCount()) {
+		$result = $stmt->fetch();
+		// Insert successful, return attendance_id
+		$tginstance_id = $result['tginstance_id'];
+	}
+	else {
+		$tginstance_id = FALSE;
+	}
+	close_database_connection($link);
+	return $tginstance_id;
+}
+
+// Insert or update grades
+function upsert_test_grades($attendance_id, $student_data) {
+	$link = open_database_connection();
+
+	$test_grade_types = get_test_grade_types();
+	foreach ($test_grade_types as $test_grade_type) {
+		// insert into grade_instances where (select gtype_id from grade_types where gtype_name = $grade_type)
+		// if the data has already been submitted, update the existing record
+		if (test_grade_exists($attendance_id, $test_grade_type)) {
+			$test_grade_result = update_grade($attendance_id, $test_grade_type, $student_data[strtolower($test_grade_type)]);
+		}
+		// otherwise, insert a new record
+		else {
+			$test_grade_result = add_grade($attendance_id, $test_grade_type, $student_data[strtolower($test_grade_type)]);
+		}
+
+		// Display confirmation of success or failure
+		if ($test_grade_result) {
+			//echo "<p>Success! The ID of the grade instance information entered is " . htmlspecialchars($grade_result, ENT_QUOTES, 'UTF-8') . ".</p>";
+		}
+		else {
+			// Insert failure, return error
+			//echo "<p>Sorry, that didn't work. Error message: ";
+			// echo implode(":", $stmt->errorInfo());
+			//echo "</p>";
+		}
+	}
+	close_database_connection($link);
+	return $test_grade_result;
+}
+
 // Get all the fields for a students
 function get_student_info($student_id) {
 	$link = open_database_connection();
