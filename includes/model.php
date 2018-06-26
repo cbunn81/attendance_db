@@ -484,7 +484,7 @@ function get_grades($attendance_id) {
 
 // to get the grades, we need the attendance ID
 function get_test_grades($attendance_id) {
-	$grades = [];
+	$test_grades = [];
 	$link = open_database_connection();
 	$stmt = $link->prepare("SELECT tgi.tgrade, tgi.tgtype_id, tgt.tgtype_name
 		FROM test_grade_instances tgi
