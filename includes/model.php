@@ -321,6 +321,27 @@ function create_class_instance($class_id, $date) {
 	return $cinstance_id;
 
 }
+// Find the attendance id for a given cinstance_id and student ID, if one exists
+// Arguments: class_id, date
+// Returns the id of the class_instance
+function get_attendance_id($cinstance_id, $student_id) {
+	$link = open_database_connection();
+  $stmt = $link->prepare("SELECT a.attendance_id
+  	FROM attendance a
+  	WHERE a.cinstance_id = :cinstance_id AND a.student_id = :student_id");
+  $stmt->execute(['cinstance_id' => $cinstance_id, 'student_id' => $student_id]);
+
+  // The class instance exists, return its ID
+  if ($result = $stmt->fetch()) {
+    // echo "<p>class instance exists</p>";
+    $attendance_id = $result['attendance_id'];
+  }
+	else {
+		$attendance_id = FALSE;
+	}
+	close_database_connection($link);
+	return $attendance_id;
+}
 
 
 // Check if a class is an All Stars class that gets grades using the given class_id
