@@ -57,20 +57,18 @@ if ($students = get_students_for_class($class_id, $teacher_id, $date)) {
 		// unset grades array so that previous grade data doesn't get displayed for absent students
 		$test_grades = [];
 		// get class instance for the class id and date
-		/*$tginstance_id = get_test_grade_instance($class_id, $date);
+		$cinstance_id = get_class_instance($class_id, $date);
 		// if a test grade instance exists, then there must have been some test grade data entered
 		if($cinstance_id) {
 			// select the test grade data (present and notes) using cinstance_id and student_id
 			$attendance = get_attendance($cinstance_id, $student['student_id']);
 			$present = $attendance['present'];
-			if(is_graded_class($class_id)) {
-				$test_grades = get_grades($attendance['attendance_id']);
-			}
+			$test_grades = get_test_grades($attendance['attendance_id']);
 				// create HTML form with default values from db query
 					// if it's a graded class
 						// select test_grades
 							// add form fields for test_grades with default values from db query
-		}*/
+		}
 		// display form, using existing values if they are set from above
 		echo "<tr><td>" . htmlspecialchars($student['student_id'], ENT_QUOTES, 'UTF-8') . "</td>
 				<td>" . htmlspecialchars($student['student_name'], ENT_QUOTES, 'UTF-8') . "</td>

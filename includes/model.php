@@ -482,6 +482,23 @@ function get_grades($attendance_id) {
   return $grades;
 }
 
+// to get the grades, we need the attendance ID
+function get_test_grades($attendance_id) {
+	$grades = [];
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT tgi.tgrade, tgi.tgtype_id, tgt.tgtype_name
+		FROM test_grade_instances tgi
+		INNER JOIN test_grade_types tgt ON tgi.tgtype_id = tgt.tgtype_id
+		WHERE tgi.attendance_id = :attendance_id
+		ORDER BY tgi.tgtype_id");
+	$stmt->execute(['attendance_id' => $attendance_id]);
+	while ($row = $stmt->fetch()) {
+		$test_grades[strtolower($row['tgtype_name'])] = $row['tgrade'];
+	}
+	close_database_connection($link);
+  return $test_grades;
+}
+
 // Insert a new attendance record, returning its attendance ID
 function add_attendance($cinstance_id, $teacher_id, $student_id, $present, $notes) {
 	$link = open_database_connection();
