@@ -15,7 +15,7 @@ require_once('includes/model.php');
 <ul>
 
 <?php
-$test_periods = get_test_periods();
+$test_periods = get_all_tests();
 foreach ($test_periods as $test_period)
 {
     echo "<li><a href=\"list_students.php?testid=" . htmlspecialchars($test_period['test_id'], ENT_QUOTES, 'UTF-8') . "\">" .

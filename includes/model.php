@@ -896,25 +896,44 @@ function get_test_grade_types() {
   return $test_grade_types;
 }
 
-// Get a list of test periods.
+// Get a list of test information.
 // Arguments: none
 // Returns array of test IDs, test names, start dates and end dates for each test
-function get_test_periods() {
+function get_all_tests() {
   $link = open_database_connection();
 
 	// initialize array for test periods
-	$test_periods = array();
+	$tests = array();
   $stmt = $link->prepare("SELECT test_id, test_name, start_date, end_date FROM tests ORDER BY start_date");
   $stmt->execute();
 
 	if ($stmt->rowCount()) {
-		$test_periods = $stmt->fetchall();
+		$tests = $stmt->fetchall();
 	}
 	else {
-		$test_periods = FALSE;
+		$tests = FALSE;
 	}
 	close_database_connection($link);
-	return $test_periods;
+	return $tests;
+}
+
+// Get the information of a test based on the test ID.
+// Arguments: test_id
+// Returns array with the start date and end date
+function get_test_by_id($test_id) {
+  $link = open_database_connection();
+
+  $stmt = $link->prepare("SELECT test_id, test_name, start_date, end_date FROM tests WHERE test_id = :test_id");
+  $stmt->execute(['test_id' => $test_id]);
+
+	if ($stmt->rowCount()) {
+		$test = $stmt->fetch();
+	}
+	else {
+		$test = FALSE;
+	}
+  close_database_connection($link);
+  return $test;
 }
 
 // Get the name of a test based on the test date.

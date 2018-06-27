@@ -2,13 +2,16 @@
 //Continue the session
 session_start();
 
+$test_id = $_SESSION["test_id"] = $_GET["testid"] ?? $_SESSION["test_id"] ?? NULL;
 $student_id = $_SESSION["student_id"] = $_GET["sid"] ?? $_SESSION["student_id"] ?? NULL;
 
-// XXXX - ONLY FOR TEST 3 PERIOD!! - XXXX
-$start_date = "2017-12-17";
-$end_date = "2018-03-31";
-
 require_once('includes/model.php');
+// XXXX - ONLY FOR TEST 4 PERIOD!! - XXXX
+//$start_date = "2017-12-17";
+//$end_date = "2018-03-31";
+$test_info = get_test_by_id($test_id);
+$start_date = $test_info["start_date"];
+$end_date = $test_info["end_date"];
 
 
 // get the student's ID, student's name, class's ID, level name
