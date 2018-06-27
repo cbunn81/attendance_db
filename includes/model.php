@@ -956,4 +956,28 @@ function get_test_name($test_date) {
   close_database_connection($link);
   return $test_name;
 }
+
+// Get the averages for a given level and test.
+// Arguments: level name, test name
+// Returns array of averages for each of the test grade types
+get_test_averages($level_name, $test_name, $tgtype_name) {
+	$link = open_database_connection();
+  // initiate array for grade types
+  $test_averages = array();
+  $stmt = $link->prepare("SELECT ROUND(AVG(tgi.tgrade::INTEGER),2) FROM test_grade_instances tgi
+															INNER JOIN tests t ON tgi.test_id = t.test_id AND LOWER(t.test_name) = LOWER(:test_name)
+															INNER JOIN attendance a ON tgi.attendance_id = a.attendance_id
+															INNER JOIN class_instances ci ON a.cinstance_id = ci.cinstance_id
+															INNER JOIN classes c ON ci.class_id = c.class_id
+															INNER JOIN levels l ON c.level_id = l.level_id AND l.level_name = :level_name
+															INNER JOIN test_grade_types tgt ON tgi.tgtype_id = tgt.tgtype_id AND LOWER(tgt.tgtype_name) = LOWER(:tgtype_name)");
+  $stmt->execute(['level_name' => $level_name, 'test_name' => $test_name, 'tgtype_name' => $tgtype_name]);
+//XXX untested!
+
+  while($row = $stmt->fetch()) {
+    //$test_grade_types[$row['tgtype_id']] = $row['tgtype_name'];
+  }
+  close_database_connection($link);
+  return $test_grade_types;
+}
 ?>

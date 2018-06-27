@@ -202,7 +202,7 @@ $averages["AS5"] = array(
 	"total" => 19.0,
 );
 ?>
-	<h2>Test #4 Results (<?php echo $class_info['level_name']; ?>)</h2>
+	<h2><?php echo $test_info["test_name"]; ?> Results (<?php echo $class_info['level_name']; ?>)</h2>
 
 	<table>
 		<thead>
@@ -214,6 +214,17 @@ $averages["AS5"] = array(
 			</tr>
 		</thead>
 		<tbody>
+<?php
+$test_grade_types = get_test_grade_types();
+foreach($test_grade_types as $test_grade_type) {
+	$test_averages = get_test_averages($class_info['level_name'], $test_info["test_name"], $test_grade_type);
+
+// XXX this won't work because the array only has the id and name
+	echo "<tr>\r\n<td>" .$test_grade_type['tgtype_name'] . "</td>\r\n" .
+	 		"<td>" . $test_grade_type['tgtype_maximum_value'] . "</td>\r\n" .
+			"<td>" . /* student's score */ . "</td>" .
+			"<td>" . /*average score */ . "</td>\r\n</tr>";
+}
 			<tr>
 				<td>Listening</td>
 				<td>5</td>
