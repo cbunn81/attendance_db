@@ -984,7 +984,7 @@ function get_test_averages($test_name, $level_name) {
 	$link = open_database_connection();
   // initiate array for grade types
   $test_averages = array();
-  $stmt = $link->prepare("SELECT tgt.tgtype_name, ROUND(AVG(tgi.tgrade::INTEGER),2) AS avg_grade FROM test_grade_instances tgi
+  $stmt = $link->prepare("SELECT tgt.tgtype_name, AVG(tgi.tgrade::INTEGER) AS avg_grade FROM test_grade_instances tgi
 														INNER JOIN test_grade_types tgt ON tgi.tgtype_id = tgt.tgtype_id
 														INNER JOIN tests t ON tgi.test_id = t.test_id AND LOWER(t.test_name) = LOWER(:test_name)
 														INNER JOIN attendance a ON tgi.attendance_id = a.attendance_id

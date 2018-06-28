@@ -130,7 +130,7 @@ if(is_graded_class($class_info['class_id'])) {
 		echo "<tr><td></td><td>Average</td>";
 		//reset($grade_types);
 		foreach($grade_types as $grade_type) {
-			echo "<td>" . number_format((float)($grades_total[strtolower($grade_type)] / $grades_count[strtolower($grade_type)]), 2, '.','')  . "</td>";
+			echo "<td>" . round((float)($grades_total[strtolower($grade_type)] / $grades_count[strtolower($grade_type)]), 1)  . "</td>";
 		}
 		echo "</tr>";
 	}
@@ -141,67 +141,6 @@ if(is_graded_class($class_info['class_id'])) {
 	</tbody>
 </table>
 
-
-<?php
-
-if(is_graded_class($class_info['class_id'])) {
-	// Set the average scores for each level - each level has an associative array of scores
-	$averages["AS1"] = array(
-	"listening" => 4.5,
-	"reading" => 3.3,
-	"handwriting" => 4.1,
-	"intonation" => 1.9,
-	"pronunciation" => 1.7,
-	"speed" => 1.7,
-	"accuracy" => 1.6,
-	"confidence" => 1.7,
-	"total" => 20.5,
-);
-$averages["AS2"] = array(
-	"listening" => 4.5,
-	"reading" => 2.8,
-	"handwriting" => 4.4,
-	"intonation" => 1.8,
-	"pronunciation" => 1.9,
-	"speed" => 1.8,
-	"accuracy" => 1.6,
-	"confidence" => 1.7,
-	"total" => 20.4,
-);
-$averages["AS3"] = array(
-	"listening" => 4.5,
-	"reading" => 3.8,
-	"handwriting" => 4.9,
-	"intonation" => 2.0,
-	"pronunciation" => 2.0,
-	"speed" => 2.0,
-	"accuracy" => 1.9,
-	"confidence" => 1.8,
-	"total" => 22.7,
-);
-$averages["AS4"] = array(
-	"listening" => 5.0,
-	"reading" => 5.0,
-	"handwriting" => 5.0,
-	"intonation" => 2.0,
-	"pronunciation" => 2.0,
-	"speed" => 2.0,
-	"accuracy" => 2.0,
-	"confidence" => 2.0,
-	"total" => 25.0,
-);
-$averages["AS5"] = array(
-	"listening" => 5.0,
-	"reading" => 3.0,
-	"handwriting" => 4.5,
-	"intonation" => 1.5,
-	"pronunciation" => 1.0,
-	"speed" => 1.5,
-	"accuracy" => 1.0,
-	"confidence" => 1.5,
-	"total" => 19.0,
-);
-?>
 	<h2><?php echo $test_info["test_name"]; ?> Results (<?php echo $class_info['level_name']; ?>)</h2>
 
 	<table>
@@ -215,28 +154,37 @@ $averages["AS5"] = array(
 		</thead>
 		<tbody>
 <?php
+
 $test_grade_types = get_test_grade_types();
 $test_averages = get_test_averages($test_info["test_name"], $class_info['level_name']);
+$test_grade_maximum_value_total = 0;
+$test_grade_total = 0;
+$test_averages_total = 0;
+
 foreach($test_grade_types as $test_grade_type) {
 	$test_grade_type_info = get_test_grade_type_info($test_grade_type);
 	$test_grades = get_test_grades($attendance_id);
-print_r($test_grade_type_info);
-print_r($test_grades);
-print_r($test_averages);
+	$test_grade_maximum_value_total += $test_grade_type_info['tgtype_maximum_value'];
+	$test_grade_total += $test_grades[$test_grade_type_info['tgtype_name']];
+	$test_averages_total += $test_averages[$test_grade_type];
+//print_r($test_grade_type_info);
+//print_r($test_grades);
+//print_r($test_averages);
+echo " AVGTOT: $test_averages_total";
 
 	echo "<tr>\r\n<td>" . $test_grade_type_info['tgtype_name'] . "</td>\r\n" .
 	 		"<td>" . $test_grade_type_info['tgtype_maximum_value'] . "</td>\r\n" .
 			"<td>" . $test_grades[$test_grade_type_info['tgtype_name']] . "</td>" .
-			"<td>" . $test_averages[$test_grade_type] . "</td>\r\n</tr>";
+			"<td>" . round((float)$test_averages[$test_grade_type],1) . "</td>\r\n</tr>";
 }
 ?>
 		</tbody>
 		<tfoot>
 			<tr>
 				<td>Total</td>
-				<td>25</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["total"]; ?></td>
+				<td><?php echo $test_grade_maximum_value_total; ?></td>
+				<td><?php echo $test_grade_total; ?></td>
+				<td><?php echo round((float)$test_averages_total,1); ?></td>
 			</tr>
 		</tfoot>
 	</table>
