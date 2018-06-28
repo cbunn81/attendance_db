@@ -216,63 +216,20 @@ $averages["AS5"] = array(
 		<tbody>
 <?php
 $test_grade_types = get_test_grade_types();
+$test_averages = get_test_averages($test_info["test_name"], $class_info['level_name']);
 foreach($test_grade_types as $test_grade_type) {
-	$test_averages = get_test_averages($class_info['level_name'], $test_info["test_name"], $test_grade_type);
+	$test_grade_type_info = get_test_grade_type_info($test_grade_type);
+	$test_grades = get_test_grades($attendance_id);
+print_r($test_grade_type_info);
+print_r($test_grades);
+print_r($test_averages);
 
-// XXX this won't work because the array only has the id and name
-	echo "<tr>\r\n<td>" .$test_grade_type['tgtype_name'] . "</td>\r\n" .
-	 		"<td>" . $test_grade_type['tgtype_maximum_value'] . "</td>\r\n" .
-			"<td>" . /* student's score */ . "</td>" .
-			"<td>" . /*average score */ . "</td>\r\n</tr>";
+	echo "<tr>\r\n<td>" . $test_grade_type_info['tgtype_name'] . "</td>\r\n" .
+	 		"<td>" . $test_grade_type_info['tgtype_maximum_value'] . "</td>\r\n" .
+			"<td>" . $test_grades[$test_grade_type_info['tgtype_name']] . "</td>" .
+			"<td>" . $test_averages[$test_grade_type] . "</td>\r\n</tr>";
 }
-			<tr>
-				<td>Listening</td>
-				<td>5</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["listening"]; ?></td>
-			</tr>
-			<tr>
-				<td>Reading/Writing</td>
-				<td>5</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["reading"]; ?></td>
-			</tr>
-			<tr>
-				<td>Handwriting</td>
-				<td>5</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["handwriting"]; ?></td>
-			</tr>
-			<tr>
-				<td>Speaking - Intonation</td>
-				<td>2</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["intonation"]; ?></td>
-			</tr>
-			<tr>
-				<td>Speaking - Pronunciation</td>
-				<td>2</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["pronunciation"]; ?></td>
-			</tr>
-			<tr>
-				<td>Speaking - Speed</td>
-				<td>2</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["speed"]; ?></td>
-			</tr>
-			<tr>
-				<td>Speaking - Accuracy</td>
-				<td>2</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["accuracy"]; ?></td>
-			</tr>
-			<tr>
-				<td>Speaking - Confidence</td>
-				<td>2</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["confidence"]; ?></td>
-			</tr>
+?>
 		</tbody>
 		<tfoot>
 			<tr>
