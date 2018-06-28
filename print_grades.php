@@ -141,6 +141,12 @@ if(is_graded_class($class_info['class_id'])) {
 	</tbody>
 </table>
 
+
+<?php
+
+if(is_graded_class($class_info['class_id'])) :
+
+?>
 	<h2><?php echo $test_info["test_name"]; ?> Results (<?php echo $class_info['level_name']; ?>)</h2>
 
 	<table>
@@ -170,7 +176,7 @@ foreach($test_grade_types as $test_grade_type) {
 //print_r($test_grade_type_info);
 //print_r($test_grades);
 //print_r($test_averages);
-echo " AVGTOT: $test_averages_total";
+//echo " AVGTOT: $test_averages_total";
 
 	echo "<tr>\r\n<td>" . $test_grade_type_info['tgtype_name'] . "</td>\r\n" .
 	 		"<td>" . $test_grade_type_info['tgtype_maximum_value'] . "</td>\r\n" .
@@ -190,7 +196,7 @@ echo " AVGTOT: $test_averages_total";
 	</table>
 
 <?php
-}
+endif;
 endforeach;  // End of loop for current classes
 ?>
 
