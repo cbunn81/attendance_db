@@ -2,13 +2,16 @@
 //Continue the session
 session_start();
 
+$test_id = $_SESSION["test_id"] = $_GET["testid"] ?? $_SESSION["test_id"] ?? NULL;
 $student_id = $_SESSION["student_id"] = $_GET["sid"] ?? $_SESSION["student_id"] ?? NULL;
 
-// XXXX - ONLY FOR TEST 3 PERIOD!! - XXXX
-$start_date = "2017-12-17";
-$end_date = "2018-03-31";
-
 require_once('includes/model.php');
+// XXXX - ONLY FOR TEST 4 PERIOD!! - XXXX
+//$start_date = "2017-12-17";
+//$end_date = "2018-03-31";
+$test_info = get_test_by_id($test_id);
+$start_date = $test_info["start_date"];
+$end_date = $test_info["end_date"];
 
 
 // get the student's ID, student's name, class's ID, level name
@@ -22,11 +25,11 @@ if (!(get_student_info($student_id))) {
 else {
 	$student_info = get_student_info($student_id);
 }
-if(!(get_classes_for_student_by_date_range($student_id, $start_date, $end_date))) {
+if(!(get_levels_for_student_by_date_range($student_id, $start_date, $end_date))) {
 	echo "Student has no classes.";
 }
 else {
-	$current_classes = get_classes_for_student_by_date_range($student_id, $start_date, $end_date);
+	$current_levels = get_levels_for_student_by_date_range($student_id, $start_date, $end_date);
 }
 ?>
 
@@ -47,10 +50,15 @@ $grade_types = get_grade_types();
 
 <?php
 //Loop through a student's current classes, if there are more than one
-foreach($current_classes as $class_info):
+foreach($current_levels as $level_info):
+	// Create query to get all attendance info for the student
+	$attendance = get_attendance_from_date_range($student_id, $level_info['level_id'], $start_date, $end_date);
+
+	// only show data if there's some attendance to report
+	if($attendance) :
 	?>
 
-<h2>Level: <?php echo $class_info['level_name']; ?></h2>
+<h2>Level: <?php echo $level_info['level_name']; ?></h2>
 <table>
 	<thead>
 		<tr>
@@ -58,7 +66,7 @@ foreach($current_classes as $class_info):
 			<td>Present</td>
 
 <?php
-if(is_graded_class($class_info['class_id'])) {
+if(is_graded_level($level_info['level_id'])) {
 	foreach($grade_types as $grade_type)
 	{
 		echo "<td>$grade_type</td>";
@@ -77,62 +85,66 @@ if(is_graded_class($class_info['class_id'])) {
 	$grades_total = array_change_key_case(array_fill_keys($grade_types,0), CASE_LOWER);
 	$grades_count = array_change_key_case(array_fill_keys($grade_types,0), CASE_LOWER);
 
-	// Create query to get all attendance ids for the student
-	$attendance = get_attendance_from_date_range($student_id, $class_info['class_id'], $start_date, $end_date);
 
-	// Loop through getting grade information for each attendance_id and printing them out
-	foreach ($attendance as $attendance_instance)
-	{
-		$attendance_id = $attendance_instance['attendance_id'];
-		$cinstance_id = $attendance_instance['cinstance_id'];
-		$cinstance_date = $attendance_instance['cinstance_date'];
-		$present = $attendance_instance['present'] ? "Present" : "Absent";
-		$notes = $attendance_instance['notes'];
+		// Loop through getting grade information for each attendance_id and printing them out
+		foreach ($attendance as $attendance_instance)
+		{
+			$attendance_id = $attendance_instance['attendance_id'];
+			$cinstance_id = $attendance_instance['cinstance_id'];
+			$cinstance_date = $attendance_instance['cinstance_date'];
+			$present = $attendance_instance['present'] ? "Present" : "Absent";
+			$notes = $attendance_instance['notes'];
 
-		echo "<tr>";
-		echo "<td>" .$attendance_instance['cinstance_date'] . "</td>";
-		if (is_makeup_lesson($student_id, $attendance_instance['cinstance_id'])) {
-			$makeup_count++;
-			echo "<td>" . $present . " (Makeup)</td>";
-		}
-		else {
-			echo "<td>" . $present . "</td>";
-		}
+			echo "<tr>";
+			echo "<td>" .$attendance_instance['cinstance_date'] . "</td>";
+			if (is_makeup_lesson($student_id, $attendance_instance['cinstance_id'])) {
+				$makeup_count++;
+				echo "<td>" . $present . " (Makeup)</td>";
+			}
+			else {
+				echo "<td>" . $present . "</td>";
+			}
 
 
-		// Only query for grades if the student is present
-		if($attendance_instance['present']) {
-			if(is_graded_class($class_info['class_id'])) {
-				$grades = get_grades($attendance_id);
-				foreach ($grades as $grade_type => $grade) {
-					// Add the current grade the the total for this grade type
-					$grades_total[$grade_type] += $grade;
-					$grades_count[$grade_type]++;
-					echo "<td>" . $grade . "</td>";
+			// Only query for grades if the student is present
+			if($attendance_instance['present']) {
+				if(is_graded_level($level_info['level_id'])) {
+					$grades = get_grades($attendance_id);
+					foreach ($grades as $grade_type => $grade) {
+						// Add the current grade the the total for this grade type
+						$grades_total[$grade_type] += $grade;
+						$grades_count[$grade_type]++;
+						echo "<td>" . $grade . "</td>";
+					}
 				}
 			}
-		}
-		// Otherwise, output 5 filler table cells and increment the Absence Counter
-		else {
-			if(is_graded_class($class_info['class_id'])) {
-				echo "<td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>";
+			// Otherwise, output 5 filler table cells and increment the Absence Counter
+			else {
+				if(is_graded_level($level_info['level_id'])) {
+					echo "<td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>";
+				}
+				$absence_count++;
 			}
-			$absence_count++;
-		}
 
-		echo "</tr>";
-	}
-	if(is_graded_class($class_info['class_id'])) {
-		// Output the averages for all grade types
-		echo "<tr><td></td><td>Average</td>";
-		//reset($grade_types);
-		foreach($grade_types as $grade_type) {
-			echo "<td>" . number_format((float)($grades_total[strtolower($grade_type)] / $grades_count[strtolower($grade_type)]), 2, '.','')  . "</td>";
+			echo "</tr>";
 		}
-		echo "</tr>";
-	}
-	echo "<tr><td colspan=\"2\">Total Absences</td><td colspan=\"5\">$absence_count</td></tr>";
-	echo "<tr><td colspan=\"2\">Total Makeups</td><td colspan=\"5\">$makeup_count</td></tr>";
+		if(is_graded_level($level_info['level_id'])) {
+			// Output the averages for all grade types
+			echo "<tr><td></td><td>Average</td>";
+			//reset($grade_types);
+			foreach($grade_types as $grade_type) {
+				if($grades_count[strtolower($grade_type)] > 0){
+					echo "<td>" . round((float)($grades_total[strtolower($grade_type)] / $grades_count[strtolower($grade_type)]), 1)  . "</td>";
+				}
+				else {
+					echo "<td>-</td>";
+				}
+			}
+			echo "</tr>";
+		}
+		echo "<tr><td colspan=\"2\">Total Absences</td><td colspan=\"5\">$absence_count</td></tr>";
+		echo "<tr><td colspan=\"2\">Total Makeups</td><td colspan=\"5\">$makeup_count</td></tr>";
+
 ?>
 
 	</tbody>
@@ -141,65 +153,11 @@ if(is_graded_class($class_info['class_id'])) {
 
 <?php
 
-if(is_graded_class($class_info['class_id'])) {
-	// Set the average scores for each level - each level has an associative array of scores
-	$averages["AS1"] = array(
-	"listening" => 4.5,
-	"reading" => 3.3,
-	"handwriting" => 4.1,
-	"intonation" => 1.9,
-	"pronunciation" => 1.7,
-	"speed" => 1.7,
-	"accuracy" => 1.6,
-	"confidence" => 1.7,
-	"total" => 20.5,
-);
-$averages["AS2"] = array(
-	"listening" => 4.5,
-	"reading" => 2.8,
-	"handwriting" => 4.4,
-	"intonation" => 1.8,
-	"pronunciation" => 1.9,
-	"speed" => 1.8,
-	"accuracy" => 1.6,
-	"confidence" => 1.7,
-	"total" => 20.4,
-);
-$averages["AS3"] = array(
-	"listening" => 4.5,
-	"reading" => 3.8,
-	"handwriting" => 4.9,
-	"intonation" => 2.0,
-	"pronunciation" => 2.0,
-	"speed" => 2.0,
-	"accuracy" => 1.9,
-	"confidence" => 1.8,
-	"total" => 22.7,
-);
-$averages["AS4"] = array(
-	"listening" => 5.0,
-	"reading" => 5.0,
-	"handwriting" => 5.0,
-	"intonation" => 2.0,
-	"pronunciation" => 2.0,
-	"speed" => 2.0,
-	"accuracy" => 2.0,
-	"confidence" => 2.0,
-	"total" => 25.0,
-);
-$averages["AS5"] = array(
-	"listening" => 5.0,
-	"reading" => 3.0,
-	"handwriting" => 4.5,
-	"intonation" => 1.5,
-	"pronunciation" => 1.0,
-	"speed" => 1.5,
-	"accuracy" => 1.0,
-	"confidence" => 1.5,
-	"total" => 19.0,
-);
+// Only output test grade info if the class is a graded on and the student has taken the test
+if((is_graded_level($level_info['level_id'])) && (is_test_taken($student_id,$test_id))) :
+
 ?>
-	<h2>Test #4 Results (<?php echo $class_info['level_name']; ?>)</h2>
+	<h2><?php echo $test_info["test_name"]; ?> Results (<?php echo $level_info['level_name']; ?>)</h2>
 
 	<table>
 		<thead>
@@ -211,67 +169,45 @@ $averages["AS5"] = array(
 			</tr>
 		</thead>
 		<tbody>
-			<tr>
-				<td>Listening</td>
-				<td>5</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["listening"]; ?></td>
-			</tr>
-			<tr>
-				<td>Reading/Writing</td>
-				<td>5</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["reading"]; ?></td>
-			</tr>
-			<tr>
-				<td>Handwriting</td>
-				<td>5</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["handwriting"]; ?></td>
-			</tr>
-			<tr>
-				<td>Speaking - Intonation</td>
-				<td>2</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["intonation"]; ?></td>
-			</tr>
-			<tr>
-				<td>Speaking - Pronunciation</td>
-				<td>2</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["pronunciation"]; ?></td>
-			</tr>
-			<tr>
-				<td>Speaking - Speed</td>
-				<td>2</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["speed"]; ?></td>
-			</tr>
-			<tr>
-				<td>Speaking - Accuracy</td>
-				<td>2</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["accuracy"]; ?></td>
-			</tr>
-			<tr>
-				<td>Speaking - Confidence</td>
-				<td>2</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["confidence"]; ?></td>
-			</tr>
+<?php
+
+$test_grade_types = get_test_grade_types();
+$test_averages = get_test_averages($test_info["test_name"], $level_info['level_name']);
+$test_grade_maximum_value_total = 0;
+$test_grade_total = 0;
+$test_averages_total = 0;
+
+foreach($test_grade_types as $test_grade_type) {
+	$test_grade_type_info = get_test_grade_type_info($test_grade_type);
+	$test_grades = get_test_grades($attendance_id);
+	$test_grade_maximum_value_total += $test_grade_type_info['tgtype_maximum_value'];
+	$test_grade_total += $test_grades[$test_grade_type_info['tgtype_name']];
+	$test_averages_total += $test_averages[$test_grade_type];
+//print_r($test_grade_type_info);
+//print_r($test_grades);
+//print_r($test_averages);
+//echo " AVGTOT: $test_averages_total";
+
+	echo "<tr>\r\n<td>" . $test_grade_type_info['tgtype_name'] . "</td>\r\n" .
+	 		"<td>" . $test_grade_type_info['tgtype_maximum_value'] . "</td>\r\n" .
+			"<td>" . $test_grades[$test_grade_type_info['tgtype_name']] . "</td>" .
+			"<td>" . round((float)$test_averages[$test_grade_type],1) . "</td>\r\n</tr>";
+}
+?>
 		</tbody>
 		<tfoot>
 			<tr>
 				<td>Total</td>
-				<td>25</td>
-				<td></td>
-				<td><?php echo $averages[$class_info['level_short_code']]["total"]; ?></td>
+				<td><?php echo $test_grade_maximum_value_total; ?></td>
+				<td><?php echo $test_grade_total; ?></td>
+				<td><?php echo round((float)$test_averages_total,1); ?></td>
 			</tr>
 		</tfoot>
 	</table>
 
 <?php
-}
+endif;
+endif;
 endforeach;  // End of loop for current classes
 ?>
 

@@ -1,4 +1,8 @@
 <?php
+//Continue the session
+session_start();
+
+$test_id = $_SESSION["test_id"] = $_GET["testid"] ?? $_SESSION["test_id"] ?? NULL;
 require_once('includes/model.php');
 ?>
 
