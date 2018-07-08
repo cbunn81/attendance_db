@@ -153,6 +153,7 @@ if(is_graded_class($class_info['class_id'])) {
 
 <?php
 
+// Only output test grade info if the class is a graded on and the student has taken the test
 if((is_graded_class($class_info['class_id'])) && (is_test_taken($student_id,$test_id))) :
 
 ?>
