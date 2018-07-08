@@ -372,6 +372,32 @@ function is_graded_class($class_id) {
   }
 }
 
+// Check if a level is an All Stars class that gets grades using the given class_id
+// Arguments: level_id
+// Returns boolean (true if it is an All Stars class, else false)
+function is_graded_level($level_id) {
+  $link = open_database_connection();
+  $stmt = $link->prepare("SELECT l.level_name
+  	FROM levels l
+  	WHERE l.level_id = :level_id");
+  $stmt->execute(['level_id' => $level_id]);
+
+  while ($result = $stmt->fetch()) {
+    // The level is All Stars
+    if (stripos($result['level_name'], "stars") !== FALSE) {
+      // echo "<p>It is a Child class.</p>";
+		  close_database_connection($link);
+      return TRUE;
+    }
+    // The class instance does not exist, insert it as a row and return the ID
+    else {
+      // echo "<p>It is NOT a Child class.</p>";
+		  close_database_connection($link);
+      return FALSE;
+    }
+  }
+}
+
 // Check if an attendance is a makeup lesson
 // Arguments: student_id and cinstance_id
 // Returns boolean (true if it is a makeup lesson, else false)
@@ -784,7 +810,7 @@ function get_student_info($student_id) {
 															   			WHERE p2e.person_id = p.person_id) AS email_addresses
 															FROM people p
 															INNER JOIN genders g ON p.gender_id = g.gender_id
-															WHERE p.person_id = :student_id;");
+															WHERE p.person_id = :student_id");
 	$stmt->execute(['student_id' => $student_id]);
 
 	if ($stmt->rowCount()) {
@@ -797,7 +823,7 @@ function get_student_info($student_id) {
 	return $student_info;
 }
 
-// Get a list of class IDs that the student is currently enrolled in
+// Get an array of class info for each class that the student is currently enrolled in
 function get_current_classes_for_student($student_id) {
 	$link = open_database_connection();
 	$stmt = $link->prepare("SELECT c.class_id,
@@ -809,7 +835,7 @@ function get_current_classes_for_student($student_id) {
 														INNER JOIN class_types ct ON ct.ctype_id = c.ctype_id
 														INNER JOIN roster r ON r.class_id = c.class_id
 															AND current_date BETWEEN r.start_date AND r.end_date
-														WHERE r.person_id = :student_id;");
+														WHERE r.person_id = :student_id");
 	$stmt->execute(['student_id' => $student_id]);
 	if ($stmt->rowCount()) {
 		$current_classes = $stmt->fetchall();
@@ -834,7 +860,7 @@ function get_classes_for_student_by_date_range($student_id, $start_date, $end_da
 														INNER JOIN class_types ct ON ct.ctype_id = c.ctype_id
 														INNER JOIN roster r ON r.class_id = c.class_id
 															AND (:start_date, :end_date) OVERLAPS (r.start_date, r.end_date)
-														WHERE r.person_id = :student_id;");
+														WHERE r.person_id = :student_id");
 	$stmt->execute(['student_id' => $student_id, 'start_date'=> $start_date, 'end_date' => $end_date]);
 	if ($stmt->rowCount()) {
 		$current_classes = $stmt->fetchall();
@@ -844,6 +870,26 @@ function get_classes_for_student_by_date_range($student_id, $start_date, $end_da
 	}
 	close_database_connection($link);
 	return $current_classes;
+}
+
+// Get an array of class info for levels that the student is enrolled in for a given date period
+function get_levels_for_student_by_date_range($student_id, $start_date, $end_date) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT DISTINCT l.level_id,	l.level_name, l.level_short_code
+														FROM levels l
+														INNER JOIN classes c ON l.level_id = c.level_id
+														INNER JOIN roster r ON r.class_id = c.class_id
+															AND (:start_date, :end_date) OVERLAPS (r.start_date, r.end_date)
+														WHERE r.person_id = :student_id");
+	$stmt->execute(['student_id' => $student_id, 'start_date' => $start_date, 'end_date' => $end_date]);
+	if ($stmt->rowCount()) {
+		$current_levels = $stmt->fetchall();
+	}
+	else {
+		$current_levels = FALSE;
+	}
+	close_database_connection($link);
+	return $current_levels;
 }
 
 // Get all the fields for a class

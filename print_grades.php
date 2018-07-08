@@ -25,11 +25,11 @@ if (!(get_student_info($student_id))) {
 else {
 	$student_info = get_student_info($student_id);
 }
-if(!(get_classes_for_student_by_date_range($student_id, $start_date, $end_date))) {
+if(!(get_levels_for_student_by_date_range($student_id, $start_date, $end_date))) {
 	echo "Student has no classes.";
 }
 else {
-	$current_classes = get_classes_for_student_by_date_range($student_id, $start_date, $end_date);
+	$current_levels = get_levels_for_student_by_date_range($student_id, $start_date, $end_date);
 }
 ?>
 
@@ -50,15 +50,15 @@ $grade_types = get_grade_types();
 
 <?php
 //Loop through a student's current classes, if there are more than one
-foreach($current_classes as $class_info):
+foreach($current_levels as $level_info):
 	// Create query to get all attendance info for the student
-	$attendance = get_attendance_from_date_range($student_id, $class_info['level_id'], $start_date, $end_date);
+	$attendance = get_attendance_from_date_range($student_id, $level_info['level_id'], $start_date, $end_date);
 
 	// only show data if there's some attendance to report
 	if($attendance) :
 	?>
 
-<h2>Level: <?php echo $class_info['level_name']; ?></h2>
+<h2>Level: <?php echo $level_info['level_name']; ?></h2>
 <table>
 	<thead>
 		<tr>
@@ -66,7 +66,7 @@ foreach($current_classes as $class_info):
 			<td>Present</td>
 
 <?php
-if(is_graded_class($class_info['class_id'])) {
+if(is_graded_level($level_info['level_id'])) {
 	foreach($grade_types as $grade_type)
 	{
 		echo "<td>$grade_type</td>";
@@ -108,7 +108,7 @@ if(is_graded_class($class_info['class_id'])) {
 
 			// Only query for grades if the student is present
 			if($attendance_instance['present']) {
-				if(is_graded_class($class_info['class_id'])) {
+				if(is_graded_level($level_info['level_id'])) {
 					$grades = get_grades($attendance_id);
 					foreach ($grades as $grade_type => $grade) {
 						// Add the current grade the the total for this grade type
@@ -120,7 +120,7 @@ if(is_graded_class($class_info['class_id'])) {
 			}
 			// Otherwise, output 5 filler table cells and increment the Absence Counter
 			else {
-				if(is_graded_class($class_info['class_id'])) {
+				if(is_graded_level($level_info['level_id'])) {
 					echo "<td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>";
 				}
 				$absence_count++;
@@ -128,7 +128,7 @@ if(is_graded_class($class_info['class_id'])) {
 
 			echo "</tr>";
 		}
-		if(is_graded_class($class_info['class_id'])) {
+		if(is_graded_level($level_info['level_id'])) {
 			// Output the averages for all grade types
 			echo "<tr><td></td><td>Average</td>";
 			//reset($grade_types);
@@ -154,10 +154,10 @@ if(is_graded_class($class_info['class_id'])) {
 <?php
 
 // Only output test grade info if the class is a graded on and the student has taken the test
-if((is_graded_class($class_info['class_id'])) && (is_test_taken($student_id,$test_id))) :
+if((is_graded_level($level_info['level_id'])) && (is_test_taken($student_id,$test_id))) :
 
 ?>
-	<h2><?php echo $test_info["test_name"]; ?> Results (<?php echo $class_info['level_name']; ?>)</h2>
+	<h2><?php echo $test_info["test_name"]; ?> Results (<?php echo $level_info['level_name']; ?>)</h2>
 
 	<table>
 		<thead>
@@ -172,7 +172,7 @@ if((is_graded_class($class_info['class_id'])) && (is_test_taken($student_id,$tes
 <?php
 
 $test_grade_types = get_test_grade_types();
-$test_averages = get_test_averages($test_info["test_name"], $class_info['level_name']);
+$test_averages = get_test_averages($test_info["test_name"], $level_info['level_name']);
 $test_grade_maximum_value_total = 0;
 $test_grade_total = 0;
 $test_averages_total = 0;
