@@ -825,6 +825,7 @@ function get_current_classes_for_student($student_id) {
 function get_classes_for_student_by_date_range($student_id, $start_date, $end_date) {
 	$link = open_database_connection();
 	$stmt = $link->prepare("SELECT c.class_id,
+																 l.level_id,
 															   l.level_name,
 																 l.level_short_code,
 																 ct.ctype_name
@@ -856,7 +857,7 @@ function get_class_info($class_id) {
 }
 
 // Get the attendance information for a student based on start and end dates
-function get_attendance_from_date_range($student_id, $class_id, $start_date, $end_date) {
+function get_attendance_from_date_range($student_id, $level_id, $start_date, $end_date) {
 	$link = open_database_connection();
 	//$stmt = $link->prepare("");
 	//$stmt->execute(['' => $]);
@@ -868,11 +869,11 @@ function get_attendance_from_date_range($student_id, $class_id, $start_date, $en
 	  																			FROM attendance a
 	  																			INNER JOIN class_instances ci ON a.cinstance_id = ci.cinstance_id
 																					INNER JOIN classes c ON c.class_id = ci.class_id
+																					INNER JOIN levels l ON c.level_id = l.level_id AND l.level_id = :level_id
 	  																			WHERE a.student_id = :student_id
-																						AND c.class_id = :class_id
 																						AND ci.cinstance_date BETWEEN :start_date AND :end_date
 																					ORDER BY ci.cinstance_date");
-	$stmt->execute(['student_id' => $student_id, 'class_id' => $class_id, 'start_date' => $start_date, 'end_date' => $end_date]);
+	$stmt->execute(['student_id' => $student_id, 'level_id' => $level_id, 'start_date' => $start_date, 'end_date' => $end_date]);
 	if ($stmt->rowCount()) {
 		$attendance = $stmt->fetchall();
 	}

@@ -52,7 +52,7 @@ $grade_types = get_grade_types();
 //Loop through a student's current classes, if there are more than one
 foreach($current_classes as $class_info):
 	// Create query to get all attendance info for the student
-	$attendance = get_attendance_from_date_range($student_id, $class_info['class_id'], $start_date, $end_date);
+	$attendance = get_attendance_from_date_range($student_id, $class_info['level_id'], $start_date, $end_date);
 
 	// only show data if there's some attendance to report
 	if($attendance) :
