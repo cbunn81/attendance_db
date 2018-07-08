@@ -321,6 +321,27 @@ function create_class_instance($class_id, $date) {
 	return $cinstance_id;
 
 }
+// Find the attendance id for a given cinstance_id and student ID, if one exists
+// Arguments: class_id, date
+// Returns the id of the class_instance
+function get_attendance_id($cinstance_id, $student_id) {
+	$link = open_database_connection();
+  $stmt = $link->prepare("SELECT a.attendance_id
+  	FROM attendance a
+  	WHERE a.cinstance_id = :cinstance_id AND a.student_id = :student_id");
+  $stmt->execute(['cinstance_id' => $cinstance_id, 'student_id' => $student_id]);
+
+  // The class instance exists, return its ID
+  if ($result = $stmt->fetch()) {
+    // echo "<p>class instance exists</p>";
+    $attendance_id = $result['attendance_id'];
+  }
+	else {
+		$attendance_id = FALSE;
+	}
+	close_database_connection($link);
+	return $attendance_id;
+}
 
 
 // Check if a class is an All Stars class that gets grades using the given class_id
@@ -334,6 +355,32 @@ function is_graded_class($class_id) {
     ON l.level_id = c.level_id
   	WHERE c.class_id = :class_id");
   $stmt->execute(['class_id' => $class_id]);
+
+  while ($result = $stmt->fetch()) {
+    // The level is All Stars
+    if (stripos($result['level_name'], "stars") !== FALSE) {
+      // echo "<p>It is a Child class.</p>";
+		  close_database_connection($link);
+      return TRUE;
+    }
+    // The class instance does not exist, insert it as a row and return the ID
+    else {
+      // echo "<p>It is NOT a Child class.</p>";
+		  close_database_connection($link);
+      return FALSE;
+    }
+  }
+}
+
+// Check if a level is an All Stars class that gets grades using the given class_id
+// Arguments: level_id
+// Returns boolean (true if it is an All Stars class, else false)
+function is_graded_level($level_id) {
+  $link = open_database_connection();
+  $stmt = $link->prepare("SELECT l.level_name
+  	FROM levels l
+  	WHERE l.level_id = :level_id");
+  $stmt->execute(['level_id' => $level_id]);
 
   while ($result = $stmt->fetch()) {
     // The level is All Stars
@@ -459,6 +506,23 @@ function get_grades($attendance_id) {
 	}
 	close_database_connection($link);
   return $grades;
+}
+
+// to get the grades, we need the attendance ID
+function get_test_grades($attendance_id) {
+	$test_grades = [];
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT tgi.tgrade, tgi.tgtype_id, tgt.tgtype_name
+		FROM test_grade_instances tgi
+		INNER JOIN test_grade_types tgt ON tgi.tgtype_id = tgt.tgtype_id
+		WHERE tgi.attendance_id = :attendance_id
+		ORDER BY tgi.tgtype_id");
+	$stmt->execute(['attendance_id' => $attendance_id]);
+	while ($row = $stmt->fetch()) {
+		$test_grades[$row['tgtype_name']] = $row['tgrade'];
+	}
+	close_database_connection($link);
+  return $test_grades;
 }
 
 // Insert a new attendance record, returning its attendance ID
@@ -605,6 +669,118 @@ function upsert_grades($attendance_id, $student_data) {
 	return $grade_result;
 }
 
+// Check if test grade for an attendance ID and grade type exist
+function test_grade_exists($attendance_id, $test_grade_type) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT tginstance_id
+														FROM test_grade_instances
+														WHERE attendance_id = :attendance_id
+															AND tgtype_id = (SELECT tgtype_id
+																								FROM test_grade_types
+																								WHERE LOWER(tgtype_name) = LOWER(:test_grade_type))");
+	$stmt->execute(['attendance_id' => $attendance_id,'test_grade_type' => $test_grade_type]);
+	if ($stmt->rowCount()) {
+		$test_grade_exists = TRUE;
+	}
+	else {
+		$test_grade_exists = FALSE;
+	}
+	close_database_connection($link);
+	return $test_grade_exists;
+}
+
+
+// Add a grade
+function add_test_grade($attendance_id, $test_grade_type, $tgrade) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("INSERT INTO test_grade_instances (tgtype_id,
+																												test_id,
+																												attendance_id,
+																												tgrade)
+																VALUES ((SELECT tgtype_id
+																					FROM test_grade_types
+																					WHERE LOWER(tgtype_name) = LOWER(:test_grade_type)),
+																				(SELECT t.test_id
+																					FROM tests t
+																					WHERE (SELECT ci.cinstance_date
+																									FROM class_instances ci
+																									INNER JOIN attendance a
+																									ON ci.cinstance_id = a.cinstance_id
+																									AND a.attendance_id = :attendance_id)
+																									BETWEEN t.start_date AND t.end_date),
+																				:attendance_id,
+																				:tgrade)
+																RETURNING tginstance_id");
+
+	$stmt->execute(['test_grade_type' => $test_grade_type,'attendance_id' => $attendance_id,'tgrade' => $tgrade]);
+	if ($stmt->rowCount()) {
+		$result = $stmt->fetch();
+		// Insert successful, return attendance_id
+		$tginstance_id = $result['tginstance_id'];
+	}
+	else {
+		$tginstance_id = FALSE;
+	}
+	close_database_connection($link);
+	return $tginstance_id;
+}
+
+// UPDATE a test grade
+function update_test_grade($attendance_id, $test_grade_type, $tgrade) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("UPDATE test_grade_instances
+														SET tgrade = :tgrade
+														WHERE attendance_id = :attendance_id
+														AND tgtype_id =
+															(SELECT tgtype_id
+																FROM test_grade_types
+																WHERE LOWER(tgtype_name) = LOWER(:test_grade_type))
+														RETURNING tginstance_id");
+	$stmt->execute(['test_grade_type' => $test_grade_type,'attendance_id' => $attendance_id,'tgrade' => $tgrade]);
+
+	if ($stmt->rowCount()) {
+		$result = $stmt->fetch();
+		// Insert successful, return attendance_id
+		$tginstance_id = $result['tginstance_id'];
+	}
+	else {
+		$tginstance_id = FALSE;
+	}
+	close_database_connection($link);
+	return $tginstance_id;
+}
+
+// Insert or update test grades
+function upsert_test_grades($attendance_id, $student_data) {
+	$link = open_database_connection();
+
+	$test_grade_types = get_test_grade_types();
+	foreach ($test_grade_types as $test_grade_type) {
+		// insert into grade_instances where (select gtype_id from grade_types where gtype_name = $grade_type)
+		// if the data has already been submitted, update the existing record
+		if (test_grade_exists($attendance_id, $test_grade_type)) {
+			$test_grade_result = update_test_grade($attendance_id, $test_grade_type, $student_data[strtolower($test_grade_type)]);
+		}
+		// otherwise, insert a new record
+		else {
+			$test_grade_result = add_test_grade($attendance_id, $test_grade_type, $student_data[strtolower($test_grade_type)]);
+		}
+
+		// Display confirmation of success or failure
+		if ($test_grade_result) {
+			//echo "<p>Success! The ID of the grade instance information entered is " . htmlspecialchars($grade_result, ENT_QUOTES, 'UTF-8') . ".</p>";
+		}
+		else {
+			// Insert failure, return error
+			//echo "<p>Sorry, that didn't work. Error message: ";
+			// echo implode(":", $stmt->errorInfo());
+			//echo "</p>";
+		}
+	}
+	close_database_connection($link);
+	return $test_grade_result;
+}
+
 // Get all the fields for a students
 function get_student_info($student_id) {
 	$link = open_database_connection();
@@ -634,7 +810,7 @@ function get_student_info($student_id) {
 															   			WHERE p2e.person_id = p.person_id) AS email_addresses
 															FROM people p
 															INNER JOIN genders g ON p.gender_id = g.gender_id
-															WHERE p.person_id = :student_id;");
+															WHERE p.person_id = :student_id");
 	$stmt->execute(['student_id' => $student_id]);
 
 	if ($stmt->rowCount()) {
@@ -647,7 +823,7 @@ function get_student_info($student_id) {
 	return $student_info;
 }
 
-// Get a list of class IDs that the student is currently enrolled in
+// Get an array of class info for each class that the student is currently enrolled in
 function get_current_classes_for_student($student_id) {
 	$link = open_database_connection();
 	$stmt = $link->prepare("SELECT c.class_id,
@@ -659,7 +835,7 @@ function get_current_classes_for_student($student_id) {
 														INNER JOIN class_types ct ON ct.ctype_id = c.ctype_id
 														INNER JOIN roster r ON r.class_id = c.class_id
 															AND current_date BETWEEN r.start_date AND r.end_date
-														WHERE r.person_id = :student_id;");
+														WHERE r.person_id = :student_id");
 	$stmt->execute(['student_id' => $student_id]);
 	if ($stmt->rowCount()) {
 		$current_classes = $stmt->fetchall();
@@ -675,6 +851,7 @@ function get_current_classes_for_student($student_id) {
 function get_classes_for_student_by_date_range($student_id, $start_date, $end_date) {
 	$link = open_database_connection();
 	$stmt = $link->prepare("SELECT c.class_id,
+																 l.level_id,
 															   l.level_name,
 																 l.level_short_code,
 																 ct.ctype_name
@@ -683,7 +860,7 @@ function get_classes_for_student_by_date_range($student_id, $start_date, $end_da
 														INNER JOIN class_types ct ON ct.ctype_id = c.ctype_id
 														INNER JOIN roster r ON r.class_id = c.class_id
 															AND (:start_date, :end_date) OVERLAPS (r.start_date, r.end_date)
-														WHERE r.person_id = :student_id;");
+														WHERE r.person_id = :student_id");
 	$stmt->execute(['student_id' => $student_id, 'start_date'=> $start_date, 'end_date' => $end_date]);
 	if ($stmt->rowCount()) {
 		$current_classes = $stmt->fetchall();
@@ -693,6 +870,26 @@ function get_classes_for_student_by_date_range($student_id, $start_date, $end_da
 	}
 	close_database_connection($link);
 	return $current_classes;
+}
+
+// Get an array of class info for levels that the student is enrolled in for a given date period
+function get_levels_for_student_by_date_range($student_id, $start_date, $end_date) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT DISTINCT l.level_id,	l.level_name, l.level_short_code
+														FROM levels l
+														INNER JOIN classes c ON l.level_id = c.level_id
+														INNER JOIN roster r ON r.class_id = c.class_id
+															AND (:start_date, :end_date) OVERLAPS (r.start_date, r.end_date)
+														WHERE r.person_id = :student_id");
+	$stmt->execute(['student_id' => $student_id, 'start_date' => $start_date, 'end_date' => $end_date]);
+	if ($stmt->rowCount()) {
+		$current_levels = $stmt->fetchall();
+	}
+	else {
+		$current_levels = FALSE;
+	}
+	close_database_connection($link);
+	return $current_levels;
 }
 
 // Get all the fields for a class
@@ -706,7 +903,7 @@ function get_class_info($class_id) {
 }
 
 // Get the attendance information for a student based on start and end dates
-function get_attendance_from_date_range($student_id, $class_id, $start_date, $end_date) {
+function get_attendance_from_date_range($student_id, $level_id, $start_date, $end_date) {
 	$link = open_database_connection();
 	//$stmt = $link->prepare("");
 	//$stmt->execute(['' => $]);
@@ -718,15 +915,158 @@ function get_attendance_from_date_range($student_id, $class_id, $start_date, $en
 	  																			FROM attendance a
 	  																			INNER JOIN class_instances ci ON a.cinstance_id = ci.cinstance_id
 																					INNER JOIN classes c ON c.class_id = ci.class_id
+																					INNER JOIN levels l ON c.level_id = l.level_id AND l.level_id = :level_id
 	  																			WHERE a.student_id = :student_id
-																						AND c.class_id = :class_id
 																						AND ci.cinstance_date BETWEEN :start_date AND :end_date
 																					ORDER BY ci.cinstance_date");
-	$stmt->execute(['student_id' => $student_id, 'class_id' => $class_id, 'start_date' => $start_date, 'end_date' => $end_date]);
-	$attendance = $stmt->fetchall();
-
+	$stmt->execute(['student_id' => $student_id, 'level_id' => $level_id, 'start_date' => $start_date, 'end_date' => $end_date]);
+	if ($stmt->rowCount()) {
+		$attendance = $stmt->fetchall();
+	}
+	else {
+		$attendance = FALSE;
+	}
 	close_database_connection($link);
 	return $attendance;
 }
 
+// Get an array containing the names of all the test grade types.
+// Arguments: none
+// Returns array of strings of the names of test grade types
+function get_test_grade_types() {
+  $link = open_database_connection();
+  // initiate array for grade types
+  $test_grade_types = array();
+  $stmt = $link->prepare("SELECT tgtype_id, tgtype_name FROM test_grade_types ORDER BY tgtype_id");
+  $stmt->execute();
+
+  while($row = $stmt->fetch()) {
+    $test_grade_types[$row['tgtype_id']] = $row['tgtype_name'];
+  }
+  close_database_connection($link);
+  return $test_grade_types;
+}
+
+// Get an array containing the info for a test grade type.
+// Arguments: test grade type name
+// Returns array of all the information about a test grade type
+function get_test_grade_type_info($tgtype_name) {
+  $link = open_database_connection();
+  // initiate array for grade types
+  $test_grade_type_info = array();
+  $stmt = $link->prepare("SELECT tgtype_id, tgtype_name, tgtype_desc, tgtype_maximum_value FROM test_grade_types WHERE tgtype_name = :tgtype_name");
+  $stmt->execute(['tgtype_name' => $tgtype_name]);
+
+	if ($stmt->rowCount()) {
+		$test_grade_type_info = $stmt->fetch();
+	}
+	else {
+		$test_grade_type_info = FALSE;
+	}
+  close_database_connection($link);
+  return $test_grade_type_info;
+}
+
+// Get a list of test information.
+// Arguments: none
+// Returns array of test IDs, test names, start dates and end dates for each test
+function get_all_tests() {
+  $link = open_database_connection();
+
+	// initialize array for test periods
+	$tests = array();
+  $stmt = $link->prepare("SELECT test_id, test_name, start_date, end_date FROM tests ORDER BY start_date");
+  $stmt->execute();
+
+	if ($stmt->rowCount()) {
+		$tests = $stmt->fetchall();
+	}
+	else {
+		$tests = FALSE;
+	}
+	close_database_connection($link);
+	return $tests;
+}
+
+// Get the information of a test based on the test ID.
+// Arguments: test_id
+// Returns array with the start date and end date
+function get_test_by_id($test_id) {
+  $link = open_database_connection();
+
+  $stmt = $link->prepare("SELECT test_id, test_name, start_date, end_date FROM tests WHERE test_id = :test_id");
+  $stmt->execute(['test_id' => $test_id]);
+
+	if ($stmt->rowCount()) {
+		$test = $stmt->fetch();
+	}
+	else {
+		$test = FALSE;
+	}
+  close_database_connection($link);
+  return $test;
+}
+
+// Get the name of a test based on the test date.
+// Arguments: test_date
+// Returns string with name of the test
+function get_test_name($test_date) {
+  $link = open_database_connection();
+
+  $stmt = $link->prepare("SELECT test_name FROM tests WHERE :test_date BETWEEN start_date AND end_date");
+  $stmt->execute(['test_date' => $test_date]);
+
+	// The test name exists, return it
+  if ($result = $stmt->fetch()) {
+    // echo "<p>class instance exists</p>";
+    $test_name = $result['test_name'];
+  }
+	else {
+		$test_name = FALSE;
+	}
+  close_database_connection($link);
+  return $test_name;
+}
+
+// Get the averages for a given level and test.
+// Arguments: level name, test name
+// Returns array of averages for each of the test grade types
+function get_test_averages($test_name, $level_name) {
+	$link = open_database_connection();
+  // initiate array for grade types
+  $test_averages = array();
+  $stmt = $link->prepare("SELECT tgt.tgtype_name, AVG(tgi.tgrade::INTEGER) AS avg_grade FROM test_grade_instances tgi
+														INNER JOIN test_grade_types tgt ON tgi.tgtype_id = tgt.tgtype_id
+														INNER JOIN tests t ON tgi.test_id = t.test_id AND LOWER(t.test_name) = LOWER(:test_name)
+														INNER JOIN attendance a ON tgi.attendance_id = a.attendance_id
+														INNER JOIN class_instances ci ON a.cinstance_id = ci.cinstance_id
+														INNER JOIN classes c ON ci.class_id = c.class_id
+														INNER JOIN levels l ON c.level_id = l.level_id AND LOWER(l.level_name) = LOWER(:level_name)
+														GROUP BY tgt.tgtype_name");
+  $stmt->execute(['test_name' => $test_name, 'level_name' => $level_name]);
+
+
+	while($row = $stmt->fetch()) {
+    $test_averages[$row['tgtype_name']] = $row['avg_grade'];
+  }
+  close_database_connection($link);
+  return $test_averages;
+}
+
+function is_test_taken($student_id,$test_id) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT test_id FROM test_grade_instances tgi
+														INNER JOIN attendance a ON tgi.attendance_id = a.attendance_id
+														AND a.attendance_id IN (SELECT attendance_id FROM attendance where student_id = :student_id)
+														WHERE test_id = :test_id");
+	$stmt->execute(['student_id' => $student_id, 'test_id' => $test_id]);
+	if ($stmt->rowCount()) {
+		$is_test_taken = TRUE;
+	}
+	else {
+		$is_test_taken = FALSE;
+	}
+	close_database_connection($link);
+  return $is_test_taken;
+}
 ?>

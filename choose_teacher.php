@@ -1,6 +1,7 @@
 <?php
 // Continue the session
 session_start();
+$_SESSION["is_test"] = $_GET["is_test"] ?? $_SESSION["is_test"] ?? FALSE;
 
 require_once('includes/model.php');
 ?>
