@@ -873,8 +873,12 @@ function get_attendance_from_date_range($student_id, $class_id, $start_date, $en
 																						AND ci.cinstance_date BETWEEN :start_date AND :end_date
 																					ORDER BY ci.cinstance_date");
 	$stmt->execute(['student_id' => $student_id, 'class_id' => $class_id, 'start_date' => $start_date, 'end_date' => $end_date]);
-	$attendance = $stmt->fetchall();
-
+	if ($stmt->rowCount()) {
+		$attendance = $stmt->fetchall();
+	}
+	else {
+		$attendance = FALSE;
+	}
 	close_database_connection($link);
 	return $attendance;
 }
@@ -1000,5 +1004,22 @@ function get_test_averages($test_name, $level_name) {
   }
   close_database_connection($link);
   return $test_averages;
+}
+
+function is_test_taken($student_id,$test_id) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT test_id FROM test_grade_instances tgi
+														INNER JOIN attendance a ON tgi.attendance_id = a.attendance_id
+														AND a.attendance_id IN (SELECT attendance_id FROM attendance where student_id = :student_id)
+														WHERE test_id = :test_id");
+	$stmt->execute(['student_id' => $student_id, 'test_id' => $test_id]);
+	if ($stmt->rowCount()) {
+		$is_test_taken = TRUE;
+	}
+	else {
+		$is_test_taken = FALSE;
+	}
+	close_database_connection($link);
+  return $is_test_taken;
 }
 ?>
