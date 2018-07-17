@@ -519,7 +519,7 @@ function get_test_grades($attendance_id) {
 		ORDER BY tgi.tgtype_id");
 	$stmt->execute(['attendance_id' => $attendance_id]);
 	while ($row = $stmt->fetch()) {
-		$test_grades[$row['tgtype_name']] = $row['tgrade'];
+		$test_grades[strtolower($row['tgtype_name'])] = $row['tgrade'];
 	}
 	close_database_connection($link);
   return $test_grades;
@@ -1057,7 +1057,7 @@ function is_test_taken($student_id,$test_id) {
 	$link = open_database_connection();
 	$stmt = $link->prepare("SELECT test_id FROM test_grade_instances tgi
 														INNER JOIN attendance a ON tgi.attendance_id = a.attendance_id
-														AND a.attendance_id IN (SELECT attendance_id FROM attendance where student_id = :student_id)
+														AND a.attendance_id IN (SELECT attendance_id FROM attendance WHERE student_id = :student_id)
 														WHERE test_id = :test_id");
 	$stmt->execute(['student_id' => $student_id, 'test_id' => $test_id]);
 	if ($stmt->rowCount()) {
@@ -1068,5 +1068,24 @@ function is_test_taken($student_id,$test_id) {
 	}
 	close_database_connection($link);
   return $is_test_taken;
+}
+
+function get_test_attendance_id($student_id,$test_id) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT DISTINCT a.attendance_id FROM attendance a
+														INNER JOIN test_grade_instances tgi
+														ON tgi.attendance_id = a.attendance_id
+														AND a.attendance_id IN (SELECT attendance_id FROM attendance WHERE student_id = :student_id)
+														WHERE test_id = :test_id");
+	$stmt->execute(['student_id' => $student_id, 'test_id' => $test_id]);
+	if ($result = $stmt->fetch()) {
+		// echo "<p>class instance exists</p>";
+		$test_attendance_id = $result['attendance_id'];
+	}
+	else {
+		$test_attendance_id = FALSE;
+	}
+	close_database_connection($link);
+  return $test_attendance_id;
 }
 ?>
