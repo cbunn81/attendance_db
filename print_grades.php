@@ -182,7 +182,7 @@ foreach($test_grade_types as $test_grade_type) {
 	$test_grade_type_info = get_test_grade_type_info($test_grade_type);
 	$test_grades = get_test_grades($test_attendance_id);
 	$test_grade_maximum_value_total += $test_grade_type_info['tgtype_maximum_value'];
-	$test_grade_total += $test_grades[$test_grade_type_info['tgtype_name']];
+	$test_grade_total += $test_grades[strtolower($test_grade_type_info['tgtype_name'])];
 	$test_averages_total += $test_averages[$test_grade_type];
 //echo "attendance_id: $test_attendance_id\n";
 //echo "test_grade_type_info:\n";
@@ -195,7 +195,7 @@ foreach($test_grade_types as $test_grade_type) {
 
 	echo "<tr>\r\n<td>" . $test_grade_type_info['tgtype_name'] . "</td>\r\n" .
 	 		"<td>" . $test_grade_type_info['tgtype_maximum_value'] . "</td>\r\n" .
-			"<td>" . $test_grades[$test_grade_type_info['tgtype_name']] . "</td>" .
+			"<td>" . $test_grades[strtolower($test_grade_type_info['tgtype_name'])] . "</td>" .
 			"<td>" . round((float)$test_averages[$test_grade_type],1) . "</td>\r\n</tr>";
 }
 ?>
