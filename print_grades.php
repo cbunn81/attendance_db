@@ -171,6 +171,7 @@ if((is_graded_level($level_info['level_id'])) && (is_test_taken($student_id,$tes
 		<tbody>
 <?php
 
+$test_attendance_id = get_test_attendance_id($student_id,$test_info["test_id"]);
 $test_grade_types = get_test_grade_types();
 $test_averages = get_test_averages($test_info["test_name"], $level_info['level_name']);
 $test_grade_maximum_value_total = 0;
@@ -179,12 +180,16 @@ $test_averages_total = 0;
 
 foreach($test_grade_types as $test_grade_type) {
 	$test_grade_type_info = get_test_grade_type_info($test_grade_type);
-	$test_grades = get_test_grades($attendance_id);
+	$test_grades = get_test_grades($test_attendance_id);
 	$test_grade_maximum_value_total += $test_grade_type_info['tgtype_maximum_value'];
 	$test_grade_total += $test_grades[$test_grade_type_info['tgtype_name']];
 	$test_averages_total += $test_averages[$test_grade_type];
+//echo "attendance_id: $test_attendance_id\n";
+//echo "test_grade_type_info:\n";
 //print_r($test_grade_type_info);
+//echo "test_grades:\n";
 //print_r($test_grades);
+//echo "test_averages:\n";
 //print_r($test_averages);
 //echo " AVGTOT: $test_averages_total";
 
