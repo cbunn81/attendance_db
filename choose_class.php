@@ -76,7 +76,7 @@ elseif (empty($original_class_id) && empty($is_test)) {
 }
 // Continue makeup information
 elseif(empty($is_test)) {
-	if ($classes = get_classes_for_location($location_id,$dow)) {
+	if ($classes = get_classes_for_location($location_id,$dow,$date)) {
 		foreach ($classes as $class)
     {
       //var_dump($row);
