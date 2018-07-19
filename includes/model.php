@@ -120,7 +120,7 @@ function get_locations()
 	return $locations;
 }
 
-function get_classes_for_location($location_id,$dow)
+function get_classes_for_location($location_id,$dow,$date)
 {
   $link = open_database_connection();
   $stmt = $link->prepare("SELECT c.class_id,
@@ -131,13 +131,14 @@ function get_classes_for_location($location_id,$dow)
                                 concat_ws(' ',p.given_name_r, p.family_name_r) as name
       FROM classes c
       INNER JOIN days_of_week d ON c.dow_id = d.dow_id AND d.dow_name = :dow
-      INNER JOIN roster r ON c.class_id = r.class_id AND c.location_id = :location_id
+      INNER JOIN roster r ON c.class_id = r.class_id AND :date BETWEEN r.start_date AND r.end_date
       INNER JOIN levels l ON c.level_id = l.level_id
       INNER JOIN people p ON r.person_id = p.person_id
       INNER JOIN person_types pt ON pt.ptype_name = 'Staff'
       INNER JOIN people2person_types p2pt ON p2pt.ptype_id = pt.ptype_id AND p2pt.person_id = p.person_id
+			WHERE c.location_id = :location_id AND :date BETWEEN c.start_date AND c.end_date
 			ORDER BY c.class_time");
-  $stmt->execute(['dow' => $dow, 'location_id' => $location_id]);
+  $stmt->execute(['dow' => $dow, 'location_id' => $location_id, 'date' => $date]);
 
   if ($stmt->rowCount()) {
     $classes = array();
