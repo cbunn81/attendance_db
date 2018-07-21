@@ -96,6 +96,17 @@ elseif(empty($is_test)) {
 	  <div>
 			<label for="makeup_time">Time of makeup lesson:</label>
 	    <input type="time" id="makeup_time" name="time" step="300" />
+			<select id="reading/writing" name="teacher">
+				<option value="">Select a teacher</option>
+EOT;
+	$teachers = get_all_teachers();
+	foreach ($teachers as $teacher) {
+		echo "<option value=\"" . htmlspecialchars($teacher['person_id'], ENT_QUOTES, 'UTF-8') . "\">" .
+		htmlspecialchars($teacher['given_name_r'], ENT_QUOTES, 'UTF-8') . " " .
+		htmlspecialchars($teacher['family_name_r'], ENT_QUOTES, 'UTF-8') . "</option>";
+	}
+echo <<<EOT
+			</select>
 	    <input type="hidden" name="standalone" value="true" />
 	    <input type="hidden" name="date" value="$date" />
 	  </div>
