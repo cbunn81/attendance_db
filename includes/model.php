@@ -1121,6 +1121,7 @@ function get_test_attendance_id($student_id,$test_id) {
 //  with start and end dates that are equal to the date of the makeup lesson.
 function create_standalone_makeup_lesson($original_class_id,$makeup_date,$makeup_time) {
 	$original_class_info = get_class_info($original_class_id);
+	$dow_name = date("l", strtotime($makeup_date));
 	$link = open_database_connection();
 	$stmt = $link->prepare("INSERT INTO classes (location_id,
 																								ctype_id,
@@ -1132,7 +1133,7 @@ function create_standalone_makeup_lesson($original_class_id,$makeup_date,$makeup
 															VALUES (:location_id,
 																			:ctype_id,
 																			:level_id,
-																			:dow_id,
+																			(SELECT dow_id FROM days_of_week WHERE dow_name = :dow_name),
 																			:class_time,
 																			:start_date,
 																			:end_date)
@@ -1140,7 +1141,7 @@ function create_standalone_makeup_lesson($original_class_id,$makeup_date,$makeup
 	$stmt->execute(['location_id' => $original_class_info['location_id'],
 									'ctype_id' => $original_class_info['ctype_id'],
 									'level_id' => $original_class_info['level_id'],
-									'dow_id' => $original_class_info['dow_id'],
+									'dow_name' => $dow_name,
 									'class_time' => $makeup_time,
 									'start_date' => $makeup_date,
 									'end_date' => $makeup_date]);
