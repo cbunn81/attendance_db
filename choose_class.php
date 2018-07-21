@@ -59,7 +59,7 @@ if(empty($is_makeup) && empty($is_test)) {
 
 // Get the class id for a future absence date
 elseif (empty($original_class_id) && empty($is_test)) {
-	if ($classes = get_classes_for_student($student_id,$dow)) {
+	if ($classes = get_classes_for_student($student_id,$dow,$date)) {
 		foreach ($classes as $class)
 		{
 				//var_dump($row);

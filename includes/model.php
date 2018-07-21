@@ -75,7 +75,7 @@ function get_classes_for_teacher($teacher_id,$dow,$date)
 }
 
 // *** NOTE: should probably refactor using other functions ***
-function get_classes_for_student($student_id,$dow)
+function get_classes_for_student($student_id,$dow,$date)
 {
   $link = open_database_connection();
   $stmt = $link->prepare("SELECT c.class_id,
@@ -86,11 +86,12 @@ function get_classes_for_student($student_id,$dow)
                                 concat_ws(' ',p.given_name_r, p.family_name_r) as name
 			FROM classes c
 			INNER JOIN days_of_week d ON c.dow_id = d.dow_id AND d.dow_name = :dow
-			INNER JOIN roster r ON c.class_id = r.class_id AND r.person_id = :student_id
+			INNER JOIN roster r ON c.class_id = r.class_id AND r.person_id = :student_id AND :date BETWEEN r.start_date AND r.end_date
 			INNER JOIN levels l ON c.level_id = l.level_id
 			INNER JOIN people p ON r.person_id = p.person_id
+			WHERE :date BETWEEN c.start_date AND c.end_date
 			ORDER BY c.class_time");
-  $stmt->execute(['student_id' => $student_id, 'dow' => $dow]);
+  $stmt->execute(['student_id' => $student_id, 'dow' => $dow, 'date' => $date]);
 
   if ($stmt->rowCount()) {
     $classes = array();
