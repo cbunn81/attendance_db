@@ -1119,7 +1119,6 @@ function get_test_attendance_id($student_id,$test_id) {
 //  we need to create a standalone, one-off class that will allow us to schedule the
 //  makeup lesson. This is done by creating a new class with given date and time, but
 //  with start and end dates that are equal to the date of the makeup lesson.
-// We also need to make a single class instance for this newly-created class.
 function create_standalone_makeup_lesson($original_class_id,$makeup_date,$makeup_time) {
 	$original_class_info = get_class_info($original_class_id);
 	$link = open_database_connection();
@@ -1154,5 +1153,31 @@ function create_standalone_makeup_lesson($original_class_id,$makeup_date,$makeup
 	}
 	close_database_connection($link);
   return $makeup_class_id;
+}
+
+// Creates a roster entry for the given student/teacher for the given class
+//  with the given start and end dates
+function create_roster_entry($person_id,$class_id,$start_date,$end_date) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("INSERT INTO roster (person_id,
+																							class_id,
+																							start_date,
+																							end_date)
+															VALUES (:person_id,
+																			:class_id,
+																			:start_date,
+																			:end_date)");
+	$stmt->execute(['person_id' => $person_id,
+									'class_id' => $class_id,
+									'start_date' => $start_date,
+									'end_date' => $end_date]);
+	if ($stmt->rowCount()) {
+		$roster_entry_created = TRUE;
+	}
+	else {
+		$roster_entry_created = FALSE;
+	}
+	close_database_connection($link);
+  return $roster_entry_created;
 }
 ?>

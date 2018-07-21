@@ -18,6 +18,10 @@ if(empty($_GET["standalone"])) {
 }
 else {
 	$makeup_class_id = create_standalone_makeup_lesson($original_class_id,$makeup_date,$makeup_time);
+	$makeup_teacher_id = $_GET["mtid"];
+	// The student will have their makeup entry entered later using the makeups table,
+	//  but we also need to assign a teacher to the standalone makeup class for the makeup date
+	create_roster_entry($makeup_teacher_id,$makeup_class_id,$makeup_date,$makeup_date);
 	//$makeup_cinstance_id = get_class_instance($makeup_class_id, $makeup_date) ?: create_class_instance($makeup_class_id, $makeup_date);
 }
 ?>

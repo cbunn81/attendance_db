@@ -96,7 +96,7 @@ elseif(empty($is_test)) {
 	  <div>
 			<label for="makeup_time">Time of makeup lesson:</label>
 	    <input type="time" id="makeup_time" name="time" step="300" />
-			<select id="reading/writing" name="teacher">
+			<select id="reading/writing" name="mtid">
 				<option value="">Select a teacher</option>
 EOT;
 	$teachers = get_all_teachers();
