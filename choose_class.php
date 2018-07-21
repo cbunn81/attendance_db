@@ -90,6 +90,18 @@ elseif(empty($is_test)) {
   else {
     echo "<p>No classes found.</p>";
   }
+	echo <<<EOT
+	<h3>Or you can choose to create a standalone makeup lesson:</h3>
+	<form action="enter_makeup.php" method="get">
+	  <div>
+			<label for="makeup_time">Time of makeup lesson:</label>
+	    <input type="time" id="makeup_time" name="time" step="300" />
+	    <input type="hidden" name="standalone" value="true" />
+	    <input type="hidden" name="date" value="$date" />
+	  </div>
+	  <input type="submit" />
+	</form>
+EOT;
 }
 
 // enter test results

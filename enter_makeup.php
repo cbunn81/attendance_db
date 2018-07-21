@@ -7,11 +7,19 @@ $student_id = $_SESSION["student_id"] = $_SESSION["student_id"] ?? NULL;
 $teacher_id = $_SESSION["teacher_id"] = $_SESSION["teacher_id"] ?? NULL;;
 $original_date = $_SESSION["original_date"] = $_SESSION["original_date"] ?? NULL;
 $makeup_date = $_SESSION["makeup_date"] = $_GET["date"] ?? $_SESSION["makeup_date"] ?? NULL;
+$makeup_time = $_SESSION["makeup_time"] = $_GET["time"] ?? $_SESSION["makeup_time"] ?? NULL;
 //$dow = date("l", strtotime($date));
 $original_class_id = $_SESSION["original_class_id"] = $_SESSION["original_class_id"] ?? NULL;
-$makeup_class_id = $_SESSION["makeup_class_id"] = $_GET["mcid"] ?? $_SESSION["makeup_class_id"] ?? NULL;
 
 require_once('includes/model.php');
+
+if(empty($_GET["standalone"])) {
+	$makeup_class_id = $_SESSION["makeup_class_id"] = $_GET["mcid"] ?? $_SESSION["makeup_class_id"] ?? NULL;
+}
+else {
+	$makeup_class_id = create_standalone_makeup_lesson($original_class_id,$makeup_date,$makeup_time);
+	//$makeup_cinstance_id = get_class_instance($makeup_class_id, $makeup_date) ?: create_class_instance($makeup_class_id, $makeup_date);
+}
 ?>
 
 <!DOCTYPE html>
