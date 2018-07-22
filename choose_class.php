@@ -90,6 +90,29 @@ elseif(empty($is_test)) {
   else {
     echo "<p>No classes found.</p>";
   }
+	echo <<<EOT
+	<h3>Or you can choose to create a standalone makeup lesson:</h3>
+	<form action="enter_makeup.php" method="get">
+	  <div>
+			<label for="makeup_time">Time of makeup lesson:</label>
+	    <input type="time" id="makeup_time" name="time" step="300" />
+			<select id="reading/writing" name="mtid">
+				<option value="">Select a teacher</option>
+EOT;
+	$teachers = get_all_teachers();
+	foreach ($teachers as $teacher) {
+		echo "<option value=\"" . htmlspecialchars($teacher['person_id'], ENT_QUOTES, 'UTF-8') . "\">" .
+		htmlspecialchars($teacher['given_name_r'], ENT_QUOTES, 'UTF-8') . " " .
+		htmlspecialchars($teacher['family_name_r'], ENT_QUOTES, 'UTF-8') . "</option>";
+	}
+echo <<<EOT
+			</select>
+	    <input type="hidden" name="standalone" value="true" />
+	    <input type="hidden" name="date" value="$date" />
+	  </div>
+	  <input type="submit" />
+	</form>
+EOT;
 }
 
 // enter test results
