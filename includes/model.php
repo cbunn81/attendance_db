@@ -825,6 +825,40 @@ function get_student_info($student_id) {
 	return $student_info;
 }
 
+// Get all the fields for a class
+function get_class_info($class_id) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT c.class_id,
+																	lo.location_id,
+																	lo.location_name,
+																	lv.level_id,
+																	lv.level_short_code,
+																	lv.level_name,
+																	ct.ctype_id,
+																	ct.ctype_name,
+																	dow.dow_id,
+																	dow.dow_name,
+																	c.class_time,
+																	c.start_date,
+																	c.end_date
+															FROM classes c
+															INNER JOIN locations lo ON c.location_id = lo.location_id
+															INNER JOIN levels lv ON c.level_id = lv.level_id
+															INNER JOIN class_types ct ON c.ctype_id = ct.ctype_id
+															INNER JOIN days_of_week dow ON c.dow_id = dow.dow_id
+															WHERE c.class_id = :class_id");
+	$stmt->execute(['class_id' => $class_id]);
+
+	if ($stmt->rowCount()) {
+		$class_info = $stmt->fetch();
+	}
+	else {
+		$class_info = FALSE;
+	}
+	close_database_connection($link);
+	return $class_info;
+}
+
 // Get an array of class info for each class that the student is currently enrolled in
 function get_current_classes_for_student($student_id) {
 	$link = open_database_connection();
@@ -892,16 +926,6 @@ function get_levels_for_student_by_date_range($student_id, $start_date, $end_dat
 	}
 	close_database_connection($link);
 	return $current_levels;
-}
-
-// Get all the fields for a class
-function get_class_info($class_id) {
-	$link = open_database_connection();
-	//$stmt = $link->prepare("");
-	//$stmt->execute(['' => $]);
-
-	close_database_connection($link);
-	return $class_info;
 }
 
 // Get the attendance information for a student based on start and end dates
@@ -1089,5 +1113,72 @@ function get_test_attendance_id($student_id,$test_id) {
 	}
 	close_database_connection($link);
   return $test_attendance_id;
+}
+
+// If the student isn't doing a makeup lesson with another regularly-scheduled lesson,
+//  we need to create a standalone, one-off class that will allow us to schedule the
+//  makeup lesson. This is done by creating a new class with given date and time, but
+//  with start and end dates that are equal to the date of the makeup lesson.
+function create_standalone_makeup_lesson($original_class_id,$makeup_date,$makeup_time) {
+	$original_class_info = get_class_info($original_class_id);
+	$dow_name = date("l", strtotime($makeup_date));
+	$link = open_database_connection();
+	$stmt = $link->prepare("INSERT INTO classes (location_id,
+																								ctype_id,
+																								level_id,
+																								dow_id,
+																								class_time,
+																								start_date,
+																								end_date)
+															VALUES (:location_id,
+																			:ctype_id,
+																			:level_id,
+																			(SELECT dow_id FROM days_of_week WHERE dow_name = :dow_name),
+																			:class_time,
+																			:start_date,
+																			:end_date)
+															RETURNING class_id");
+	$stmt->execute(['location_id' => $original_class_info['location_id'],
+									'ctype_id' => $original_class_info['ctype_id'],
+									'level_id' => $original_class_info['level_id'],
+									'dow_name' => $dow_name,
+									'class_time' => $makeup_time,
+									'start_date' => $makeup_date,
+									'end_date' => $makeup_date]);
+	if ($result = $stmt->fetch()) {
+		// echo "<p>class instance exists</p>";
+		$makeup_class_id = $result['class_id'];
+	}
+	else {
+		$makeup_class_id = FALSE;
+	}
+	close_database_connection($link);
+  return $makeup_class_id;
+}
+
+// Creates a roster entry for the given student/teacher for the given class
+//  with the given start and end dates
+function create_roster_entry($person_id,$class_id,$start_date,$end_date) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("INSERT INTO roster (person_id,
+																							class_id,
+																							start_date,
+																							end_date)
+															VALUES (:person_id,
+																			:class_id,
+																			:start_date,
+																			:end_date)");
+	$stmt->execute(['person_id' => $person_id,
+									'class_id' => $class_id,
+									'start_date' => $start_date,
+									'end_date' => $end_date]);
+	if ($stmt->rowCount()) {
+		$roster_entry_created = TRUE;
+	}
+	else {
+		$roster_entry_created = FALSE;
+	}
+	close_database_connection($link);
+  return $roster_entry_created;
 }
 ?>
