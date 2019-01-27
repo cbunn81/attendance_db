@@ -26,5 +26,22 @@ foreach ($test_periods as $test_period)
 ?>
 
 </ul>
+
+<h2>Or you can choose a custom date range:</h2>
+<form action="list_students.php" method="get">
+  <div>
+		<div>
+    	<label for="start_date">Start Date:</label>
+    	<input type="date" id="start_date" name="start_date" required />
+		</div>
+		<div>
+			<label for="end_date">End Date:</label>
+    	<input type="date" id="end_date" name="end_date" required />
+		</div>
+
+  </div>
+  <input type="submit" />
+</form>
+
 </body>
 </html>
