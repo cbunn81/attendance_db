@@ -35,6 +35,12 @@ tbody tr:hover {
 	background-color: #cccccc
 }
 
+label {
+	display: inline-block;
+	width: 10em;
+	text-align: right;
+}
+
 input[type=submit] {
 	display: block;
 	margin: 10px auto;
