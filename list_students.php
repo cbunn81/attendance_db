@@ -3,6 +3,8 @@
 session_start();
 
 $test_id = $_SESSION["test_id"] = $_GET["testid"] ?? $_SESSION["test_id"] ?? NULL;
+$start_date = $_SESSION["start_date"] = $_GET["start_date"] ?? $_SESSION["start_date"] ?? NULL;
+$end_date = $_SESSION["end_date"] = $_GET["end_date"] ?? $_SESSION["end_date"] ?? NULL;
 require_once('includes/model.php');
 ?>
 

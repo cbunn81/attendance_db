@@ -10,8 +10,8 @@ require_once('includes/model.php');
 //$start_date = "2017-12-17";
 //$end_date = "2018-03-31";
 $test_info = get_test_by_id($test_id);
-$start_date = $test_info["start_date"];
-$end_date = $test_info["end_date"];
+$start_date = $_SESSION["start_date"] ?? $test_info["start_date"];
+$end_date = $_SESSION["end_date"] ?? $test_info["end_date"];
 
 
 // get the student's ID, student's name, class's ID, level name
