@@ -33,7 +33,7 @@ echo "<p>Day of the week: $dow</p>";
 $locations = get_locations();
 foreach ($locations as $location)
 {
-	echo "<option value=\"" . htmlspecialchars($location['location_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($location['location_name'], ENT_QUOTES, 'UTF-8') . "</option>";
+	echo "<option value=\"" . htmlspecialchars($location['location_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($location['location_name'], ENT_QUOTES, 'UTF-8') . "</option>\n";
 }
 ?>
 		    </select>
@@ -46,7 +46,7 @@ foreach ($locations as $location)
 $days_of_week = get_days_of_week();
 foreach ($days_of_week as $day_of_week)
 {
-	echo "<option value=\"" . htmlspecialchars($day_of_week['dow_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($day_of_week['dow_name'], ENT_QUOTES, 'UTF-8') . "</option>";
+	echo "<option value=\"" . htmlspecialchars($day_of_week['dow_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($day_of_week['dow_name'], ENT_QUOTES, 'UTF-8') . "</option>\n";
 }
 ?>
 		    </select>
@@ -59,7 +59,7 @@ foreach ($days_of_week as $day_of_week)
 $class_types = get_class_types();
 foreach ($class_types as $class_type)
 {
-	echo "<option value=\"" . htmlspecialchars($class_type['ctype_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($class_type['ctype_name'], ENT_QUOTES, 'UTF-8') . "</option>";
+	echo "<option value=\"" . htmlspecialchars($class_type['ctype_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($class_type['ctype_name'], ENT_QUOTES, 'UTF-8') . "</option>\n";
 }
 ?>
 		    </select>
@@ -72,7 +72,7 @@ foreach ($class_types as $class_type)
 $levels = get_levels();
 foreach ($levels as $level)
 {
-	echo "<option value=\"" . htmlspecialchars($level['level_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($level['level_name'], ENT_QUOTES, 'UTF-8') . "</option>";
+	echo "<option value=\"" . htmlspecialchars($level['level_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($level['level_name'], ENT_QUOTES, 'UTF-8') . "</option>\n";
 }
 ?>
 		    </select>
@@ -103,7 +103,7 @@ foreach ($levels as $level)
 $teachers = get_all_teachers();
 foreach ($teachers as $teacher)
 {
-	echo "<option value=\"" . $teacher['level_id'] . "\">" . $teacher['level_name'] . "</option>";
+	echo "<option value=\"" . htmlspecialchars($teacher['person_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($teacher['given_name_r'], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($teacher['family_name_r'], ENT_QUOTES, 'UTF-8') .  "</option>\n";
 }
 ?>
 				</select>
@@ -111,22 +111,14 @@ foreach ($teachers as $teacher)
 			<li>
 				<label for="students">Students:</label>
 				<select multiple size=10 id="teacher" name="teacher">
-						<option value="1">First Student</option>
-						<option value="2">Second Student</option>
-						<option value="3">Third Student</option>
-						<option value="4">Fourth Student</option>
-						<option value="5">Fifth Student</option>
-						<option value="6">Sixth Student</option>
-						<option value="7">Seventh Student</option>
-						<option value="8">Eighth Student</option>
-						<option value="9">Ninth Student</option>
-						<option value="10">Tenth Student</option>
-						<option value="11">Eleventh Student</option>
-						<option value="12">Twelfth Student</option>
-						<option value="13">Thirteenth Student</option>
-						<option value="14">Fourteenth Student</option>
-						<option value="15">Fifteenth Student</option>
-						<option value="16">Sixteenth Student</option>
+<?php
+/* List students */
+$students = get_all_students();
+foreach ($students as $student)
+{
+	echo "<option value=\"" . htmlspecialchars($student['person_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($student['family_name_r'], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($student['given_name_r'], ENT_QUOTES, 'UTF-8') .  "</option>\n";;
+}
+?>
 				</select>
 				<span class="hint"> (Ctrl-click or Cmd-click to select multiple students)</span>
 			</li>
