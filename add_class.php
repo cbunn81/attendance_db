@@ -33,7 +33,7 @@ echo "<p>Day of the week: $dow</p>";
 $locations = get_locations();
 foreach ($locations as $location)
 {
-	echo "<option value=\"" . $location['location_id'] . "\">" . $location['location_name'] . "</option>";
+	echo "<option value=\"" . htmlspecialchars($location['location_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($location['location_name'], ENT_QUOTES, 'UTF-8') . "</option>";
 }
 ?>
 		    </select>
@@ -46,7 +46,7 @@ foreach ($locations as $location)
 $days_of_week = get_days_of_week();
 foreach ($days_of_week as $day_of_week)
 {
-	echo "<option value=\"" . $day_of_week['dow_id'] . "\">" . $day_of_week['dow_name'] . "</option>";
+	echo "<option value=\"" . htmlspecialchars($day_of_week['dow_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($day_of_week['dow_name'], ENT_QUOTES, 'UTF-8') . "</option>";
 }
 ?>
 		    </select>
@@ -59,7 +59,7 @@ foreach ($days_of_week as $day_of_week)
 $class_types = get_class_types();
 foreach ($class_types as $class_type)
 {
-	echo "<option value=\"" . $class_type['ctype_id'] . "\">" . $class_type['ctype_name'] . "</option>";
+	echo "<option value=\"" . htmlspecialchars($class_type['ctype_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($class_type['ctype_name'], ENT_QUOTES, 'UTF-8') . "</option>";
 }
 ?>
 		    </select>
@@ -72,7 +72,7 @@ foreach ($class_types as $class_type)
 $levels = get_levels();
 foreach ($levels as $level)
 {
-	echo "<option value=\"" . $level['level_id'] . "\">" . $level['level_name'] . "</option>";
+	echo "<option value=\"" . htmlspecialchars($level['level_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($level['level_name'], ENT_QUOTES, 'UTF-8') . "</option>";
 }
 ?>
 		    </select>
@@ -98,10 +98,14 @@ foreach ($levels as $level)
 			<li>
 				<label for="teacher">Teacher:</label>
 				<select id="teacher" name="teacher">
-						<option value="Ahleen">Ahleen</option>
-						<option value="Chris">Chris</option>
-						<option value="Jill">Jill</option>
-						<option value="Shayne">Shayne</option>
+<?php
+/* List teachers */
+$teachers = get_all_teachers();
+foreach ($teachers as $teacher)
+{
+	echo "<option value=\"" . $teacher['level_id'] . "\">" . $teacher['level_name'] . "</option>";
+}
+?>
 				</select>
 			</li>
 			<li>
