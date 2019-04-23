@@ -121,6 +121,20 @@ function get_locations()
 	return $locations;
 }
 
+function get_days_of_week()
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT dow_id, dow_name FROM days_of_week ORDER BY dow_id");
+	$stmt->execute();
+	$days_of_week = array();
+	foreach ($stmt as $row)
+	{
+		$days_of_week[] = $row;
+	}
+	close_database_connection($link);
+	return $days_of_week;
+}
+
 function get_classes_for_location($location_id,$dow,$date)
 {
   $link = open_database_connection();

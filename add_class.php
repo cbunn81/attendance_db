@@ -41,13 +41,14 @@ foreach ($locations as $location)
 			<li>
 				<label for="dow">Day of the Week:</label>
 				<select id="dow" name="dow">
-		        <option value="Monday">Monday</option>
-		        <option value="Tuesday">Tuesday</option>
-						<option value="Wednesday">Wednesday</option>
-						<option value="Thursday">Thursday</option>
-						<option value="Friday">Friday</option>
-						<option value="Saturday">Saturday</option>
-				    <option value="Sunday">Sunday</option>
+<?php
+/* List days of the week */
+$days_of_week = get_days_of_week();
+foreach ($days_of_week as $day_of_week)
+{
+	echo "<option value=\"" . $day_of_week['dow_id'] . "\">" . $day_of_week['dow_name'] . "</option>";
+}
+?>
 		    </select>
 			</li>
 			<li>
