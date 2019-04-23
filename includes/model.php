@@ -110,7 +110,7 @@ function get_classes_for_student($student_id,$dow,$date)
 function get_locations()
 {
 	$link = open_database_connection();
-	$stmt = $link->prepare("SELECT location_id, location_name FROM locations ORDER BY location_id");
+	$stmt = $link->prepare("SELECT location_id, location_name FROM locations ORDER BY location_name");
 	$stmt->execute();
 	$locations = array();
 	foreach ($stmt as $row)
