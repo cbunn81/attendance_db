@@ -135,6 +135,34 @@ function get_days_of_week()
 	return $days_of_week;
 }
 
+function get_class_types()
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT ctype_id, ctype_name FROM class_types ORDER BY ctype_id");
+	$stmt->execute();
+	$class_types = array();
+	foreach ($stmt as $row)
+	{
+		$class_types[] = $row;
+	}
+	close_database_connection($link);
+	return $class_types;
+}
+
+function get_levels()
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT level_id, level_name FROM levels ORDER BY level_name");
+	$stmt->execute();
+	$levels = array();
+	foreach ($stmt as $row)
+	{
+		$levels[] = $row;
+	}
+	close_database_connection($link);
+	return $levels;
+}
+
 function get_classes_for_location($location_id,$dow,$date)
 {
   $link = open_database_connection();

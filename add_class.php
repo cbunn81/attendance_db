@@ -54,19 +54,27 @@ foreach ($days_of_week as $day_of_week)
 			<li>
 				<label for="ctype">Class Type:</label>
 				<select id="ctype" name="ctype">
-		        <option value="Preschool Group">Preschool Group</option>
-		        <option value="Preschool Private">Preschool Private</option>
-		        <option value="Elementary Group">Elementary Group</option>
-						<option value="Elementary Private">Elementary Private</option>
+<?php
+/* List class types */
+$class_types = get_class_types();
+foreach ($class_types as $class_type)
+{
+	echo "<option value=\"" . $class_type['ctype_id'] . "\">" . $class_type['ctype_name'] . "</option>";
+}
+?>
 		    </select>
 			</li>
 			<li>
 				<label for="level">Class Level:</label>
 				<select id="level" name="level">
-		        <option value="All Stars 1">All Stars 1</option>
-		        <option value="All Stars 2">All Stars 2</option>
-		        <option value="All Stars 3">All Stars 3</option>
-						<option value="All Stars 4">All Stars 4</option>
+<?php
+/* List levels */
+$levels = get_levels();
+foreach ($levels as $level)
+{
+	echo "<option value=\"" . $level['level_id'] . "\">" . $level['level_name'] . "</option>";
+}
+?>
 		    </select>
 			</li>
 			<li>
