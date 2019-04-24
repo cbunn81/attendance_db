@@ -47,19 +47,25 @@ echo "<p>Start Date: $start_date</p>";
 echo "<p>End Date: $end_date</p>";
 echo "<p>Teacher ID: $teacher_id</p>";
 echo "<p>Student IDs: ";
-foreach($student_ids as $student_id)
-{
+foreach($student_ids as $student_id) {
 	echo "$student_id, ";
 }
 echo "</p>";
 
-//echo "<p>Attempt class insert ....</p>";
+echo "<p>Attempt class insert ....</p>";
+$class_id = create_new_class($location_id,$dow_id,$ctype_id,$level_id,$class_time,$start_date,$end_date);
 
-//$class_id = create_new_class($location_id,$dow_id,$ctype_id,$level_id,$class_time,$start_date,$end_date);
-$class_id = "328";
-//echo "<p>New Class ID: $class_id</p>";
+echo "<p>New Class ID: $class_id</p>";
 
-echo "<p>Attempt Roster insert ...</p>"
+echo "<p>Attempt Roster insert ...</p>";
+if (create_roster_entry($teacher_id,$class_id,$start_date,$end_date)) {
+	echo "<p>Success on inserting teacher ID $teacher_id!</p>";
+}
+foreach($student_ids as $student_id) {
+	if (create_roster_entry($student_id,$class_id,$start_date,$end_date)) {
+		echo "<p>Success on inserting student ID: $student_id!</p>";
+	}
+}
 
 ?>
 
