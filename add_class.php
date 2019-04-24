@@ -110,7 +110,7 @@ foreach ($teachers as $teacher)
 			</li>
 			<li>
 				<label for="students">Students:</label>
-				<select multiple size=10 id="teacher" name="teacher">
+				<select multiple size=10 id="students" name="students[]">
 <?php
 /* List students */
 $students = get_all_students();
