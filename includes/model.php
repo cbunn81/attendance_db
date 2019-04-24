@@ -1223,4 +1223,40 @@ function create_roster_entry($person_id,$class_id,$start_date,$end_date) {
 	close_database_connection($link);
   return $roster_entry_created;
 }
+
+// Create a new class given the appropriate information
+// RETURN class_id for the new class
+function create_new_class($location_id,$dow_id,$ctype_id,$level_id,$class_time,$start_date,$end_date) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("INSERT INTO classes (location_id,
+																								dow_id,
+																								ctype_id,
+																								level_id,
+																								class_time,
+																								start_date,
+																								end_date)
+															VALUES (:location_id,
+																			:dow_id,
+																			:ctype_id,
+																			:level_id,
+																			:class_time,
+																			:start_date,
+																			:end_date)
+															RETURNING class_id");
+	$stmt->execute(['location_id' => $location_id,
+									'dow_id' => $dow_id,
+									'ctype_id' => $ctype_id,
+									'level_id' => $level_id,
+									'class_time' => $class_time,
+									'start_date' => $start_date,
+									'end_date' => $end_date]);
+	if ($result = $stmt->fetch()) {
+		$class_id = $result['class_id'];
+	}
+	else {
+		$class_id = FALSE;
+	}
+	close_database_connection($link);
+  return $class_id;
+}
 ?>

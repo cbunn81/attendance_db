@@ -52,6 +52,15 @@ foreach($student_ids as $student_id)
 	echo "$student_id, ";
 }
 echo "</p>";
+
+//echo "<p>Attempt class insert ....</p>";
+
+//$class_id = create_new_class($location_id,$dow_id,$ctype_id,$level_id,$class_time,$start_date,$end_date);
+$class_id = "328";
+//echo "<p>New Class ID: $class_id</p>";
+
+echo "<p>Attempt Roster insert ...</p>"
+
 ?>
 
 </body>
