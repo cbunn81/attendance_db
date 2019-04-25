@@ -38,17 +38,17 @@ $end_date = $_POST['end_date'] ?: "infinity";
 $teacher_id = $_POST['teacher'];
 $student_ids = $_POST['students'];
 
-echo "<p>Location ID: $location_id</p>";
-echo "<p>DOW ID: $dow_id</p>";
-echo "<p>Class Type ID: $ctype_id</p>";
-echo "<p>Level ID: $level_id</p>";
-echo "<p>Class Time: $class_time</p>";
-echo "<p>Start Date: $start_date</p>";
-echo "<p>End Date: $end_date</p>";
-echo "<p>Teacher ID: $teacher_id</p>";
+echo "<p>Location ID: ". htmlspecialchars($location_id, ENT_QUOTES, 'UTF-8') ."</p>";
+echo "<p>DOW ID: ". htmlspecialchars($dow_id, ENT_QUOTES, 'UTF-8') ."</p>";
+echo "<p>Class Type ID: ". htmlspecialchars($ctype_id, ENT_QUOTES, 'UTF-8') ."</p>";
+echo "<p>Level ID: ". htmlspecialchars($level_id, ENT_QUOTES, 'UTF-8') ."</p>";
+echo "<p>Class Time: ". htmlspecialchars($class_time, ENT_QUOTES, 'UTF-8') ."</p>";
+echo "<p>Start Date: ". htmlspecialchars($start_date, ENT_QUOTES, 'UTF-8') ."</p>";
+echo "<p>End Date: ". htmlspecialchars($end_date, ENT_QUOTES, 'UTF-8') ."</p>";
+echo "<p>Teacher ID: ". htmlspecialchars($teacher_id, ENT_QUOTES, 'UTF-8') ."</p>";
 echo "<p>Student IDs: ";
 foreach($student_ids as $student_id) {
-	echo "$student_id, ";
+	echo htmlspecialchars($student_id, ENT_QUOTES, 'UTF-8') .", ";
 }
 echo "</p>";
 
