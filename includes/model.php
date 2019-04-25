@@ -163,6 +163,66 @@ function get_levels()
 	return $levels;
 }
 
+function get_location_by_id($location_id)
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT location_name FROM locations WHERE location_id = :location_id");
+	$stmt->execute(['location_id' => $location_id]);
+  if ($result = $stmt->fetch()) {
+		$location_name = $result['location_name'];
+	}
+	close_database_connection($link);
+	return $location_name;
+}
+
+function get_dow_by_id($dow_id)
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT dow_name FROM days_of_week WHERE dow_id = :dow_id");
+	$stmt->execute(['dow_id' => $dow_id]);
+  if ($result = $stmt->fetch()) {
+		$dow_name = $result['dow_name'];
+	}
+	close_database_connection($link);
+	return $dow_name;
+}
+
+function get_ctype_by_id($ctype_id)
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT ctype_name FROM class_types WHERE ctype_id = :ctype_id");
+	$stmt->execute(['ctype_id' => $ctype_id]);
+  if ($result = $stmt->fetch()) {
+		$ctype_name = $result['ctype_name'];
+	}
+	close_database_connection($link);
+	return $ctype_name;
+}
+
+function get_level_by_id($level_id)
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT level_name FROM levels WHERE level_id = :level_id");
+	$stmt->execute(['level_id' => $level_id]);
+  if ($result = $stmt->fetch()) {
+		$level_name = $result['level_name'];
+	}
+	close_database_connection($link);
+	return $level_name;
+}
+
+function get_person_name($person_id)
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT concat_ws(' ',given_name_r, family_name_r) as person_name FROM people WHERE person_id = :person_id");
+	$stmt->execute(['person_id' => $person_id]);
+  if ($result = $stmt->fetch()) {
+		$person_name = $result['person_name'];
+	}
+	close_database_connection($link);
+	return $person_name;
+}
+
 function get_classes_for_location($location_id,$dow,$date)
 {
   $link = open_database_connection();
