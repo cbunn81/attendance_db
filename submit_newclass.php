@@ -9,6 +9,7 @@ require_once('includes/model.php');
 <html>
 <head>
 	<title>Confirmation of New Class</title>
+	<link rel="stylesheet" type="text/css" media="screen" href="css/main.css">
 </head>
 <body>
 
@@ -42,22 +43,28 @@ if(empty($_SESSION["confirm"])) {
 	// Since students are in an array, we'll get them as we output
 
 	echo "<h1>Please confirm the following information submitted for the new class</h1>";
-	echo "<p>Location Name: ". htmlspecialchars($location_name, ENT_QUOTES, 'UTF-8') ."</p>";
-	echo "<p>DOW: ". htmlspecialchars($dow_name, ENT_QUOTES, 'UTF-8') ."</p>";
-	echo "<p>Class Type: ". htmlspecialchars($ctype_name, ENT_QUOTES, 'UTF-8') ."</p>";
-	echo "<p>Level: ". htmlspecialchars($level_name, ENT_QUOTES, 'UTF-8') ."</p>";
-	echo "<p>Class Time: ". htmlspecialchars($class_time, ENT_QUOTES, 'UTF-8') ."</p>";
-	echo "<p>Start Date: ". htmlspecialchars($start_date, ENT_QUOTES, 'UTF-8') ."</p>";
-	echo "<p>End Date: ". htmlspecialchars($end_date, ENT_QUOTES, 'UTF-8') ."</p>";
-	echo "<p>Teacher Name: ". htmlspecialchars($teacher_name, ENT_QUOTES, 'UTF-8') ."</p>";
-	echo "<p>Student Names: ";
+	echo "<table><tbody>";
+	echo "<tr><td><b>Location Name</b></td><td>". htmlspecialchars($location_name, ENT_QUOTES, 'UTF-8') ."</td></tr>";
+	echo "<tr><td><b>Day of the Week</b></td><td>". htmlspecialchars($dow_name, ENT_QUOTES, 'UTF-8') ."</td></tr>";
+	echo "<tr><td><b>Class Type</b></td><td>". htmlspecialchars($ctype_name, ENT_QUOTES, 'UTF-8') ."</td></tr>";
+	echo "<tr><td><b>Level</b></td><td>". htmlspecialchars($level_name, ENT_QUOTES, 'UTF-8') ."</td></tr>";
+	echo "<tr><td><b>Class Time</b></td><td>". htmlspecialchars($class_time, ENT_QUOTES, 'UTF-8') ."</td></tr>";
+	echo "<tr><td><b>Start Date</b></td><td>". htmlspecialchars(date("F j, Y",strtotime($start_date)), ENT_QUOTES, 'UTF-8') ."</td></tr>";
+	if($end_date == "infinity") {
+		echo "<tr><td><b>End Date</b></td><td>none</td></tr>";
+	}
+	else {
+		echo "<tr><td><b>End Date</b></td><td>". htmlspecialchars(date("F j, Y",strtotime($end_date)), ENT_QUOTES, 'UTF-8') ."</td></tr>";
+	}
+	echo "<tr><td><b>Teacher</b></td><td>". htmlspecialchars($teacher_name, ENT_QUOTES, 'UTF-8') ."</td></tr>";
+	echo "<tr><td><b>Students</b></td><td>";
 	echo "<ul>";
 	foreach($student_ids as $student_id) {
 		$student_name = get_person_name($student_id);
 		echo "<li>" . htmlspecialchars($student_name, ENT_QUOTES, 'UTF-8') ."</li>";
 	}
-	echo "</ul>";
-	echo "</p>";
+	echo "</ul></td></tr>";
+	echo "</tbody></table>";
 
 	echo "<p>If the above information is correct, please choose \"confirm\".</p>";
 	echo "<form action=\"" . htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8') . "\">";

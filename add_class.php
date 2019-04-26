@@ -125,9 +125,9 @@ foreach ($students as $student)
 				<span class="hint"> (Ctrl-click or Cmd-click to select multiple students)</span>
 			</li>
 		</ol>
-		<input type="submit" />
-	</fieldset>
 
+	</fieldset>
+	<input type="submit" />
 </form>
 </body>
 </html>
