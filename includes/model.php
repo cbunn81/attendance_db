@@ -110,7 +110,7 @@ function get_classes_for_student($student_id,$dow,$date)
 function get_locations()
 {
 	$link = open_database_connection();
-	$stmt = $link->prepare("SELECT location_id, location_name FROM locations ORDER BY location_id");
+	$stmt = $link->prepare("SELECT location_id, location_name FROM locations ORDER BY location_name");
 	$stmt->execute();
 	$locations = array();
 	foreach ($stmt as $row)
@@ -119,6 +119,108 @@ function get_locations()
 	}
 	close_database_connection($link);
 	return $locations;
+}
+
+function get_days_of_week()
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT dow_id, dow_name FROM days_of_week ORDER BY dow_id");
+	$stmt->execute();
+	$days_of_week = array();
+	foreach ($stmt as $row)
+	{
+		$days_of_week[] = $row;
+	}
+	close_database_connection($link);
+	return $days_of_week;
+}
+
+function get_class_types()
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT ctype_id, ctype_name FROM class_types ORDER BY ctype_id");
+	$stmt->execute();
+	$class_types = array();
+	foreach ($stmt as $row)
+	{
+		$class_types[] = $row;
+	}
+	close_database_connection($link);
+	return $class_types;
+}
+
+function get_levels()
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT level_id, level_name FROM levels ORDER BY level_name");
+	$stmt->execute();
+	$levels = array();
+	foreach ($stmt as $row)
+	{
+		$levels[] = $row;
+	}
+	close_database_connection($link);
+	return $levels;
+}
+
+function get_location_by_id($location_id)
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT location_name FROM locations WHERE location_id = :location_id");
+	$stmt->execute(['location_id' => $location_id]);
+  if ($result = $stmt->fetch()) {
+		$location_name = $result['location_name'];
+	}
+	close_database_connection($link);
+	return $location_name;
+}
+
+function get_dow_by_id($dow_id)
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT dow_name FROM days_of_week WHERE dow_id = :dow_id");
+	$stmt->execute(['dow_id' => $dow_id]);
+  if ($result = $stmt->fetch()) {
+		$dow_name = $result['dow_name'];
+	}
+	close_database_connection($link);
+	return $dow_name;
+}
+
+function get_ctype_by_id($ctype_id)
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT ctype_name FROM class_types WHERE ctype_id = :ctype_id");
+	$stmt->execute(['ctype_id' => $ctype_id]);
+  if ($result = $stmt->fetch()) {
+		$ctype_name = $result['ctype_name'];
+	}
+	close_database_connection($link);
+	return $ctype_name;
+}
+
+function get_level_by_id($level_id)
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT level_name FROM levels WHERE level_id = :level_id");
+	$stmt->execute(['level_id' => $level_id]);
+  if ($result = $stmt->fetch()) {
+		$level_name = $result['level_name'];
+	}
+	close_database_connection($link);
+	return $level_name;
+}
+
+function get_person_name($person_id)
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT concat_ws(' ',given_name_r, family_name_r) as person_name FROM people WHERE person_id = :person_id");
+	$stmt->execute(['person_id' => $person_id]);
+  if ($result = $stmt->fetch()) {
+		$person_name = $result['person_name'];
+	}
+	close_database_connection($link);
+	return $person_name;
 }
 
 function get_classes_for_location($location_id,$dow,$date)
@@ -1180,5 +1282,41 @@ function create_roster_entry($person_id,$class_id,$start_date,$end_date) {
 	}
 	close_database_connection($link);
   return $roster_entry_created;
+}
+
+// Create a new class given the appropriate information
+// RETURN class_id for the new class
+function create_new_class($location_id,$dow_id,$ctype_id,$level_id,$class_time,$start_date,$end_date) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("INSERT INTO classes (location_id,
+																								dow_id,
+																								ctype_id,
+																								level_id,
+																								class_time,
+																								start_date,
+																								end_date)
+															VALUES (:location_id,
+																			:dow_id,
+																			:ctype_id,
+																			:level_id,
+																			:class_time,
+																			:start_date,
+																			:end_date)
+															RETURNING class_id");
+	$stmt->execute(['location_id' => $location_id,
+									'dow_id' => $dow_id,
+									'ctype_id' => $ctype_id,
+									'level_id' => $level_id,
+									'class_time' => $class_time,
+									'start_date' => $start_date,
+									'end_date' => $end_date]);
+	if ($result = $stmt->fetch()) {
+		$class_id = $result['class_id'];
+	}
+	else {
+		$class_id = FALSE;
+	}
+	close_database_connection($link);
+  return $class_id;
 }
 ?>
