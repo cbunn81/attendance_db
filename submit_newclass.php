@@ -66,7 +66,7 @@ if(empty($_SESSION["confirm"])) {
 	echo "</ul></td></tr>";
 	echo "</tbody></table>";
 
-	echo "<p>If the above information is correct, please choose \"confirm\".</p>";
+	echo "<p class=\"afterform\">If the above information is correct, please choose \"confirm\".</p>";
 	echo "<form action=\"" . htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8') . "\">";
 	echo "  <button type=\"submit\">Confirm</button>";
 	echo "</form>";
@@ -135,6 +135,10 @@ else {
 			echo "<p>An error has occurred while inserting a student into the roster.</p>";
 		}
 	}
+	// link back to the script or the beginning
+	echo "<p>Where to next?</p>";
+	echo "<p><a href=\"add_class.php\">Create another new class.</a></p>";
+	echo "<p><a href=\"index.php\">Go back to the beginning of the system.</a></p>";
 }
 ?>
 

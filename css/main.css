@@ -41,10 +41,14 @@ label {
 	text-align: right;
 }
 
-input[type=submit] {
+input[type=submit], button[type=submit] {
 	display: block;
 	margin: 10px auto;
-	padding: 10px 30px;
+}
+
+.afterform {
+	margin: 1em auto;
+	text-align: center;
 }
 
 form#addclass fieldset {
