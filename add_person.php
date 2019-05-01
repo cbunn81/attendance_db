@@ -35,20 +35,25 @@ foreach ($person_types as $person_type)
 				</select>
 			</li>
 			<li>
-				<label for="family_name_k">Family Name (in Kanji/Kana)</label>
+				<label for="family_name_k">Family Name <span class="hint">(in Kanji/Kana)</span>:</label>
 				<input type="text" id="family_name_k" name="family_name_k" size="30" required />
 			</li>
 			<li>
-				<label for="given_name_k">Given Name (in Kanji/Kana)</label>
+				<label for="given_name_k">Given Name <span class="hint">(in Kanji/Kana)</span>:</label>
 				<input type="text" id="given_name_k" name="given_name_k" size="30" required />
 			</li>
 			<li>
-				<label for="family_name_k">Family Name (in Romaji)</label>
+				<label for="family_name_k">Family Name <span class="hint">(in Romaji)</span>:</label>
 				<input type="text" id="family_name_r" name="family_name_r" size="30" required />
 			</li>
 			<li>
-				<label for="given_name_k">Given Name (in romaji)</label>
+				<label for="given_name_k">Given Name <span class="hint">(in Romaji)</span>:</label>
 				<input type="text" id="given_name_r" name="given_name_r" size="30" required />
+			</li>
+			<li>
+				<label for="dob">Date of Birth:</label>
+				<input id="dob" name="dob" type="date" />
+				<span class="hint"> (Optional)</span>
 			</li>
 			<li>
 				<label for="gender">Gender:</label>
