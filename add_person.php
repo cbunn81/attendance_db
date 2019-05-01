@@ -16,7 +16,7 @@ require_once('includes/model.php');
 <body>
 
 <h1>Add a New Person to the System:</h1>
-<form id="addperson" action="submit_newperson.php" method="post">
+<form id="addperson" class="addinfo" action="submit_newperson.php" method="post">
 	<fieldset>
 		<legend>Basic Details</legend>
 		<ol>

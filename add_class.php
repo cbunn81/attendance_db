@@ -23,7 +23,7 @@ echo "<p>Day of the week: $dow</p>";
 ?>
 
 <h1>Create a New Class:</h1>
-<form id="addclass" action="submit_newclass.php" method="post">
+<form id="addclass" class="addinfo" action="submit_newclass.php" method="post">
 	<fieldset>
 		<legend>Class Details</legend>
 		<ol>
