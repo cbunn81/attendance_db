@@ -239,6 +239,30 @@ function get_level_by_id($level_id)
 	return $level_name;
 }
 
+function get_ptype_by_id($ptype_id)
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT ptype_name FROM person_types WHERE ptype_id = :ptype_id");
+	$stmt->execute(['ptype_id' => $ptype_id]);
+  if ($result = $stmt->fetch()) {
+		$ptype_name = $result['ptype_name'];
+	}
+	close_database_connection($link);
+	return $ptype_name;
+}
+
+function get_gender_by_id($gender_id)
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT gender_name FROM genders WHERE gender_id = :gender_id");
+	$stmt->execute(['gender_id' => $gender_id]);
+  if ($result = $stmt->fetch()) {
+		$gender_name = $result['gender_name'];
+	}
+	close_database_connection($link);
+	return $gender_name;
+}
+
 function get_person_name($person_id)
 {
 	$link = open_database_connection();
