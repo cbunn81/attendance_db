@@ -104,38 +104,21 @@ else {
 	echo "</p>";
 */
 	echo "<h1>Information Confirmed</h1>";
-	/*
-	echo "<p>Attempting to insert the new class ...</p>";
-	if($class_id = create_new_class($location_id,$dow_id,$ctype_id,$level_id,$class_time,$start_date,$end_date)) {
-		echo "<p>New class inserted successfully!</p>";
-		echo "<p>New Class ID: $class_id</p>";
+
+	echo "<p>Attempting to insert the new person into the database ...</p>";
+	if($person_id = add_new_person($ptype_id,$family_name_k,$given_name_k,$family_name_r,$given_name_r,$dob,$gender_id,$start_date,$end_date)) {
+		echo "<p>New person inserted successfully!</p>";
+		echo "<p>New Person ID: $person_id</p>";
 	}
 	else {
-		echo "<p>An error has occurred while inserting the new class.</p>";
+		echo "<p>An error has occurred while inserting the new person.</p>";
 	}
 
-	echo "<p>Attempting to insert the new entries in the roster ...</p>";
-	if (create_roster_entry($teacher_id,$class_id,$start_date,$end_date)) {
-		$teacher_name = get_person_name($teacher_id);
-		echo "<p>\"". htmlspecialchars($teacher_name, ENT_QUOTES, 'UTF-8') ."\" successfully inserted into the roster as teacher.</p>";
-	}
-	else {
-		echo "<p>An error has occurred while inserting the teacher into the roster.</p>";
-	}
-	foreach($student_ids as $student_id) {
-		if (create_roster_entry($student_id,$class_id,$start_date,$end_date)) {
-			$student_name = get_person_name($student_id);
-			echo "<p>\"". htmlspecialchars($student_name, ENT_QUOTES, 'UTF-8') ."\" successfully inserted into the roster as a student.</p>";
-		}
-		else {
-			echo "<p>An error has occurred while inserting a student into the roster.</p>";
-		}
-	}
 	// link back to the script or the beginning
 	echo "<p>Where to next?</p>";
-	echo "<p><a href=\"add_class.php\">Create another new class.</a></p>";
+	echo "<p><a href=\"add_person.php\">Add another new person.</a></p>";
 	echo "<p><a href=\"index.php\">Go back to the beginning of the system.</a></p>";
-	*/
+
 }
 ?>
 
