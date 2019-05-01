@@ -163,6 +163,34 @@ function get_levels()
 	return $levels;
 }
 
+function get_person_types()
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT ptype_id, ptype_name FROM person_types ORDER BY ptype_id DESC");
+	$stmt->execute();
+	$person_types = array();
+	foreach ($stmt as $row)
+	{
+		$person_types[] = $row;
+	}
+	close_database_connection($link);
+	return $person_types;
+}
+
+function get_genders()
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT gender_id, gender_name FROM genders ORDER BY gender_id DESC");
+	$stmt->execute();
+	$genders = array();
+	foreach ($stmt as $row)
+	{
+		$genders[] = $row;
+	}
+	close_database_connection($link);
+	return $genders;
+}
+
 function get_location_by_id($location_id)
 {
 	$link = open_database_connection();

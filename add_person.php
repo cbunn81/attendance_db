@@ -10,26 +10,26 @@ require_once('includes/model.php');
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Add a New Student</title>
+	<title>Add a New Person</title>
 	<link rel="stylesheet" type="text/css" media="screen" href="css/main.css">
 </head>
 <body>
 
 <h1>Add a New Person to the System:</h1>
-<form id="addstudent" action="submit_newstudent.php" method="post">
+<form id="addperson" action="submit_newperson.php" method="post">
 	<fieldset>
 		<legend>Basic Details</legend>
 		<ol>
 			<li>
 				<label for="person_type">Person Type:</label>
 				<!-- Staff vs. Student -->
-				<select id="gender" name="gender">
+				<select id="person_type" name="person_type">
 <?php
 /* List genders */
-$genders = get_genders();
-foreach ($genders as $gender)
+$person_types = get_person_types();
+foreach ($person_types as $person_type)
 {
-	echo "<option value=\"" . htmlspecialchars($gender['gender_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($gender['gender_name'], ENT_QUOTES, 'UTF-8') . "</option>\n";
+	echo "<option value=\"" . htmlspecialchars($person_type['ptype_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($person_type['ptype_name'], ENT_QUOTES, 'UTF-8') . "</option>\n";
 }
 ?>
 				</select>
@@ -73,39 +73,6 @@ foreach ($genders as $gender)
 				<span class="hint"> (Leave blank if no end date yet)</span>
 			</li>
 		</ol>
-	</fieldset>
-	<fieldset>
-		<legend>Roster Details</legend>
-		<ol>
-			<li>
-				<label for="teacher">Teacher:</label>
-				<select id="teacher" name="teacher">
-<?php
-/* List teachers */
-$teachers = get_all_teachers();
-foreach ($teachers as $teacher)
-{
-	echo "<option value=\"" . htmlspecialchars($teacher['person_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($teacher['given_name_r'], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($teacher['family_name_r'], ENT_QUOTES, 'UTF-8') .  "</option>\n";
-}
-?>
-				</select>
-			</li>
-			<li>
-				<label for="students">Students:</label>
-				<select multiple size=10 id="students" name="students[]">
-<?php
-/* List students */
-$students = get_all_students();
-foreach ($students as $student)
-{
-	echo "<option value=\"" . htmlspecialchars($student['person_id'], ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($student['family_name_r'], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($student['given_name_r'], ENT_QUOTES, 'UTF-8') .  "</option>\n";;
-}
-?>
-				</select>
-				<span class="hint"> (Ctrl-click or Cmd-click to select multiple students)</span>
-			</li>
-		</ol>
-
 	</fieldset>
 	<input type="submit" />
 </form>
