@@ -163,6 +163,34 @@ function get_levels()
 	return $levels;
 }
 
+function get_person_types()
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT ptype_id, ptype_name FROM person_types ORDER BY ptype_id DESC");
+	$stmt->execute();
+	$person_types = array();
+	foreach ($stmt as $row)
+	{
+		$person_types[] = $row;
+	}
+	close_database_connection($link);
+	return $person_types;
+}
+
+function get_genders()
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT gender_id, gender_name FROM genders ORDER BY gender_id DESC");
+	$stmt->execute();
+	$genders = array();
+	foreach ($stmt as $row)
+	{
+		$genders[] = $row;
+	}
+	close_database_connection($link);
+	return $genders;
+}
+
 function get_location_by_id($location_id)
 {
 	$link = open_database_connection();
@@ -209,6 +237,30 @@ function get_level_by_id($level_id)
 	}
 	close_database_connection($link);
 	return $level_name;
+}
+
+function get_ptype_by_id($ptype_id)
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT ptype_name FROM person_types WHERE ptype_id = :ptype_id");
+	$stmt->execute(['ptype_id' => $ptype_id]);
+  if ($result = $stmt->fetch()) {
+		$ptype_name = $result['ptype_name'];
+	}
+	close_database_connection($link);
+	return $ptype_name;
+}
+
+function get_gender_by_id($gender_id)
+{
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT gender_name FROM genders WHERE gender_id = :gender_id");
+	$stmt->execute(['gender_id' => $gender_id]);
+  if ($result = $stmt->fetch()) {
+		$gender_name = $result['gender_name'];
+	}
+	close_database_connection($link);
+	return $gender_name;
 }
 
 function get_person_name($person_id)
@@ -1318,5 +1370,70 @@ function create_new_class($location_id,$dow_id,$ctype_id,$level_id,$class_time,$
 	}
 	close_database_connection($link);
   return $class_id;
+}
+
+// Insert an entry into the lookup table people2person_types
+//  This matches a person to the person type (i.e. Staff or Student)
+function create_people2person_types_entry($person_id,$ptype_id) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("INSERT INTO people2person_types (person_id,
+																														ptype_id)
+															VALUES (:person_id,
+																			:ptype_id)");
+	$stmt->execute(['person_id' => $person_id,
+									'ptype_id' => $ptype_id]);
+	if ($stmt->rowCount()) {
+		$people2person_types_entry_created = TRUE;
+	}
+	else {
+		$people2person_types_entry_created = FALSE;
+	}
+	close_database_connection($link);
+	return $people2person_types_entry_created;
+}
+
+// Create a new class given the appropriate information
+// RETURN class_id for the new class
+function add_new_person($ptype_id,$family_name_k,$given_name_k,$family_name_r,$given_name_r,$dob,$gender_id,$start_date,$end_date) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("INSERT INTO people (family_name_k,
+																								given_name_k,
+																								family_name_r,
+																								given_name_r,
+																								dob,
+																								gender_id,
+																								start_date,
+																								end_date)
+															VALUES (:family_name_k,
+																			:given_name_k,
+																			:family_name_r,
+																			:given_name_r,
+																			:dob,
+																			:gender_id,
+																			:start_date,
+																			:end_date)
+															RETURNING person_id");
+	$stmt->execute(['family_name_k' => $family_name_k,
+									'given_name_k' => $given_name_k,
+									'family_name_r' => $family_name_r,
+									'given_name_r' => $given_name_r,
+									'dob' => $dob,
+									'gender_id' => $gender_id,
+									'start_date' => $start_date,
+									'end_date' => $end_date]);
+	if ($result = $stmt->fetch()) {
+		$person_id = $result['person_id'];
+	}
+	else {
+		$person_id = FALSE;
+	}
+	close_database_connection($link);
+	if (create_people2person_types_entry($person_id,$ptype_id)) {
+		return $person_id;
+	}
+	else {
+		return FALSE;
+	}
+
 }
 ?>
