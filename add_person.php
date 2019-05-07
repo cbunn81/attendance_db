@@ -25,7 +25,7 @@ require_once('includes/model.php');
 				<!-- Staff vs. Student -->
 				<select id="person_type" name="person_type">
 <?php
-/* List genders */
+/* List person types */
 $person_types = get_person_types();
 foreach ($person_types as $person_type)
 {

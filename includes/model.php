@@ -990,8 +990,12 @@ function get_person_info($person_id) {
 															   p.dob,
 															   p.start_date,
 															   p.end_date,
+																 pt.ptype_id,
+																 pt.ptype_name,
 															   g.gender_name
 															FROM people p
+															INNER JOIN people2person_types p2pt ON p.person_id = p2pt.person_id
+															INNER JOIN person_types pt ON pt.ptype_id = p2pt.ptype_id
 															INNER JOIN genders g ON p.gender_id = g.gender_id
 															WHERE p.person_id = :person_id");
 	$stmt->execute(['person_id' => $person_id]);
