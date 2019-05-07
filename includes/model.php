@@ -979,6 +979,33 @@ function get_student_info($student_id) {
 	return $student_info;
 }
 
+// Get all the fields for a person
+function get_person_info($person_id) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT p.person_id,
+															   p.family_name_r,
+															   p.given_name_r,
+															   p.family_name_k,
+															   p.given_name_k,
+															   p.dob,
+															   p.start_date,
+															   p.end_date,
+															   g.gender_name
+															FROM people p
+															INNER JOIN genders g ON p.gender_id = g.gender_id
+															WHERE p.person_id = :person_id");
+	$stmt->execute(['person_id' => $person_id]);
+
+	if ($stmt->rowCount()) {
+		$person_info = $stmt->fetch();
+	}
+	else {
+		$person_info = FALSE;
+	}
+	close_database_connection($link);
+	return $person_info;
+}
+
 // Get all the fields for a class
 function get_class_info($class_id) {
 	$link = open_database_connection();
