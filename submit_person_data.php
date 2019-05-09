@@ -8,7 +8,7 @@ require_once('includes/model.php');
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Confirmation of New Person</title>
+	<title>Confirmation of Person Data</title>
 	<link rel="stylesheet" type="text/css" media="screen" href="css/main.css">
 </head>
 <body>
