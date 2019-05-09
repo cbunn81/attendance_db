@@ -25,7 +25,7 @@ if(isset($person_id)) {
 	echo "<h1>Edit " . htmlspecialchars($person_info['given_name_r'], ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($person_info['family_name_r'], ENT_QUOTES, 'UTF-8') . "'s Data:</h1>";
 ?>
 
-<form id="addperson" class="addinfo" action="submit_newperson.php" method="post">
+<form id="editperson" class="addinfo" action="submit_editperson.php" method="post">
 	<fieldset>
 		<legend>Basic Details</legend>
 		<ol>
