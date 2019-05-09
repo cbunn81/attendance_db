@@ -987,6 +987,7 @@ function get_person_info($person_id) {
 															   p.given_name_r,
 															   p.family_name_k,
 															   p.given_name_k,
+																 p.gender_id,
 															   p.dob,
 															   p.start_date,
 															   p.end_date,
