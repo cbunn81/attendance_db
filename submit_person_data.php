@@ -24,6 +24,8 @@ if(empty($_SESSION["confirm"])) {
 	$_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
 	// Set local and session variables from the form data
+  $update = $_SESSION["update"] = $_POST['update'];
+	$person_id = $_SESSION["person_id"] = $_POST['person_tid'];	
 	$ptype_id = $_SESSION["ptype_id"] = $_POST['person_type'];
 	$family_name_k = $_SESSION["family_name_k"] = $_POST['family_name_k'];
 	$given_name_k = $_SESSION["given_name_k"] = $_POST['given_name_k'];
@@ -38,7 +40,7 @@ if(empty($_SESSION["confirm"])) {
 	$ptype_name = get_ptype_by_id($ptype_id);
 	$gender_name = get_gender_by_id($gender_id);
 
-	echo "<h1>Please confirm the following information submitted for the new class</h1>";
+	echo "<h1>Please confirm the following information submitted</h1>";
 	echo "<table><tbody>";
 	echo "<tr><td><b>Person Type</b></td><td>". htmlspecialchars($ptype_name, ENT_QUOTES, 'UTF-8') ."</td></tr>";
 	echo "<tr><td><b>Family Name <span class=\"hint\">(in Kanji/Kana)</span></b></td><td>". htmlspecialchars($family_name_k, ENT_QUOTES, 'UTF-8') ."</td></tr>";

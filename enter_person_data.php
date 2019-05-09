@@ -38,7 +38,8 @@ else {
 ?>
 
 <form id="person_data" class="addinfo" action="submit_person_data.php" method="post">
-	<input type="hidden" name="update" value="true" />
+	<input type="hidden" name="update" value="<?= isset($person_id) ? "true" : "false" ?>" />
+	<input type="hidden" name="person_id" value="<?= isset($person_id) ? htmlspecialchars($person_id, ENT_QUOTES, 'UTF-8') : "" ?>" />
 	<fieldset>
 		<legend>Basic Details</legend>
 		<ol>
