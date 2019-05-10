@@ -22,10 +22,13 @@ if(empty($_SESSION["confirm"])) {
 
 	// Sanitize POST variables
 	$_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
+	echo "<pre>";
+	print_r($_POST);
+	echo "</pre>";
 
 	// Set local and session variables from the form data
-  $update = $_SESSION["update"] = $_POST['update'];
-	$person_id = $_SESSION["person_id"] = $_POST['person_tid'];	
+  $update = $_SESSION["update"] = $_POST['update']; // update is set to TRUE if this is updating an existing person or FALSE if this is adding a new person
+	$person_id = $_SESSION["person_id"] = $_POST['person_id'];
 	$ptype_id = $_SESSION["ptype_id"] = $_POST['person_type'];
 	$family_name_k = $_SESSION["family_name_k"] = $_POST['family_name_k'];
 	$given_name_k = $_SESSION["given_name_k"] = $_POST['given_name_k'];
@@ -71,6 +74,8 @@ if(empty($_SESSION["confirm"])) {
 
 // The information has been confirmed
 else {
+	$update = $_SESSION["update"]; // update is set to TRUE if this is updating an existing person or FALSE if this is adding a new person
+	$person_id = $_SESSION["person_id"];
 	$ptype_id = $_SESSION["ptype_id"];
 	$family_name_k = $_SESSION["family_name_k"];
 	$given_name_k = $_SESSION["given_name_k"];
@@ -107,20 +112,44 @@ else {
 */
 	echo "<h1>Information Confirmed</h1>";
 
-	echo "<p>Attempting to insert the new person into the database ...</p>";
-	if($person_id = add_new_person($ptype_id,$family_name_k,$given_name_k,$family_name_r,$given_name_r,$dob,$gender_id,$start_date,$end_date)) {
-		echo "<p>New person inserted successfully!</p>";
-		echo "<p>New Person ID: $person_id</p>";
+	// updating a person
+	if($update === "true") {
+		echo "updating";
+		/*
+		echo "<p>Attempting to insert the new person into the database ...</p>";
+		if($person_id = add_new_person($ptype_id,$family_name_k,$given_name_k,$family_name_r,$given_name_r,$dob,$gender_id,$start_date,$end_date)) {
+			echo "<p>New person inserted successfully!</p>";
+			echo "<p>New Person ID: $person_id</p>";
+		}
+		else {
+			echo "<p>An error has occurred while inserting the new person.</p>";
+		}
+
+		// link back to the script or the beginning
+		echo "<p>Where to next?</p>";
+		echo "<p><a href=\"add_person.php\">Add another new person.</a></p>";
+		echo "<p><a href=\"index.php\">Go back to the beginning of the system.</a></p>";
+		*/
 	}
+	// adding a new person
 	else {
-		echo "<p>An error has occurred while inserting the new person.</p>";
+		echo "adding";
+		/*
+		echo "<p>Attempting to insert the new person into the database ...</p>";
+		if($person_id = add_new_person($ptype_id,$family_name_k,$given_name_k,$family_name_r,$given_name_r,$dob,$gender_id,$start_date,$end_date)) {
+			echo "<p>New person inserted successfully!</p>";
+			echo "<p>New Person ID: $person_id</p>";
+		}
+		else {
+			echo "<p>An error has occurred while inserting the new person.</p>";
+		}
+
+		// link back to the script or the beginning
+		echo "<p>Where to next?</p>";
+		echo "<p><a href=\"add_person.php\">Add another new person.</a></p>";
+		echo "<p><a href=\"index.php\">Go back to the beginning of the system.</a></p>";
+		*/
 	}
-
-	// link back to the script or the beginning
-	echo "<p>Where to next?</p>";
-	echo "<p><a href=\"add_person.php\">Add another new person.</a></p>";
-	echo "<p><a href=\"index.php\">Go back to the beginning of the system.</a></p>";
-
 }
 ?>
 
