@@ -1466,6 +1466,57 @@ function add_new_person($ptype_id,$family_name_k,$given_name_k,$family_name_r,$g
 	else {
 		return FALSE;
 	}
-
 }
+
+// Update an entry into the lookup table people2person_types
+//  This matches a person to the person type (i.e. Staff or Student)
+function update_people2person_types_entry($person_id,$ptype_id) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("UPDATE people2person_types
+															SET ptype_id = :ptype_id
+															WHERE person_id = :person_id");
+	$stmt->execute(['person_id' => $person_id,
+									'ptype_id' => $ptype_id]);
+	if ($stmt->rowCount()) {
+		$update_success = TRUE;
+	}
+	else {
+		$update_success = FALSE;
+	}
+	close_database_connection($link);
+	return $update_success;
+}
+
+// UPDATE a person's data
+function update_person($person_id,$ptype_id,$family_name_k,$given_name_k,$family_name_r,$given_name_r,$dob,$gender_id,$start_date,$end_date) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("UPDATE people
+														SET  family_name_k = :family_name_k,
+																 given_name_k = :given_name_k,
+																 family_name_r = :family_name_r,
+																 given_name_r = :given_name_r,
+																 dob = :dob,
+																 gender_id = :gender_id,
+																 start_date = :start_date,
+																 end_date = :end_date
+														WHERE p.person_id = :person_id");
+	$stmt->execute(['family_name_k' => $family_name_k,
+									'given_name_k' => $given_name_k,
+									'family_name_r' => $family_name_r,
+									'given_name_r' => $given_name_r,
+									'dob' => $dob,
+									'gender_id' => $gender_id,
+									'start_date' => $start_date,
+									'end_date' => $end_date,]);
+
+	if ($stmt->rowCount() && update_people2person_types_entry($person_id,$ptype_id)) {
+		$update_success = TRUE;
+	}
+	else {
+		$update_success = FALSE;
+	}
+	close_database_connection($link);
+	return $update_success;
+}
+
 ?>
