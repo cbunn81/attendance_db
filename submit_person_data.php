@@ -22,9 +22,6 @@ if(empty($_POST["confirm"])) {
 
 	// Sanitize POST variables
 	$_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-	echo "<pre>";
-	print_r($_POST);
-	echo "</pre>";
 
 	// Set local and session variables from the form data
   $update = $_SESSION["update"] = $_POST['update']; // update is set to TRUE if this is updating an existing person or FALSE if this is adding a new person
@@ -86,31 +83,7 @@ else {
 	$gender_id = $_SESSION["gender_id"];
 	$start_date = $_SESSION["start_date"];
 	$end_date = $_SESSION["end_date"];
-/*
-	$location_name = get_location_by_id($location_id);
-	$dow_name = get_dow_by_id($dow_id);
-	$ctype_name = get_ctype_by_id($ctype_id);
-	$level_name = get_level_by_id($level_id);
-	$teacher_name = get_person_name($teacher_id);
 
-	echo "<h1>Please confirm the information submitted for the new class</h1>";
-	echo "<p>Location Name: ". htmlspecialchars($location_name, ENT_QUOTES, 'UTF-8') ."</p>";
-	echo "<p>DOW: ". htmlspecialchars($dow_name, ENT_QUOTES, 'UTF-8') ."</p>";
-	echo "<p>Class Type: ". htmlspecialchars($ctype_name, ENT_QUOTES, 'UTF-8') ."</p>";
-	echo "<p>Level: ". htmlspecialchars($level_name, ENT_QUOTES, 'UTF-8') ."</p>";
-	echo "<p>Class Time: ". htmlspecialchars($class_time, ENT_QUOTES, 'UTF-8') ."</p>";
-	echo "<p>Start Date: ". htmlspecialchars($start_date, ENT_QUOTES, 'UTF-8') ."</p>";
-	echo "<p>End Date: ". htmlspecialchars($end_date, ENT_QUOTES, 'UTF-8') ."</p>";
-	echo "<p>Teacher Name: ". htmlspecialchars($teacher_name, ENT_QUOTES, 'UTF-8') ."</p>";
-	echo "<p>Student Names: ";
-	echo "<ul>";
-	foreach($student_ids as $student_id) {
-		$student_name = get_person_name($student_id);
-		echo "<li>" . htmlspecialchars($student_name, ENT_QUOTES, 'UTF-8') ."</li>";
-	}
-	echo "</ul>";
-	echo "</p>";
-*/
 	echo "<h1>Information Confirmed</h1>";
 
 	// updating a person
