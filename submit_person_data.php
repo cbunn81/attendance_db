@@ -16,7 +16,7 @@ require_once('includes/model.php');
 <?php
 
 // The information has not been confirmed yet
-if(empty($_SESSION["confirm"])) {
+if(empty($_POST["confirm"])) {
 	// Set a session variable to skip this part on confirmation
 	$_SESSION["confirm"] = TRUE;
 
@@ -67,7 +67,8 @@ if(empty($_SESSION["confirm"])) {
 	echo "</tbody></table>";
 
 	echo "<p class=\"afterform\">If the above information is correct, please choose \"confirm\".</p>";
-	echo "<form action=\"" . htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8') . "\">";
+	echo "<form action=\"" . htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8') . "\" method=\"post\">";
+	echo "<input type=\"hidden\" name=\"confirm\" value=\"TRUE\" / />";
 	echo "  <button type=\"submit\">Confirm</button>";
 	echo "</form>";
 }
@@ -114,41 +115,36 @@ else {
 
 	// updating a person
 	if($update === "true") {
-		echo "updating";
-		/*
-		echo "<p>Attempting to insert the new person into the database ...</p>";
-		if($person_id = add_new_person($ptype_id,$family_name_k,$given_name_k,$family_name_r,$given_name_r,$dob,$gender_id,$start_date,$end_date)) {
-			echo "<p>New person inserted successfully!</p>";
-			echo "<p>New Person ID: $person_id</p>";
+		echo "<p>Attempting to update " . htmlspecialchars($given_name_r, ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($family_name_r, ENT_QUOTES, 'UTF-8') . "'s data ...</p>";
+		if(update_person($person_id,$ptype_id,$family_name_k,$given_name_k,$family_name_r,$given_name_r,$dob,$gender_id,$start_date,$end_date)) {
+			echo "<p>" . htmlspecialchars($given_name_r, ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($family_name_r, ENT_QUOTES, 'UTF-8') . "'s data updated successfully!</p>";
 		}
 		else {
-			echo "<p>An error has occurred while inserting the new person.</p>";
+			echo "<p>An error has occurred while updating.</p>";
 		}
 
 		// link back to the script or the beginning
 		echo "<p>Where to next?</p>";
-		echo "<p><a href=\"add_person.php\">Add another new person.</a></p>";
+		echo "<p><a href=\"choose_person.php\">Edit another person's data.</a></p>";
 		echo "<p><a href=\"index.php\">Go back to the beginning of the system.</a></p>";
-		*/
+
 	}
 	// adding a new person
 	else {
-		echo "adding";
-		/*
 		echo "<p>Attempting to insert the new person into the database ...</p>";
 		if($person_id = add_new_person($ptype_id,$family_name_k,$given_name_k,$family_name_r,$given_name_r,$dob,$gender_id,$start_date,$end_date)) {
-			echo "<p>New person inserted successfully!</p>";
-			echo "<p>New Person ID: $person_id</p>";
+			echo "<p>" . htmlspecialchars($given_name_r, ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($family_name_r, ENT_QUOTES, 'UTF-8') . "'s data added successfully!</p>";
+			echo "<p>" . htmlspecialchars($given_name_r, ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($family_name_r, ENT_QUOTES, 'UTF-8') . "'s ID: $person_id</p>";
 		}
 		else {
-			echo "<p>An error has occurred while inserting the new person.</p>";
+			echo "<p>An error has occurred while adding the new person.</p>";
 		}
 
 		// link back to the script or the beginning
 		echo "<p>Where to next?</p>";
-		echo "<p><a href=\"add_person.php\">Add another new person.</a></p>";
+		echo "<p><a href=\"enter_person_data.php\">Add another new person.</a></p>";
 		echo "<p><a href=\"index.php\">Go back to the beginning of the system.</a></p>";
-		*/
+
 	}
 }
 ?>

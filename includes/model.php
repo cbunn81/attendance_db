@@ -1499,15 +1499,16 @@ function update_person($person_id,$ptype_id,$family_name_k,$given_name_k,$family
 																 gender_id = :gender_id,
 																 start_date = :start_date,
 																 end_date = :end_date
-														WHERE p.person_id = :person_id");
-	$stmt->execute(['family_name_k' => $family_name_k,
+														WHERE person_id = :person_id");
+	$stmt->execute(['person_id' => $person_id,
+									'family_name_k' => $family_name_k,
 									'given_name_k' => $given_name_k,
 									'family_name_r' => $family_name_r,
 									'given_name_r' => $given_name_r,
 									'dob' => $dob,
 									'gender_id' => $gender_id,
 									'start_date' => $start_date,
-									'end_date' => $end_date,]);
+									'end_date' => $end_date]);
 
 	if ($stmt->rowCount() && update_people2person_types_entry($person_id,$ptype_id)) {
 		$update_success = TRUE;
