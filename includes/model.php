@@ -979,6 +979,38 @@ function get_student_info($student_id) {
 	return $student_info;
 }
 
+// Get all the fields for a person
+function get_person_info($person_id) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("SELECT p.person_id,
+															   p.family_name_r,
+															   p.given_name_r,
+															   p.family_name_k,
+															   p.given_name_k,
+																 p.gender_id,
+															   p.dob,
+															   p.start_date,
+															   p.end_date,
+																 pt.ptype_id,
+																 pt.ptype_name,
+															   g.gender_name
+															FROM people p
+															INNER JOIN people2person_types p2pt ON p.person_id = p2pt.person_id
+															INNER JOIN person_types pt ON pt.ptype_id = p2pt.ptype_id
+															INNER JOIN genders g ON p.gender_id = g.gender_id
+															WHERE p.person_id = :person_id");
+	$stmt->execute(['person_id' => $person_id]);
+
+	if ($stmt->rowCount()) {
+		$person_info = $stmt->fetch();
+	}
+	else {
+		$person_info = FALSE;
+	}
+	close_database_connection($link);
+	return $person_info;
+}
+
 // Get all the fields for a class
 function get_class_info($class_id) {
 	$link = open_database_connection();
@@ -1434,6 +1466,58 @@ function add_new_person($ptype_id,$family_name_k,$given_name_k,$family_name_r,$g
 	else {
 		return FALSE;
 	}
-
 }
+
+// Update an entry into the lookup table people2person_types
+//  This matches a person to the person type (i.e. Staff or Student)
+function update_people2person_types_entry($person_id,$ptype_id) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("UPDATE people2person_types
+															SET ptype_id = :ptype_id
+															WHERE person_id = :person_id");
+	$stmt->execute(['person_id' => $person_id,
+									'ptype_id' => $ptype_id]);
+	if ($stmt->rowCount()) {
+		$update_success = TRUE;
+	}
+	else {
+		$update_success = FALSE;
+	}
+	close_database_connection($link);
+	return $update_success;
+}
+
+// UPDATE a person's data
+function update_person($person_id,$ptype_id,$family_name_k,$given_name_k,$family_name_r,$given_name_r,$dob,$gender_id,$start_date,$end_date) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("UPDATE people
+														SET  family_name_k = :family_name_k,
+																 given_name_k = :given_name_k,
+																 family_name_r = :family_name_r,
+																 given_name_r = :given_name_r,
+																 dob = :dob,
+																 gender_id = :gender_id,
+																 start_date = :start_date,
+																 end_date = :end_date
+														WHERE person_id = :person_id");
+	$stmt->execute(['person_id' => $person_id,
+									'family_name_k' => $family_name_k,
+									'given_name_k' => $given_name_k,
+									'family_name_r' => $family_name_r,
+									'given_name_r' => $given_name_r,
+									'dob' => $dob,
+									'gender_id' => $gender_id,
+									'start_date' => $start_date,
+									'end_date' => $end_date]);
+
+	if ($stmt->rowCount() && update_people2person_types_entry($person_id,$ptype_id)) {
+		$update_success = TRUE;
+	}
+	else {
+		$update_success = FALSE;
+	}
+	close_database_connection($link);
+	return $update_success;
+}
+
 ?>
