@@ -18,7 +18,7 @@ $teacher_name = get_person_name($teacher_id);
 <body>
 <h1>Choose the Classes For <?= $teacher_name ?> You Want to End</h1>
 
-<form class="endclasses">
+<form id= "endclasses" class="endclasses" action="end_classes-submit.php" method="post">
 
 <?php
 
@@ -56,7 +56,7 @@ foreach ($days_of_week as $day_of_week) {
 	echo "</fieldset>";
 }
 ?>
-
+	<input type="submit" />
 </form>
 
 </body>
