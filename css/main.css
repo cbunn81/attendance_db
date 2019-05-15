@@ -35,34 +35,45 @@ tbody tr:hover {
 	background-color: #cccccc
 }
 
-label {
-	display: inline-block;
-	width: 15em;
-	text-align: right;
-}
-
 input[type=submit], button[type=submit] {
 	display: block;
 	margin: 10px auto;
 }
 
-.afterform {
-	margin: 1em auto;
-	text-align: center;
+input[type=checkbox] {
+	margin-right: 10px;
 }
 
-form.addinfo fieldset {
+form.addinfo fieldset,
+form.endclasses fieldset {
 	width: 800px;
 	margin: auto;
 }
 
-form.addinfo ol li {
+form.addinfo ol li,
+form.endclasses ol li {
 	padding: 5px;
 	line-height: 30px;
 	list-style: none;
 }
 
+form.addinfo label {
+	display: inline-block;
+	width: 15em;
+	text-align: right;
+}
+
 .hint {
 	font-size: 80%;
 	font-style: italic;
+}
+
+form.endclasses .hint {
+	display: block;
+	margin-left: 30px;
+}
+
+.afterform {
+	margin: 1em auto;
+	text-align: center;
 }

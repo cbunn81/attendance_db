@@ -50,7 +50,8 @@ function get_classes_for_teacher($teacher_id,$dow,$date)
                                 d.dow_name,
                                 left(c.class_time::text, 5) as class_time,
                                 l.level_name,
-                                concat_ws(' ',p.given_name_r, p.family_name_r) as teacher_name
+                                concat_ws(' ',p.given_name_r, p.family_name_r) as teacher_name,
+																r.start_date
       FROM classes c
       INNER JOIN days_of_week d ON c.dow_id = d.dow_id
       INNER JOIN roster r ON c.class_id = r.class_id AND r.person_id = :teacher_id AND (d.dow_name = :dow OR d.dow_name = 'Flex')
