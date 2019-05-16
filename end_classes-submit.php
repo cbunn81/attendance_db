@@ -49,6 +49,8 @@ if(empty($_POST["confirm"])) {
 		echo "<td>" . htmlspecialchars($student_list, ENT_QUOTES, 'UTF-8') . "</td>\r\n";
 	}
 	echo "</tbody></table>";
+	// Store the array of class IDs in a Session so we can use it after Confirmation
+	$_SESSION["class_ids_to_end"] = $class_ids_to_end;
 	/*
 	// Set local and session variables from the form data
   $person_id = $_SESSION["person_id"] = $_POST['person_id'];
@@ -73,58 +75,18 @@ if(empty($_POST["confirm"])) {
 	echo "  <button type=\"submit\">Confirm</button>";
 	echo "</form>";
 }
-/*
 // The information has been confirmed
 else {
-	$update = $_SESSION["update"]; // update is set to TRUE if this is updating an existing person or FALSE if this is adding a new person
-	$person_id = $_SESSION["person_id"];
-	$ptype_id = $_SESSION["ptype_id"];
-	$family_name_k = $_SESSION["family_name_k"];
-	$given_name_k = $_SESSION["given_name_k"];
-	$family_name_r = $_SESSION["family_name_r"];
-	$given_name_r = $_SESSION["given_name_r"];
-	$dob = $_SESSION["dob"];
-	$gender_id = $_SESSION["gender_id"];
-	$start_date = $_SESSION["start_date"];
-	$end_date = $_SESSION["end_date"];
+	// Get the session variable with an array of class IDs to end
+	$class_ids_to_end = $_SESSION["class_ids_to_end"];
+	echo "<pre>";
+	print_r($class_ids_to_end);
+	echo "</pre>";
 
 	echo "<h1>Information Confirmed</h1>";
 
-	// updating a person
-	if($update === "true") {
-		echo "<p>Attempting to update " . htmlspecialchars($given_name_r, ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($family_name_r, ENT_QUOTES, 'UTF-8') . "'s data ...</p>";
-		if(update_person($person_id,$ptype_id,$family_name_k,$given_name_k,$family_name_r,$given_name_r,$dob,$gender_id,$start_date,$end_date)) {
-			echo "<p>" . htmlspecialchars($given_name_r, ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($family_name_r, ENT_QUOTES, 'UTF-8') . "'s data updated successfully!</p>";
-		}
-		else {
-			echo "<p>An error has occurred while updating.</p>";
-		}
-
-		// link back to the script or the beginning
-		echo "<p>Where to next?</p>";
-		echo "<p><a href=\"choose_person.php\">Edit another person's data.</a></p>";
-		echo "<p><a href=\"index.php\">Go back to the beginning of the system.</a></p>";
-
-	}
-	// adding a new person
-	else {
-		echo "<p>Attempting to insert the new person into the database ...</p>";
-		if($person_id = add_new_person($ptype_id,$family_name_k,$given_name_k,$family_name_r,$given_name_r,$dob,$gender_id,$start_date,$end_date)) {
-			echo "<p>" . htmlspecialchars($given_name_r, ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($family_name_r, ENT_QUOTES, 'UTF-8') . "'s data added successfully!</p>";
-			echo "<p>" . htmlspecialchars($given_name_r, ENT_QUOTES, 'UTF-8') . " " . htmlspecialchars($family_name_r, ENT_QUOTES, 'UTF-8') . "'s ID: $person_id</p>";
-		}
-		else {
-			echo "<p>An error has occurred while adding the new person.</p>";
-		}
-
-		// link back to the script or the beginning
-		echo "<p>Where to next?</p>";
-		echo "<p><a href=\"enter_person_data.php\">Add another new person.</a></p>";
-		echo "<p><a href=\"index.php\">Go back to the beginning of the system.</a></p>";
-
-	}
 }
-*/
+
 ?>
 
 </body>
