@@ -1521,4 +1521,42 @@ function update_person($person_id,$ptype_id,$family_name_k,$given_name_k,$family
 	return $update_success;
 }
 
+// Sets an End Date for a given class
+function end_class($class_id, $end_date) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("UPDATE classes
+															SET end_date = :end_date
+															WHERE class_id = :class_id");
+	$stmt->execute(['class_id' => $class_id,
+									'end_date' => $end_date]);
+	if ($stmt->rowCount()) {
+		$update_success = TRUE;
+	}
+	else {
+		$update_success = FALSE;
+	}
+	close_database_connection($link);
+	return $update_success;
+}
+
+// Sets an End Date for a given roster entry (person and class)
+function end_roster($person_id, $class_id, $end_date) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("UPDATE roster
+															SET end_date = :end_date
+															WHERE class_id = :class_id
+															AND person_id = :person_id");
+	$stmt->execute(['person_id' => $person_id,
+									'class_id' => $class_id,
+									'end_date' => $end_date]);
+	if ($stmt->rowCount()) {
+		$update_success = TRUE;
+	}
+	else {
+		$update_success = FALSE;
+	}
+	close_database_connection($link);
+	return $update_success;
+}
+
 ?>
