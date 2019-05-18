@@ -79,11 +79,34 @@ if(empty($_POST["confirm"])) {
 else {
 	// Get the session variable with an array of class IDs to end
 	$class_ids_to_end = $_SESSION["class_ids_to_end"];
+	$end_date = "2019-03-31";
 	echo "<pre>";
 	print_r($class_ids_to_end);
 	echo "</pre>";
 
 	echo "<h1>Information Confirmed</h1>";
+
+	foreach ($class_ids_to_end as $class_id) {
+		echo "<p>Attempting to end class $class_id ...</p>";
+		if (end_class($class_id,$end_date)) {
+			echo "<p>Class $class_id successfully ended on $end_date.</p>";
+			echo "<p>Attempting to end roster entries for class $class_id ...</p>";
+			$students = get_students_for_class($class_id, $teacher_id, $date);
+			foreach ($students as $student) {
+				echo "<p>Attempting to end roster entry for " . htmlspecialchars($student['student_name'], ENT_QUOTES, 'UTF-8') . " ...</p>";
+				if (end_roster($student['student_id'],$class_id,$end_date)) {
+					echo "<p>Roster entry for " . htmlspecialchars($student['student_name'], ENT_QUOTES, 'UTF-8') . " successfully ended on $end_date</p>";
+				}
+				else {
+					echo "<p><strong>ERROR:</strong> Roster entry for " . htmlspecialchars($student['student_name'], ENT_QUOTES, 'UTF-8') . " failed to end on $end_date</p></p>";
+				}
+			}
+		}
+		else {
+			echo "<p><strong>ERROR:</strong> Failure to end class $class_id on $end_date.</p>";
+		}
+	}
+
 
 }
 
