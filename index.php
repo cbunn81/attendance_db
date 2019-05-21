@@ -23,6 +23,7 @@ require_once('../../config/db.inc.php');
 <li><a href="enter_person_data.php">Add a New Person to the System</a></li>
 <li><a href="choose_person.php">Edit an Existing Person's Data</a></li>
 <li><a href="add_class.php">Create a New Class</a></li>
+<li><a href="choose_teacher.php?endclass2018=true">End 2018 Classes (End Date of March 31, 2019)</a></li>
 
 </ul>
 </body>
