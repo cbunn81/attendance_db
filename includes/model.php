@@ -50,7 +50,8 @@ function get_classes_for_teacher($teacher_id,$dow,$date)
                                 d.dow_name,
                                 left(c.class_time::text, 5) as class_time,
                                 l.level_name,
-                                concat_ws(' ',p.given_name_r, p.family_name_r) as teacher_name
+                                concat_ws(' ',p.given_name_r, p.family_name_r) as teacher_name,
+																r.start_date
       FROM classes c
       INNER JOIN days_of_week d ON c.dow_id = d.dow_id
       INNER JOIN roster r ON c.class_id = r.class_id AND r.person_id = :teacher_id AND (d.dow_name = :dow OR d.dow_name = 'Flex')
@@ -1511,6 +1512,44 @@ function update_person($person_id,$ptype_id,$family_name_k,$given_name_k,$family
 									'end_date' => $end_date]);
 
 	if ($stmt->rowCount() && update_people2person_types_entry($person_id,$ptype_id)) {
+		$update_success = TRUE;
+	}
+	else {
+		$update_success = FALSE;
+	}
+	close_database_connection($link);
+	return $update_success;
+}
+
+// Sets an End Date for a given class
+function end_class($class_id, $end_date) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("UPDATE classes
+															SET end_date = :end_date
+															WHERE class_id = :class_id");
+	$stmt->execute(['class_id' => $class_id,
+									'end_date' => $end_date]);
+	if ($stmt->rowCount()) {
+		$update_success = TRUE;
+	}
+	else {
+		$update_success = FALSE;
+	}
+	close_database_connection($link);
+	return $update_success;
+}
+
+// Sets an End Date for a given roster entry (person and class)
+function end_roster($person_id, $class_id, $end_date) {
+	$link = open_database_connection();
+	$stmt = $link->prepare("UPDATE roster
+															SET end_date = :end_date
+															WHERE class_id = :class_id
+															AND person_id = :person_id");
+	$stmt->execute(['person_id' => $person_id,
+									'class_id' => $class_id,
+									'end_date' => $end_date]);
+	if ($stmt->rowCount()) {
 		$update_success = TRUE;
 	}
 	else {
