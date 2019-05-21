@@ -95,12 +95,21 @@ else {
 			foreach ($students as $student) {
 				echo "<p>Attempting to end roster entry for " . htmlspecialchars($student['student_name'], ENT_QUOTES, 'UTF-8') . " ...</p>";
 				if (end_roster($student['student_id'],$class_id,$end_date)) {
-					echo "<p>Roster entry for " . htmlspecialchars($student['student_name'], ENT_QUOTES, 'UTF-8') . " successfully ended on $end_date</p>";
+					echo "<p>Roster entry for " . htmlspecialchars($student['student_name'], ENT_QUOTES, 'UTF-8') . " successfully ended on " . htmlspecialchars($end_date, ENT_QUOTES, 'UTF-8') . "</p>";
 				}
 				else {
-					echo "<p><strong>ERROR:</strong> Roster entry for " . htmlspecialchars($student['student_name'], ENT_QUOTES, 'UTF-8') . " failed to end on $end_date</p></p>";
+					echo "<p><strong>ERROR:</strong> Roster entry for " . htmlspecialchars($student['student_name'], ENT_QUOTES, 'UTF-8') . " failed to end on " . htmlspecialchars($end_date, ENT_QUOTES, 'UTF-8') . "</p></p>";
 				}
 			}
+			// End the roster entry for the teacher, too.
+			echo "<p>Attempting to end roster entry for " . htmlspecialchars($teacher_name, ENT_QUOTES, 'UTF-8') . " ...</p>";
+			if (end_roster($teacher_id,$class_id,$end_date)) {
+				echo "<p>Roster entry for " . htmlspecialchars($teacher_name, ENT_QUOTES, 'UTF-8') . " successfully ended on " . htmlspecialchars($end_date, ENT_QUOTES, 'UTF-8') . "</p>";
+			}
+			else {
+				echo "<p><strong>ERROR:</strong> Roster entry for " . htmlspecialchars($teacher_name, ENT_QUOTES, 'UTF-8') . " failed to end on " . htmlspecialchars($end_date, ENT_QUOTES, 'UTF-8') . "</p></p>";
+			}
+
 		}
 		else {
 			echo "<p><strong>ERROR:</strong> Failure to end class $class_id on $end_date.</p>";
