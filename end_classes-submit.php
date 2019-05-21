@@ -23,9 +23,6 @@ $teacher_name = get_person_name($teacher_id);
 // The information has not been confirmed yet
 if(empty($_POST["confirm"])) {
 	$_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
-	echo "<pre>";
-	print_r($_POST);
-	echo "</pre>";
 	echo "<h1>Please confirm that the following classes are correct</h1>";
 	echo "<table>\r\n<thead><tr><th>Class ID</th><th>Location</th><th>Day of the Week</th><th>Time</th><th>Level</th><th>Start Date</th><th>Teacher</th><th>Students</th></tr></thead>\r\n<tbody>\r\n";
 	// make an array of class IDs to use for the DB update later
@@ -35,10 +32,15 @@ if(empty($_POST["confirm"])) {
 		$class_info = get_class_info($class_id);
 		$students = get_students_for_class($class_id, $teacher_id, $date);
 		$student_names = array();
-		foreach ($students as $student) {
-			$student_names[] = $student['student_name'];
+		if(!empty($students))	{
+			foreach ($students as $student) {
+				$student_names[] = $student['student_name'];
+			}
+			$student_list = implode(", ", $student_names);
 		}
-		$student_list = implode(", ", $student_names);
+		else {
+			$student_list =  "None";
+		}
 		echo "<tr><td>" . htmlspecialchars($class_id, ENT_QUOTES, 'UTF-8') . "</td>\r\n";
 		echo "<td>" . htmlspecialchars($class_info['location_name'], ENT_QUOTES, 'UTF-8') . "</td>\r\n";
 		echo "<td>" . htmlspecialchars($class_info['dow_name'], ENT_QUOTES, 'UTF-8') . "</td>\r\n";
@@ -80,9 +82,6 @@ else {
 	// Get the session variable with an array of class IDs to end
 	$class_ids_to_end = $_SESSION["class_ids_to_end"];
 	$end_date = "2019-03-31";
-	echo "<pre>";
-	print_r($class_ids_to_end);
-	echo "</pre>";
 
 	echo "<h1>Information Confirmed</h1>";
 
@@ -92,14 +91,19 @@ else {
 			echo "<p>Class $class_id successfully ended on $end_date.</p>";
 			echo "<p>Attempting to end roster entries for class $class_id ...</p>";
 			$students = get_students_for_class($class_id, $teacher_id, $date);
-			foreach ($students as $student) {
-				echo "<p>Attempting to end roster entry for " . htmlspecialchars($student['student_name'], ENT_QUOTES, 'UTF-8') . " ...</p>";
-				if (end_roster($student['student_id'],$class_id,$end_date)) {
-					echo "<p>Roster entry for " . htmlspecialchars($student['student_name'], ENT_QUOTES, 'UTF-8') . " successfully ended on " . htmlspecialchars($end_date, ENT_QUOTES, 'UTF-8') . "</p>";
+			if(!empty($students)) {
+				foreach ($students as $student) {
+					echo "<p>Attempting to end roster entry for " . htmlspecialchars($student['student_name'], ENT_QUOTES, 'UTF-8') . " ...</p>";
+					if (end_roster($student['student_id'],$class_id,$end_date)) {
+						echo "<p>Roster entry for " . htmlspecialchars($student['student_name'], ENT_QUOTES, 'UTF-8') . " successfully ended on " . htmlspecialchars($end_date, ENT_QUOTES, 'UTF-8') . "</p>";
+					}
+					else {
+						echo "<p><strong>ERROR:</strong> Roster entry for " . htmlspecialchars($student['student_name'], ENT_QUOTES, 'UTF-8') . " failed to end on " . htmlspecialchars($end_date, ENT_QUOTES, 'UTF-8') . "</p></p>";
+					}
 				}
-				else {
-					echo "<p><strong>ERROR:</strong> Roster entry for " . htmlspecialchars($student['student_name'], ENT_QUOTES, 'UTF-8') . " failed to end on " . htmlspecialchars($end_date, ENT_QUOTES, 'UTF-8') . "</p></p>";
-				}
+			}
+			else {
+				echo "<p>No students in this class roster.</p>";
 			}
 			// End the roster entry for the teacher, too.
 			echo "<p>Attempting to end roster entry for " . htmlspecialchars($teacher_name, ENT_QUOTES, 'UTF-8') . " ...</p>";
@@ -116,6 +120,7 @@ else {
 		}
 	}
 
+	echo "<p><a href=\"index.php\">Go back to the beginning of the system.</a></p>";
 
 }
 
