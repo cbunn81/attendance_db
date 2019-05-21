@@ -20,7 +20,7 @@ require_once('includes/model.php');
 
 $teachers = get_all_teachers();
 if(empty($endclass2018)) {
-	$url = "choose_class.php";
+	$url = "choose_date.php";
 }
 else {
 	$url = "end_class-list_classes.php";

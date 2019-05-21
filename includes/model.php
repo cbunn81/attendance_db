@@ -515,7 +515,7 @@ function is_graded_class($class_id) {
 
   while ($result = $stmt->fetch()) {
     // The level is All Stars
-    if (stripos($result['level_name'], "stars") !== FALSE) {
+    if (stripos($result['level_name'], "all stars") !== FALSE) {
       // echo "<p>It is a Child class.</p>";
 		  close_database_connection($link);
       return TRUE;
@@ -541,7 +541,7 @@ function is_graded_level($level_id) {
 
   while ($result = $stmt->fetch()) {
     // The level is All Stars
-    if (stripos($result['level_name'], "stars") !== FALSE) {
+    if (stripos($result['level_name'], "all stars") !== FALSE) {
       // echo "<p>It is a Child class.</p>";
 		  close_database_connection($link);
       return TRUE;
