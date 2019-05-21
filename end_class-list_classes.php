@@ -40,11 +40,17 @@ foreach ($days_of_week as $day_of_week) {
 										 "Start Date (" . htmlspecialchars($class['start_date'], ENT_QUOTES, 'UTF-8') . ")</label>";
 				echo "<span class=\"hint\">(Students: ";
 				$student_names = array();
-	 			foreach ($students as $student) {
-	 				$student_names[] = $student['student_name'];
-	 			}
-				echo htmlspecialchars(implode(", ", $student_names), ENT_QUOTES, 'UTF-8');
-	 			echo ")</span>\r\n";
+				if(!empty($students))
+				{
+		 			foreach ($students as $student) {
+		 				$student_names[] = $student['student_name'];
+		 			}
+					echo htmlspecialchars(implode(", ", $student_names), ENT_QUOTES, 'UTF-8');
+				}
+				else {
+					echo "None";
+				}
+				echo ")</span>\r\n";
 				echo "</li>\r\n";
 			}
 		}
