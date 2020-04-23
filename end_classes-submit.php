@@ -67,7 +67,7 @@ if(empty($_POST["confirm"])) {
 	$end_date = $_SESSION["end_date"] = $_POST['end_date'] ?: "infinity"; // "infinity" means no end date
 */
 
-	echo "<p class=\"afterform\"><strong>NOTE: </strong>When you confirm, all of the classes will be marked as ended on March 31, 2018.
+	echo "<p class=\"afterform\"><strong>NOTE: </strong>When you confirm, all of the classes will be marked as ended on March 31, 2020.
 				Also, any students or teachers currently enrolled in these classes will be marked as ended in the roster.
 				This means you won't be able to access these past classes anymore with the online attendance system.
 				So please be sure only to do this after your attendance is current for these classes.</p>";
@@ -81,7 +81,7 @@ if(empty($_POST["confirm"])) {
 else {
 	// Get the session variable with an array of class IDs to end
 	$class_ids_to_end = $_SESSION["class_ids_to_end"];
-	$end_date = "2019-03-31";
+	$end_date = "2020-03-31";
 
 	echo "<h1>Information Confirmed</h1>";
 

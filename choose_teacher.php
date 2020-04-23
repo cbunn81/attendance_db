@@ -2,7 +2,7 @@
 // Continue the session
 session_start();
 $_SESSION["is_test"] = $_GET["is_test"] ?? $_SESSION["is_test"] ?? FALSE;
-$endclass2018 = $_GET["endclass2018"] ?? FALSE;
+$endclass2019 = $_GET["endclass2019"] ?? FALSE;
 
 require_once('includes/model.php');
 ?>
@@ -19,7 +19,7 @@ require_once('includes/model.php');
 <?php
 
 $teachers = get_all_teachers();
-if(empty($endclass2018)) {
+if(empty($endclass2019)) {
 	$url = "choose_date.php";
 }
 else {
