@@ -85,7 +85,7 @@ foreach ($levels as $level)
 			</li>
 			<li>
 				<label for="start_date">Start Date:</label>
-				<input id="start_date" name="start_date" type="date" value="2019-04-01" required />
+				<input id="start_date" name="start_date" type="date" value="2020-04-01" required />
 			</li>
 			<li>
 				<label for="end_date">End Date:</label>
